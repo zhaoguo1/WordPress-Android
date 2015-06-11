@@ -41,6 +41,7 @@ public class Blog {
     private String blogOptions = "{}";
     private boolean isAdmin;
     private boolean isHidden;
+    private String iconURL;
 
     public Blog() {
     }
@@ -460,5 +461,13 @@ public class Blog {
             return String.valueOf(getRemoteBlogId());
         else
             return getApi_blogid();
+    }
+
+    public String getIconURL() {
+        return iconURL;
+    }
+
+    public void setIconURL(String iconURL) {
+        this.iconURL = iconURL;
     }
 }

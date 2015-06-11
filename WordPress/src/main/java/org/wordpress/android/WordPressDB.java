@@ -166,6 +166,9 @@ public class WordPressDB {
     // add hidden flag to blog settings (accounts)
     private static final String ADD_BLOGS_HIDDEN_FLAG = "alter table accounts add isHidden boolean default 0;";
 
+    // add iconURL to blog
+    private static final String ADD_ICON_URL = "alter table accounts add iconURL text default '';";
+
     // used for migration
     private static final String DEPRECATED_WPCOM_USERNAME_PREFERENCE = "wp_pref_wpcom_username";
     private static final String DEPRECATED_ACCESS_TOKEN_PREFERENCE = "wp_pref_wpcom_access_token";
@@ -292,6 +295,10 @@ public class WordPressDB {
                 if (!isNewInstall) {
                     migratePreferencesToAccountTable(context);
                 }
+                currentVersion++;
+            case 30:
+                // Add iconURL to Blog
+                db.execSQL(ADD_ICON_URL);
                 currentVersion++;
         }
         db.setVersion(DATABASE_VERSION);
