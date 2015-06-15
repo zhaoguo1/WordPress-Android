@@ -61,13 +61,14 @@ public class BlogUtils {
             String xmlrpc = blogMap.get("xmlrpc").toString();
             String homeUrl = blogMap.get("url").toString();
             String blogId = blogMap.get("blogid").toString();
+            String iconUrl = blogMap.get("iconUrl").toString();
             boolean isVisible = true;
             if (blogMap.containsKey("isVisible")) {
                 isVisible = MapUtils.getMapBool(blogMap, "isVisible");
             }
             boolean isAdmin = MapUtils.getMapBool(blogMap, "isAdmin");
             retValue |= addOrUpdateBlog(blogName, xmlrpc, homeUrl, blogId, username, password, httpUsername,
-                    httpPassword, isAdmin, isVisible);
+                    httpPassword, iconUrl, isAdmin, isVisible);
         }
         return retValue;
     }
@@ -95,8 +96,8 @@ public class BlogUtils {
      * Return false if no change has been made.
      */
     public static boolean addOrUpdateBlog(String blogName, String xmlRpcUrl, String homeUrl, String blogId,
-                                           String username, String password, String httpUsername, String httpPassword,
-                                           boolean isAdmin, boolean isVisible) {
+                                          String username, String password, String httpUsername, String httpPassword,
+                                          String iconUrl, boolean isAdmin, boolean isVisible) {
         Blog blog;
         if (!WordPress.wpDB.isBlogInDatabase(Integer.parseInt(blogId), xmlRpcUrl)) {
             // The blog isn't in the app, so let's create it
@@ -115,6 +116,7 @@ public class BlogUtils {
             blog.setDotcomFlag(xmlRpcUrl.contains("wordpress.com"));
             // assigned later in getOptions call
             blog.setWpVersion("");
+            blog.setIconURL(iconUrl);
             blog.setAdmin(isAdmin);
             blog.setHidden(!isVisible);
             WordPress.wpDB.saveBlog(blog);
