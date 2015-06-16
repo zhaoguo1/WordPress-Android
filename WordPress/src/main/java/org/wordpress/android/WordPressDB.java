@@ -549,6 +549,7 @@ public class WordPressDB {
         values.put("blog_options", blog.getBlogOptions());
         values.put("isHidden", blog.isHidden());
         values.put("blogName", blog.getBlogName());
+        values.put("iconURL", blog.getIconURL());
         values.put("isAdmin", blog.isAdmin());
         values.put("isHidden", blog.isHidden());
         if (blog.getWpVersion() != null) {
@@ -687,6 +688,9 @@ public class WordPressDB {
                 }
                 blog.setAdmin(c.getInt(c.getColumnIndex("isAdmin")) > 0);
                 blog.setHidden(c.getInt(c.getColumnIndex("isHidden")) > 0);
+                if (c.getString(c.getColumnIndex("iconURL")) != null) {
+                    blog.setIconURL(c.getString(c.getColumnIndex("iconURL")));
+                }
             }
         }
         c.close();
