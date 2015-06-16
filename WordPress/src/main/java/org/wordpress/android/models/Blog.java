@@ -9,7 +9,9 @@ import org.json.JSONObject;
 import org.wordpress.android.WordPress;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.AppLog.T;
+import org.wordpress.android.util.GravatarUtils;
 import org.wordpress.android.util.StringUtils;
+import org.wordpress.android.util.UrlUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -469,5 +471,28 @@ public class Blog {
 
     public void setIconURL(String iconURL) {
         this.iconURL = iconURL;
+    }
+
+    public String getIconImageURL(int size) {
+        String blavatarUrl = GravatarUtils.blavatarFromUrl(this.getUrl(), size);
+        if (iconURL == null) {
+            return blavatarUrl;
+        }
+        if (isPhotonURL(iconURL)) {
+            return UrlUtils.getDomainFromUrl(iconURL).concat(String.format("w=%d&h=%d", size, size));
+        }
+        if (isBlavatarURL(iconURL)) {
+            return UrlUtils.getDomainFromUrl(iconURL).concat(String.format("d=404&s=%d", size));
+        }
+        return blavatarUrl;
+    }
+
+    // Possible matches are "i0.wp.com", "i1.wp.com" & "i2.wp.com" -> https://developer.wordpress.com/docs/photon/
+    public boolean isPhotonURL(String url) {
+        return url.contains(".wp.com");
+    }
+
+    public boolean isBlavatarURL(String url) {
+        return url.contains("gravatar.com/blavatar");
     }
 }
