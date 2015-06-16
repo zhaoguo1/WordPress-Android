@@ -122,20 +122,27 @@ public class BlogUtils {
             WordPress.wpDB.saveBlog(blog);
             return true;
         } else {
-            // Update blog name
+            // Update blog name & icon url
             int localTableBlogId = WordPress.wpDB.getLocalTableBlogIdForRemoteBlogIdAndXmlRpcUrl(
                     Integer.parseInt(blogId), xmlRpcUrl);
+            boolean blogUpdated = false;
             try {
                 blog = WordPress.wpDB.instantiateBlogByLocalId(localTableBlogId);
                 if (!blogName.equals(blog.getBlogName())) {
                     blog.setBlogName(blogName);
+                    blogUpdated = true;
+                }
+                if (!iconUrl.equals(blog.getIconURL())) {
+                    blog.setIconURL(iconUrl);
+                    blogUpdated = true;
+                }
+                if (blogUpdated) {
                     WordPress.wpDB.saveBlog(blog);
-                    return true;
                 }
             } catch (Exception e) {
                 AppLog.e(T.NUX, "localTableBlogId: " + localTableBlogId + " not found");
             }
-            return false;
+            return blogUpdated;
         }
     }
 
