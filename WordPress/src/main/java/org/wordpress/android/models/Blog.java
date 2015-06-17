@@ -479,10 +479,10 @@ public class Blog {
             return blavatarUrl;
         }
         if (isPhotonURL(iconURL)) {
-            return UrlUtils.getDomainFromUrl(iconURL).concat(String.format("w=%d&h=%d", size, size));
+            return UrlUtils.removeQuery(iconURL).concat(String.format("w=%d&h=%d", size, size));
         }
         if (isBlavatarURL(iconURL)) {
-            return UrlUtils.getDomainFromUrl(iconURL).concat(String.format("d=404&s=%d", size));
+            return UrlUtils.removeQuery(iconURL).concat(String.format("s=%d", size));
         }
         return blavatarUrl;
     }

@@ -369,6 +369,7 @@ public class WordPressDB {
         }
         values.put("isAdmin", blog.isAdmin());
         values.put("isHidden", blog.isHidden());
+        values.put("iconURL", blog.getIconURL());
         return db.insert(BLOGS_TABLE, null, values) > -1;
     }
 
@@ -408,7 +409,7 @@ public class WordPressDB {
         if (limit != 0) {
             limitStr = String.valueOf(limit);
         }
-        String[] baseFields = new String[]{"id", "blogName", "username", "blogId", "url"};
+        String[] baseFields = new String[]{"id", "blogName", "username", "blogId", "url", "iconURL"};
         String[] allFields = baseFields;
         if (extraFields != null) {
             allFields = (String[]) ArrayUtils.addAll(baseFields, extraFields);
@@ -423,6 +424,7 @@ public class WordPressDB {
             String username = c.getString(2);
             int blogId = c.getInt(3);
             String url = c.getString(4);
+            String iconURL = c.getString(5);
             if (id > 0) {
                 Map<String, Object> blogMap = new HashMap<>();
                 blogMap.put("id", id);
@@ -430,6 +432,7 @@ public class WordPressDB {
                 blogMap.put("username", username);
                 blogMap.put("blogId", blogId);
                 blogMap.put("url", url);
+                blogMap.put("iconURL", iconURL);
                 int extraFieldsIndex = baseFields.length;
                 if (extraFields != null) {
                     for (int j = 0; j < extraFields.length; ++j) {
@@ -632,7 +635,7 @@ public class WordPressDB {
                              "centerThumbnail", "fullSizeImage", "maxImageWidth", "maxImageWidthId",
                              "blogId", "dotcomFlag", "dotcom_username", "dotcom_password", "api_key",
                              "api_blogid", "wpVersion", "postFormats", "isScaledImage",
-                             "scaledImgWidth", "homeURL", "blog_options", "isAdmin", "isHidden"};
+                             "scaledImgWidth", "homeURL", "blog_options", "isAdmin", "isHidden", "iconURL"};
         Cursor c = db.query(BLOGS_TABLE, fields, "id=?", new String[]{Integer.toString(localId)}, null, null, null);
 
         Blog blog = null;
