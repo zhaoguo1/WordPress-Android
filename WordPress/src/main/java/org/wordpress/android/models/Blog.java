@@ -474,25 +474,36 @@ public class Blog {
     }
 
     public String getIconImageURL(int size) {
-        String blavatarUrl = GravatarUtils.blavatarFromUrl(this.getUrl(), size);
-        if (iconURL == null) {
+        if (iconURL == null && isJetpackPowered()) {
+            Blog jetpackBlog = WordPress.wpDB.getBlogForDotComBlogId(this.api_blogid);
+            if (jetpackBlog == null) {
+                return null;
+            }
+            return getIconImageURL(size, jetpackBlog.iconURL, jetpackBlog.getUrl());
+        }
+        return getIconImageURL(size, this.iconURL, this.getUrl());
+    }
+
+    private static String getIconImageURL(int size, String iconUrl, String blogUrl) {
+        String blavatarUrl = GravatarUtils.blavatarFromUrl(blogUrl, size);
+        if (iconUrl == null) {
             return blavatarUrl;
         }
-        if (isPhotonURL(iconURL)) {
-            return UrlUtils.removeQuery(iconURL).concat(String.format("w=%d&h=%d", size, size));
+        if (isPhotonURL(iconUrl)) {
+            return UrlUtils.removeQuery(iconUrl).concat(String.format("w=%d&h=%d", size, size));
         }
-        if (isBlavatarURL(iconURL)) {
-            return UrlUtils.removeQuery(iconURL).concat(String.format("s=%d", size));
+        if (isBlavatarURL(iconUrl)) {
+            return UrlUtils.removeQuery(iconUrl).concat(String.format("s=%d", size));
         }
         return blavatarUrl;
     }
 
     // Possible matches are "i0.wp.com", "i1.wp.com" & "i2.wp.com" -> https://developer.wordpress.com/docs/photon/
-    public boolean isPhotonURL(String url) {
+    private static boolean isPhotonURL(String url) {
         return url.contains(".wp.com");
     }
 
-    public boolean isBlavatarURL(String url) {
+    private static boolean isBlavatarURL(String url) {
         return url.contains("gravatar.com/blavatar");
     }
 }
