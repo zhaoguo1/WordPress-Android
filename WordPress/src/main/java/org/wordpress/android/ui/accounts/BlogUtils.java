@@ -61,10 +61,13 @@ public class BlogUtils {
             String xmlrpc = blogMap.get("xmlrpc").toString();
             String homeUrl = blogMap.get("url").toString();
             String blogId = blogMap.get("blogid").toString();
-            String iconUrl = blogMap.get("iconUrl").toString();
             boolean isVisible = true;
             if (blogMap.containsKey("isVisible")) {
                 isVisible = MapUtils.getMapBool(blogMap, "isVisible");
+            }
+            String iconUrl = "";
+            if (blogMap.containsKey("iconUrl")) {
+                iconUrl = blogMap.get("iconUrl").toString();
             }
             boolean isAdmin = MapUtils.getMapBool(blogMap, "isAdmin");
             retValue |= addOrUpdateBlog(blogName, xmlrpc, homeUrl, blogId, username, password, httpUsername,
