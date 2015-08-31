@@ -11,7 +11,7 @@ public class BaseMasterbarFragment extends Fragment {
 
     /*
      * returns true if this fragment is hosted in the main activity, false if it's hosted
-     * by some other activity - note that currently only ReaderPostListFragment may be
+     * by some other activity - note that currently only ReaderPostListFragment is ever
      * hosted in an activity other than the main one
      */
     public boolean isHostedInMasterbar() {
@@ -19,18 +19,18 @@ public class BaseMasterbarFragment extends Fragment {
     }
 
     /*
+     * called by the main activity when the user switches to the tab containing this fragment
+     */
+    public void onMasterbarTabActivated() {
+        AppLog.d(AppLog.T.MAIN, "onMasterbarTabActivated " + this.getClass().getSimpleName());
+    }
+
+    /*
      * called by main activity when this is the active masterbar fragment and the main
      * activity is resumed after being paused - descendants should override this and
      * perform any operations necessary after returning from another activity
      */
-    public void onResumeMasterbar() {
-        AppLog.i(AppLog.T.MAIN, "onResumeMasterbar " + this.getClass().getSimpleName());
-    }
-
-    /*
-     * called by the main activity when the user switches to the tab containing this fragment
-     */
-    public void onActiveMasterbar() {
-        AppLog.i(AppLog.T.MAIN, "onActiveMasterbar " + this.getClass().getSimpleName());
+    public void onMasterbarTabResumed() {
+        AppLog.d(AppLog.T.MAIN, "onMasterbarTabResumed " + this.getClass().getSimpleName());
     }
 }

@@ -140,10 +140,10 @@ public class WPMainActivity extends Activity
                 }
                 trackLastVisibleTab(position);
 
-                // fire the `onActiveMasterbar` event in this fragment
+                // tell the masterbar fragment at this position that it just become active
                 BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(position);
                 if (fragment != null) {
-                    fragment.onActiveMasterbar();
+                    fragment.onMasterbarTabActivated();
                 }
             }
 
@@ -286,10 +286,10 @@ public class WPMainActivity extends Activity
             // Ex: Notifications -> notifications detail -> back to notifications
             trackLastVisibleTab(mViewPager.getCurrentItem());
 
-            // fire the 'onResumeMasterbar' event in the active fragment
+            // tell the active masterbar fragment that the main activity was resumed
             BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(mViewPager.getCurrentItem());
             if (fragment != null) {
-                fragment.onResumeMasterbar();
+                fragment.onMasterbarTabResumed();
             }
         }
     }

@@ -93,8 +93,8 @@ public class MySiteFragment extends BaseMasterbarFragment
         }, delayMs);
     }
 
-    public void onResumeMasterbar() {
-        super.onResumeMasterbar();
+    public void onMasterbarTabResumed() {
+        super.onMasterbarTabResumed();
         if (ServiceUtils.isServiceRunning(getActivity(), StatsService.class)) {
             getActivity().stopService(new Intent(getActivity(), StatsService.class));
         }

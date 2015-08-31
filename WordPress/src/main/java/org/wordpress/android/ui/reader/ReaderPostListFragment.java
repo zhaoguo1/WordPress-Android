@@ -221,8 +221,8 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
      * is the active tab - only happens when viewing posts in followed tags
      */
     @Override
-    public void onResumeMasterbar() {
-        super.onResumeMasterbar();
+    public void onMasterbarTabResumed() {
+        super.onMasterbarTabResumed();
 
         // check if the user added a tag in ReaderSubsActivity
         Object event = EventBus.getDefault().getStickyEvent(ReaderEvents.TagAdded.class);
@@ -249,8 +249,8 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
      * called when this fragment becomes the active masterbar tab
      */
     @Override
-    public void onActiveMasterbar() {
-        super.onActiveMasterbar();
+    public void onMasterbarTabActivated() {
+        super.onMasterbarTabActivated();
         purgeDatabaseIfNeeded();
         updateFollowedTagsAndBlogsIfNeeded();
     }
