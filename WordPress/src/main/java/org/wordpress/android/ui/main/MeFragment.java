@@ -2,7 +2,6 @@ package org.wordpress.android.ui.main;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.graphics.Outline;
 import android.os.Build;
@@ -23,7 +22,7 @@ import org.wordpress.android.util.GravatarUtils;
 import org.wordpress.android.util.HelpshiftHelper.Tag;
 import org.wordpress.android.widgets.WPNetworkImageView;
 
-public class MeFragment extends Fragment {
+public class MeFragment extends BaseMasterbarFragment {
 
     private ViewGroup mAvatarFrame;
     private WPNetworkImageView mAvatarImageView;

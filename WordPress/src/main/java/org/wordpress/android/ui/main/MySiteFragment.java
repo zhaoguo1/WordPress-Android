@@ -1,7 +1,6 @@
 package org.wordpress.android.ui.main;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,7 +35,7 @@ import org.wordpress.android.widgets.WPTextView;
 
 import de.greenrobot.event.EventBus;
 
-public class MySiteFragment extends Fragment
+public class MySiteFragment extends BaseMasterbarFragment
         implements WPMainActivity.OnScrollToTopListener {
 
     private static final long ALERT_ANIM_OFFSET_MS   = 1000l;
@@ -81,9 +80,7 @@ public class MySiteFragment extends Fragment
     @Override
     public void onResume() {
         super.onResume();
-        if (ServiceUtils.isServiceRunning(getActivity(), StatsService.class)) {
-            getActivity().stopService(new Intent(getActivity(), StatsService.class));
-        }
+
         // redisplay hidden fab after a short delay
         long delayMs = getResources().getInteger(R.integer.fab_animation_delay);
         new Handler().postDelayed(new Runnable() {
@@ -94,6 +91,13 @@ public class MySiteFragment extends Fragment
                 }
             }
         }, delayMs);
+    }
+
+    public void onResumeMasterbar() {
+        super.onResumeMasterbar();
+        if (ServiceUtils.isServiceRunning(getActivity(), StatsService.class)) {
+            getActivity().stopService(new Intent(getActivity(), StatsService.class));
+        }
     }
 
     @Override

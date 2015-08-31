@@ -1,12 +1,9 @@
 package org.wordpress.android.ui.notifications;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
-import android.support.v4.util.ArrayMap;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,7 +15,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.simperium.client.Bucket;
-import com.simperium.client.BucketObject;
 import com.simperium.client.BucketObjectMissingException;
 
 import org.wordpress.android.GCMIntentService;
@@ -27,6 +23,7 @@ import org.wordpress.android.models.AccountHelper;
 import org.wordpress.android.models.Note;
 import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.RequestCodes;
+import org.wordpress.android.ui.main.BaseMasterbarFragment;
 import org.wordpress.android.ui.main.WPMainActivity;
 import org.wordpress.android.ui.notifications.adapters.NotesAdapter;
 import org.wordpress.android.ui.notifications.utils.SimperiumUtils;
@@ -38,7 +35,7 @@ import javax.annotation.Nonnull;
 
 import de.greenrobot.event.EventBus;
 
-public class NotificationsListFragment extends Fragment
+public class NotificationsListFragment extends BaseMasterbarFragment
         implements Bucket.Listener<Note>,
                    WPMainActivity.OnScrollToTopListener {
     public static final String NOTE_ID_EXTRA = "noteId";
