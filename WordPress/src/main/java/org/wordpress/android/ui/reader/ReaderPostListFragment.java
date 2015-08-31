@@ -1,6 +1,5 @@
 package org.wordpress.android.ui.reader;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -25,6 +24,7 @@ import org.wordpress.android.models.ReaderPost;
 import org.wordpress.android.models.ReaderPostDiscoverData;
 import org.wordpress.android.models.ReaderTag;
 import org.wordpress.android.models.ReaderTagType;
+import org.wordpress.android.ui.main.BaseMasterbarFragment;
 import org.wordpress.android.ui.main.WPMainActivity;
 import org.wordpress.android.ui.prefs.AppPrefs;
 import org.wordpress.android.ui.reader.ReaderTypes.ReaderPostListType;
@@ -35,12 +35,14 @@ import org.wordpress.android.ui.reader.adapters.ReaderPostAdapter;
 import org.wordpress.android.ui.reader.services.ReaderPostService;
 import org.wordpress.android.ui.reader.services.ReaderPostService.UpdateAction;
 import org.wordpress.android.ui.reader.services.ReaderUpdateService;
+import org.wordpress.android.ui.reader.services.ReaderUpdateService.UpdateTask;
 import org.wordpress.android.ui.reader.views.ReaderBlogInfoView;
 import org.wordpress.android.ui.reader.views.ReaderRecyclerView;
 import org.wordpress.android.ui.reader.views.ReaderTagToolbar;
 import org.wordpress.android.util.AniUtils;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.AppLog.T;
+import org.wordpress.android.util.DateTimeUtils;
 import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.WPActivityUtils;
@@ -50,6 +52,7 @@ import org.wordpress.android.util.widgets.CustomSwipeRefreshLayout;
 import org.wordpress.android.widgets.RecyclerItemDecoration;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +61,7 @@ import java.util.Stack;
 
 import de.greenrobot.event.EventBus;
 
-public class ReaderPostListFragment extends Fragment
+public class ReaderPostListFragment extends BaseMasterbarFragment
         implements ReaderInterfaces.OnPostSelectedListener,
                    ReaderInterfaces.OnTagSelectedListener,
                    ReaderInterfaces.OnPostPopupListener,
@@ -83,6 +86,9 @@ public class ReaderPostListFragment extends Fragment
     private boolean mIsUpdating;
     private boolean mWasPaused;
     private boolean mIsAnimatingOutNewPostsBar;
+
+    private static boolean mHasPurgedReaderDb;
+    private static java.util.Date mLastUpdateDt;
 
     private final HistoryStack mTagPreviewHistory = new HistoryStack("tag_preview_history");
 
@@ -210,6 +216,45 @@ public class ReaderPostListFragment extends Fragment
         }
     }
 
+    /*
+     * called when user returns to the main activity from another activity while this fragment
+     * is the active tab - only happens when viewing posts in followed tags
+     */
+    @Override
+    public void onResumeMasterbar() {
+        super.onResumeMasterbar();
+
+        // check if the user added a tag in ReaderSubsActivity
+        Object event = EventBus.getDefault().getStickyEvent(ReaderEvents.TagAdded.class);
+        if (event != null) {
+            String tagName = ((ReaderEvents.TagAdded) event).getTagName();
+            EventBus.getDefault().removeStickyEvent(event);
+            ReaderTag newTag = new ReaderTag(tagName, ReaderTagType.FOLLOWED);
+            setCurrentTag(newTag, true);
+        // make sure the current tag is still valid
+        } else if (!ReaderTagTable.tagExists(getCurrentTag())) {
+            AppLog.d(T.READER, "reader post list > current tag no longer valid");
+            setCurrentTag(ReaderTag.getDefaultTag(), true);
+        // auto-update the current tag if it's time
+        } else if (!isUpdating() && ReaderTagTable.shouldAutoUpdateTag(getCurrentTag())) {
+            AppLog.i(T.READER, "reader post list > auto-updating current tag after resume");
+            updatePostsWithTag(getCurrentTag(), UpdateAction.REQUEST_NEWER);
+        // refresh posts to make sure changes are reflected
+        } else {
+            refreshPosts();
+        }
+    }
+
+    /*
+     * called when this fragment becomes the active masterbar tab
+     */
+    @Override
+    public void onActiveMasterbar() {
+        super.onActiveMasterbar();
+        purgeDatabaseIfNeeded();
+        updateFollowedTagsAndBlogsIfNeeded();
+    }
+
     @Override
     public void onPause() {
         super.onPause();
@@ -221,36 +266,9 @@ public class ReaderPostListFragment extends Fragment
         super.onResume();
 
         if (mWasPaused) {
-            AppLog.d(T.READER, "reader post list > resumed from paused state");
             mWasPaused = false;
-
-            // default to refreshing posts in case the user returned from an activity that
-            // changed one (or more) of them
-            boolean shouldRefreshPosts = true;
-
-            if (getPostListType().equals(ReaderPostListType.TAG_FOLLOWED)) {
-                // check if the user added a tag in ReaderSubsActivity
-                Object event = EventBus.getDefault().getStickyEvent(ReaderEvents.TagAdded.class);
-                if (event != null) {
-                    String tagName = ((ReaderEvents.TagAdded) event).getTagName();
-                    EventBus.getDefault().removeStickyEvent(event);
-                    ReaderTag newTag = new ReaderTag(tagName, ReaderTagType.FOLLOWED);
-                    setCurrentTag(newTag, true);
-                    shouldRefreshPosts = false;
-                // make sure the current tag is still valid
-                } else if (!ReaderTagTable.tagExists(getCurrentTag())) {
-                    AppLog.d(T.READER, "reader post list > current tag no longer valid");
-                    setCurrentTag(ReaderTag.getDefaultTag(), true);
-                    shouldRefreshPosts = false;
-                // auto-update the current tag if it's time
-                } else if (!isUpdating() && ReaderTagTable.shouldAutoUpdateTag(getCurrentTag())) {
-                    AppLog.i(T.READER, "reader post list > auto-updating current tag after resume");
-                    updatePostsWithTag(getCurrentTag(), UpdateAction.REQUEST_NEWER);
-                    shouldRefreshPosts = false;
-                }
-            }
-
-            if (shouldRefreshPosts) {
+            // refresh posts if this fragment isn't hosted in the main activity
+            if (!isHostedInMasterbar()) {
                 refreshPosts();
             }
         }
@@ -259,14 +277,7 @@ public class ReaderPostListFragment extends Fragment
     @Override
     public void onStart() {
         super.onStart();
-
         EventBus.getDefault().register(this);
-
-        purgeDatabaseIfNeeded();
-        performInitialUpdateIfNeeded();
-        if (getPostListType() == ReaderPostListType.TAG_FOLLOWED) {
-            updateFollowedTagsAndBlogsIfNeeded();
-        }
     }
 
     @Override
@@ -1022,7 +1033,7 @@ public class ReaderPostListFragment extends Fragment
                 if (!isAdded()) return;
 
                 listPopup.dismiss();
-                switch((int) id) {
+                switch ((int) id) {
                     case ReaderMenuAdapter.ITEM_FOLLOW:
                     case ReaderMenuAdapter.ITEM_UNFOLLOW:
                         toggleFollowStatusForPost(post);
@@ -1041,43 +1052,33 @@ public class ReaderPostListFragment extends Fragment
      * since we don't want to purge posts that the user would expect to see when offline
      */
     private void purgeDatabaseIfNeeded() {
-        if (EventBus.getDefault().getStickyEvent(ReaderEvents.HasPurgedDatabase.class) == null
-                && NetworkUtils.isNetworkAvailable(getActivity())) {
-            AppLog.d(T.READER, "reader post list > purging database");
-            ReaderDatabase.purgeAsync();
-            EventBus.getDefault().postSticky(new ReaderEvents.HasPurgedDatabase());
+        if (!isAdded() || !NetworkUtils.isNetworkAvailable(getActivity())) {
+            return;
         }
-    }
 
-    /*
-     * initial update performed the first time the user opens the reader
-     */
-    private void performInitialUpdateIfNeeded() {
-        if (EventBus.getDefault().getStickyEvent(ReaderEvents.HasPerformedInitialUpdate.class) == null
-                && NetworkUtils.isNetworkAvailable(getActivity())) {
-            // update current user to ensure we have their user_id as well as their latest info
-            // in case they changed their avatar, name, etc. since last time
-            AppLog.d(T.READER, "reader post list > updating current user");
-            EventBus.getDefault().postSticky(new ReaderEvents.HasPerformedInitialUpdate());
-        }
+        AppLog.d(T.READER, "reader post list > purging database");
+        ReaderDatabase.purgeAsync();
+        mHasPurgedReaderDb = true;
     }
 
     /*
      * start background service to get the latest followed tags and blogs if it's time to do so
      */
     private void updateFollowedTagsAndBlogsIfNeeded() {
-        ReaderEvents.UpdatedFollowedTagsAndBlogs lastUpdateEvent =
-                EventBus.getDefault().getStickyEvent(ReaderEvents.UpdatedFollowedTagsAndBlogs.class);
-        if (lastUpdateEvent != null && lastUpdateEvent.minutesSinceLastUpdate() < 120) {
+        if (mLastUpdateDt != null) {
+            int minutesSinceLastUpdate = DateTimeUtils.minutesBetween(mLastUpdateDt, new Date());
+            if (minutesSinceLastUpdate < 120) {
+                return;
+            }
+        }
+
+        if (!isAdded() || !NetworkUtils.isNetworkAvailable(getActivity())) {
             return;
         }
 
+        mLastUpdateDt = new java.util.Date();
         AppLog.d(T.READER, "reader post list > updating tags and blogs");
-        EventBus.getDefault().postSticky(new ReaderEvents.UpdatedFollowedTagsAndBlogs());
-
-        ReaderUpdateService.startService(getActivity(),
-                EnumSet.of(ReaderUpdateService.UpdateTask.TAGS,
-                           ReaderUpdateService.UpdateTask.FOLLOWED_BLOGS));
+        ReaderUpdateService.startService(getActivity(), EnumSet.of(UpdateTask.TAGS, UpdateTask.FOLLOWED_BLOGS));
     }
 
     @Override
@@ -1085,5 +1086,9 @@ public class ReaderPostListFragment extends Fragment
         if (isAdded() && getCurrentPosition() > 0) {
             mRecyclerView.getLayoutManager().smoothScrollToPosition(mRecyclerView, null, 0);
         }
+    }
+
+    public static void resetLastUpdateDt() {
+        mLastUpdateDt = null;
     }
 }
