@@ -342,7 +342,7 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
 
         Context context = container.getContext();
 
-        // add the item decoration (divivers) to the recycler, skipping the first item if the first
+        // add the item decoration (dividers) to the recycler, skipping the first item if the first
         // item is the tag toolbar (shown when viewing posts in followed tags) - this is to avoid
         // having the tag toolbar take up more vertical space than necessary
         int spacingHorizontal = context.getResources().getDimensionPixelSize(R.dimen.reader_card_margin);
@@ -466,11 +466,10 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
      * from the adapter
      */
     private void blockBlogForPost(final ReaderPost post) {
-        if (post == null || !hasPostAdapter()) {
-            return;
-        }
-
-        if (!NetworkUtils.checkConnection(getActivity())) {
+        if (!isAdded()
+                || post == null
+                || !hasPostAdapter()
+                || !NetworkUtils.checkConnection(getActivity())) {
             return;
         }
 
@@ -1052,7 +1051,9 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
      * since we don't want to purge posts that the user would expect to see when offline
      */
     private void purgeDatabaseIfNeeded() {
-        if (!isAdded() || !NetworkUtils.isNetworkAvailable(getActivity())) {
+        if (mHasPurgedReaderDb
+                || !isAdded()
+                || !NetworkUtils.isNetworkAvailable(getActivity())) {
             return;
         }
 

@@ -13,7 +13,7 @@ public class ReaderEvents {
     public static class RecommendedTagsChanged{}
 
     public static class TagAdded {
-        private String mTagName;
+        private final String mTagName;
         public TagAdded(String tagName) {
             mTagName = tagName;
         }

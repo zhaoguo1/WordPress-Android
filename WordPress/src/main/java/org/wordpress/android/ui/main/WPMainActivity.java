@@ -63,8 +63,10 @@ public class WPMainActivity extends Activity
     private WPMainTabLayout mTabLayout;
     private WPMainTabAdapter mTabAdapter;
     private TextView mConnectionBar;
+    private boolean mWasPaused;
 
     public static final String ARG_OPENED_FROM_PUSH = "opened_from_push";
+    private static final String KEY_WAS_PAUSED = "was_paused";
 
     /*
      * tab fragments implement this if their contents can be scrolled, called when user
@@ -137,6 +139,12 @@ public class WPMainActivity extends Activity
                         break;
                 }
                 trackLastVisibleTab(position);
+
+                // fire the `onActiveMasterbar` event in this fragment
+                BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(position);
+                if (fragment != null) {
+                    fragment.onActiveMasterbar();
+                }
             }
 
             @Override
@@ -154,25 +162,31 @@ public class WPMainActivity extends Activity
             }
         });
 
-        if (savedInstanceState == null) {
-            if (AccountHelper.isSignedIn()) {
-                // open note detail if activity called from a push, otherwise return to the tab
-                // that was showing last time
-                boolean openedFromPush = (getIntent() != null && getIntent().getBooleanExtra(ARG_OPENED_FROM_PUSH,
-                        false));
-                if (openedFromPush) {
-                    getIntent().putExtra(ARG_OPENED_FROM_PUSH, false);
-                    launchWithNoteId();
-                } else {
-                    int position = AppPrefs.getMainTabIndex();
-                    if (mTabAdapter.isValidPosition(position) && position != mViewPager.getCurrentItem()) {
-                        mViewPager.setCurrentItem(position);
-                    }
-                }
+        if (savedInstanceState != null) {
+            mWasPaused = savedInstanceState.getBoolean(KEY_WAS_PAUSED);
+        } else if (AccountHelper.isSignedIn()) {
+            // open note detail if activity called from a push, otherwise return to the tab
+            // that was showing last time
+            boolean openedFromPush = (getIntent() != null && getIntent().getBooleanExtra(ARG_OPENED_FROM_PUSH,
+                    false));
+            if (openedFromPush) {
+                getIntent().putExtra(ARG_OPENED_FROM_PUSH, false);
+                launchWithNoteId();
             } else {
-                ActivityLauncher.showSignInForResult(this);
+                int position = AppPrefs.getMainTabIndex();
+                if (mTabAdapter.isValidPosition(position) && position != mViewPager.getCurrentItem()) {
+                    mViewPager.setCurrentItem(position);
+                }
             }
+        } else {
+            ActivityLauncher.showSignInForResult(this);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_WAS_PAUSED, mWasPaused);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -231,15 +245,6 @@ public class WPMainActivity extends Activity
     }
 
     @Override
-    protected void onPause() {
-        if (SimperiumUtils.getNotesBucket() != null) {
-            SimperiumUtils.getNotesBucket().removeListener(this);
-        }
-
-        super.onPause();
-    }
-
-    @Override
     protected void onStop() {
         EventBus.getDefault().unregister(this);
         super.onStop();
@@ -252,6 +257,17 @@ public class WPMainActivity extends Activity
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+
+        mWasPaused = true;
+
+        if (SimperiumUtils.getNotesBucket() != null) {
+            SimperiumUtils.getNotesBucket().removeListener(this);
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -261,11 +277,21 @@ public class WPMainActivity extends Activity
         }
         mTabLayout.checkNoteBadge();
 
-        // We need to track the current item on the screen when this activity is resumed.
-        // Ex: Notifications -> notifications detail -> back to notifications
-        trackLastVisibleTab(mViewPager.getCurrentItem());
-
         checkConnection();
+
+        if (mWasPaused) {
+            mWasPaused = false;
+
+            // We need to track the current item on the screen when this activity is resumed.
+            // Ex: Notifications -> notifications detail -> back to notifications
+            trackLastVisibleTab(mViewPager.getCurrentItem());
+
+            // fire the 'onResumeMasterbar' event in the active fragment
+            BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(mViewPager.getCurrentItem());
+            if (fragment != null) {
+                fragment.onResumeMasterbar();
+            }
+        }
     }
 
     private void trackLastVisibleTab(int position) {
@@ -393,20 +419,22 @@ public class WPMainActivity extends Activity
         }
     }
 
+    private BaseMasterbarFragment getMasterbarFragmentAtPosition(int position) {
+        Fragment fragment = (mTabAdapter != null ? mTabAdapter.getFragment(position) : null);
+        if (fragment instanceof BaseMasterbarFragment) {
+            return (BaseMasterbarFragment) fragment;
+        }
+        return null;
+    }
+
     /*
      * returns the my site fragment from the sites tab
      */
     private MySiteFragment getMySiteFragment() {
-        return getFragmentByPosition(WPMainTabAdapter.TAB_MY_SITE, MySiteFragment.class);
-    }
-
-    private <T> T getFragmentByPosition(int position, Class<T> type) {
-        Fragment fragment = mTabAdapter != null ? mTabAdapter.getFragment(position) : null;
-
-        if (fragment != null && type.isInstance(fragment)) {
-            return type.cast(fragment);
+        Fragment fragment = (mTabAdapter != null ? mTabAdapter.getFragment(WPMainTabAdapter.TAB_MY_SITE) : null);
+        if (fragment instanceof MySiteFragment) {
+            return (MySiteFragment) fragment;
         }
-
         return null;
     }
 
