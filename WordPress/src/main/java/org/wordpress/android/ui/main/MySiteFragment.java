@@ -54,6 +54,7 @@ public class MySiteFragment extends BaseMasterbarFragment {
     private int mBlavatarSz;
 
     private Blog mBlog;
+    private final Handler mHandler = new Handler();
 
     public static MySiteFragment newInstance() {
         return new MySiteFragment();
@@ -76,24 +77,34 @@ public class MySiteFragment extends BaseMasterbarFragment {
         AniUtils.showFab(mFabView, false);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // redisplay hidden fab after a short delay
+    private boolean isFabHidden() {
+        return mFabView.getVisibility() != View.VISIBLE || mFabView.getTranslationY() != 0;
+    }
+    /*
+     * redisplay hidden fab after a short delay
+     */
+    private void checkFab() {
         long delayMs = getResources().getInteger(R.integer.fab_animation_delay);
-        new Handler().postDelayed(new Runnable() {
+        mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (isAdded() && (mFabView.getVisibility() != View.VISIBLE || mFabView.getTranslationY() != 0)) {
+                if (isAdded() && isFabHidden()) {
                     AniUtils.showFab(mFabView, true);
                 }
             }
         }, delayMs);
     }
 
+    @Override
+    public void onMasterbarTabActivated() {
+        super.onMasterbarTabActivated();
+        checkFab();
+    }
+
+    @Override
     public void onMasterbarTabResumed() {
         super.onMasterbarTabResumed();
+        checkFab();
         if (ServiceUtils.isServiceRunning(getActivity(), StatsService.class)) {
             getActivity().stopService(new Intent(getActivity(), StatsService.class));
         }
