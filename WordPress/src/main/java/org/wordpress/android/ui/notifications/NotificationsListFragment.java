@@ -124,17 +124,37 @@ public class NotificationsListFragment extends BaseMasterbarFragment
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onMasterbarTabActivated() {
+        super.onMasterbarTabActivated();
+        doTabActivatedOrResumed();
+    }
+
+    @Override
+    public void onMasterbarTabResumed() {
+        super.onMasterbarTabResumed();
+        doTabActivatedOrResumed();
+    }
+
+    /*
+     * called when this fragment becomes the active tab in the main activity, or when the main
+     * activity is resumed while this is the active tab
+     */
+    private void doTabActivatedOrResumed() {
+        // refresh to ensure changes are reflected
         refreshNotes();
+
+        // clear any status notifications
+        cancelNotifications();
 
         // start listening to bucket change events
         if (mBucket != null) {
             mBucket.addListener(this);
         }
+    }
 
-        // Remove app notification if it is showing when we resume
-        cancelNotifications();
+    @Override
+    public void onResume() {
+        super.onResume();
 
         if (SimperiumUtils.isUserAuthorized()) {
             SimperiumUtils.startBuckets();
