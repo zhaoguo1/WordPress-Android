@@ -224,24 +224,43 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
     public void onMasterbarTabResumed() {
         super.onMasterbarTabResumed();
 
-        // check if the user added a tag in ReaderSubsActivity
         Object event = EventBus.getDefault().getStickyEvent(ReaderEvents.TagAdded.class);
         if (event != null) {
+            // user added a tag in ReaderSubsActivity, so make it the current tag
             String tagName = ((ReaderEvents.TagAdded) event).getTagName();
             EventBus.getDefault().removeStickyEvent(event);
             ReaderTag newTag = new ReaderTag(tagName, ReaderTagType.FOLLOWED);
             setCurrentTag(newTag, true);
-        // make sure the current tag is still valid
-        } else if (!ReaderTagTable.tagExists(getCurrentTag())) {
-            AppLog.d(T.READER, "reader post list > current tag no longer valid");
-            setCurrentTag(ReaderTag.getDefaultTag(), true);
-        // auto-update the current tag if it's time
-        } else if (!isUpdating() && ReaderTagTable.shouldAutoUpdateTag(getCurrentTag())) {
-            AppLog.i(T.READER, "reader post list > auto-updating current tag after resume");
-            updatePostsWithTag(getCurrentTag(), UpdateAction.REQUEST_NEWER);
-        // refresh posts to make sure changes are reflected
         } else {
-            refreshPosts();
+            // use a separate thread since we're hitting the database here
+            new Thread() {
+                @Override
+                public void run() {
+                    // user may have deleted the current tag in ReaderSubsActivity
+                    final boolean isTagValid = ReaderTagTable.tagExists(getCurrentTag());
+
+                    // if tag is still valid, check if it's time to auto-update its posts
+                    final boolean timeToAutoUpdate = isTagValid && ReaderTagTable.shouldAutoUpdateTag(getCurrentTag());
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!isTagValid) {
+                                // current tag no longer exists, revert to default
+                                AppLog.d(T.READER, "reader post list > current tag no longer valid");
+                                setCurrentTag(ReaderTag.getDefaultTag(), true);
+                            } else if (timeToAutoUpdate && !isUpdating()) {
+                                // auto-update the current tag if it's time
+                                AppLog.i(T.READER, "reader post list > auto-updating current tag");
+                                updateCurrentTag();
+                            } else {
+                                // otherwise, refresh posts to make sure any changes are reflected
+                                refreshPosts();
+                            }
+                        }
+                    });
+                }
+            }.start();
         }
     }
 
@@ -267,7 +286,8 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
 
         if (mWasPaused) {
             mWasPaused = false;
-            // refresh posts if this fragment isn't hosted in the main activity
+            // refresh posts if this fragment was paused unless it's hosted in the main
+            // activity (in which case onMasterbarTabResumed will take care of it)
             if (!isHostedInMasterbar()) {
                 refreshPosts();
             }
@@ -1047,19 +1067,18 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
     }
 
     /*
-     * purge reader db if it hasn't been done yet, but only if there's an active connection
-     * since we don't want to purge posts that the user would expect to see when offline
+     * purge reader db if it hasn't been done yet (only done once per session)
      */
     private void purgeDatabaseIfNeeded() {
-        if (mHasPurgedReaderDb
-                || !isAdded()
-                || !NetworkUtils.isNetworkAvailable(getActivity())) {
-            return;
-        }
+        if (mHasPurgedReaderDb) return;
 
-        AppLog.d(T.READER, "reader post list > purging database");
-        ReaderDatabase.purgeAsync();
-        mHasPurgedReaderDb = true;
+        // note we only purge if there's an active connection since we don't want to remove
+        // posts that the user would expect to see when offline
+        if (isAdded() && NetworkUtils.isNetworkAvailable(getActivity())) {
+            AppLog.d(T.READER, "reader post list > purging database");
+            ReaderDatabase.purgeAsync();
+            mHasPurgedReaderDb = true;
+        }
     }
 
     /*
@@ -1073,13 +1092,11 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
             }
         }
 
-        if (!isAdded() || !NetworkUtils.isNetworkAvailable(getActivity())) {
-            return;
+        if (isAdded() && NetworkUtils.isNetworkAvailable(getActivity())) {
+            mLastUpdateDt = new java.util.Date();
+            AppLog.d(T.READER, "reader post list > updating tags and blogs");
+            ReaderUpdateService.startService(getActivity(), EnumSet.of(UpdateTask.TAGS, UpdateTask.FOLLOWED_BLOGS));
         }
-
-        mLastUpdateDt = new java.util.Date();
-        AppLog.d(T.READER, "reader post list > updating tags and blogs");
-        ReaderUpdateService.startService(getActivity(), EnumSet.of(UpdateTask.TAGS, UpdateTask.FOLLOWED_BLOGS));
     }
 
     @Override
