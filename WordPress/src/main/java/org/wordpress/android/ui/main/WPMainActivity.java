@@ -74,14 +74,6 @@ public class WPMainActivity extends Activity
     private static final long QUARTER_SECOND_MS = 500L;
     private static final long TWO_SECONDS_MS = 2000L;
 
-    /*
-     * tab fragments implement this if their contents can be scrolled, called when user
-     * requests to scroll to the top
-     */
-    public interface OnScrollToTopListener {
-        void onScrollToTop();
-    }
-
     private final ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
         public void onPageSelected(final int position) {

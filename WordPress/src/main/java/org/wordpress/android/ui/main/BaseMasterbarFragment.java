@@ -7,7 +7,7 @@ import org.wordpress.android.util.AppLog;
 /*
  * base class for all "masterbar" fragments - ie: fragments hosted in the main activity ViewPager
  */
-public class BaseMasterbarFragment extends Fragment implements WPMainActivity.OnScrollToTopListener {
+public class BaseMasterbarFragment extends Fragment {
 
     /*
      * returns true if this fragment is hosted in the main activity, false if it's hosted
@@ -38,7 +38,6 @@ public class BaseMasterbarFragment extends Fragment implements WPMainActivity.On
      * called when user taps the active tab, descendants should override this and scroll
      * their contents to the top
      */
-    @Override
     public void onScrollToTop() {
         AppLog.d(AppLog.T.MAIN, "onScrollToTop " + this.getClass().getSimpleName());
     }
