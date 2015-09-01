@@ -85,6 +85,7 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
 
     private boolean mIsUpdating;
     private boolean mWasPaused;
+    private boolean mHasUpdatedPosts;
     private boolean mIsAnimatingOutNewPostsBar;
 
     private static boolean mHasPurgedReaderDb;
@@ -213,6 +214,7 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
             }
             mRestorePosition = savedInstanceState.getInt(ReaderConstants.KEY_RESTORE_POSITION);
             mWasPaused = savedInstanceState.getBoolean(ReaderConstants.KEY_WAS_PAUSED);
+            mHasUpdatedPosts = savedInstanceState.getBoolean(ReaderConstants.KEY_ALREADY_UPDATED);
         }
     }
 
@@ -270,6 +272,7 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
     @Override
     public void onMasterbarTabActivated() {
         super.onMasterbarTabActivated();
+        checkAdapter();
         purgeDatabaseIfNeeded();
         updateFollowedTagsAndBlogsIfNeeded();
     }
@@ -284,14 +287,13 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
     public void onResume() {
         super.onResume();
 
-        if (mWasPaused) {
-            mWasPaused = false;
-            // refresh posts if this fragment was paused unless it's hosted in the main
-            // activity (in which case onMasterbarTabResumed will take care of it)
-            if (!isHostedInMasterbar()) {
+        if (!isHostedInMasterbar()) {
+            checkAdapter();
+            if (mWasPaused) {
                 refreshPosts();
             }
         }
+        mWasPaused = false;
     }
 
     @Override
@@ -341,6 +343,7 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
         outState.putLong(ReaderConstants.ARG_BLOG_ID, mCurrentBlogId);
         outState.putLong(ReaderConstants.ARG_FEED_ID, mCurrentFeedId);
         outState.putBoolean(ReaderConstants.KEY_WAS_PAUSED, mWasPaused);
+        outState.putBoolean(ReaderConstants.KEY_ALREADY_UPDATED, mHasUpdatedPosts);
         outState.putInt(ReaderConstants.KEY_RESTORE_POSITION, getCurrentPosition());
         outState.putSerializable(ReaderConstants.ARG_POST_LIST_TYPE, getPostListType());
 
@@ -427,26 +430,18 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
         mRecyclerView.scrollToPosition(position);
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    /*
+     * ensures the adapter is created and posts are updated if they haven't already been
+     */
+    private void checkAdapter()  {
+        if (isAdded() && mRecyclerView.getAdapter() == null) {
+            mRecyclerView.setAdapter(getPostAdapter());
 
-        boolean adapterAlreadyExists = hasPostAdapter();
-        mRecyclerView.setAdapter(getPostAdapter());
-
-        // if adapter didn't already exist, populate it now then update the tag/blog - this
-        // check is important since without it the adapter would be reset and posts would
-        // be updated every time the user moves between fragments
-        if (!adapterAlreadyExists) {
-            boolean isRecreated = (savedInstanceState != null);
-            if (getPostListType().isTagType()) {
-                getPostAdapter().setCurrentTag(mCurrentTag);
-                if (!isRecreated && ReaderTagTable.shouldAutoUpdateTag(mCurrentTag)) {
-                    updatePostsWithTag(getCurrentTag(), UpdateAction.REQUEST_NEWER);
-                }
-            } else if (getPostListType() == ReaderPostListType.BLOG_PREVIEW) {
-                getPostAdapter().setCurrentBlogAndFeed(mCurrentBlogId, mCurrentFeedId);
-                if (!isRecreated) {
+            if (!mHasUpdatedPosts && NetworkUtils.isNetworkAvailable(getActivity())) {
+                mHasUpdatedPosts = true;
+                if (getPostListType().isTagType() && ReaderTagTable.shouldAutoUpdateTag(mCurrentTag)) {
+                    updateCurrentTag();
+                } else if (getPostListType() == ReaderPostListType.BLOG_PREVIEW) {
                     updatePostsInCurrentBlogOrFeed(UpdateAction.REQUEST_NEWER);
                 }
             }
@@ -662,6 +657,12 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
             mPostAdapter.setOnDataRequestedListener(mDataRequestedListener);
             if (getActivity() instanceof ReaderBlogInfoView.OnBlogInfoLoadedListener) {
                 mPostAdapter.setOnBlogInfoLoadedListener((ReaderBlogInfoView.OnBlogInfoLoadedListener) getActivity());
+            }
+
+            if (getPostListType().isTagType()) {
+                getPostAdapter().setCurrentTag(getCurrentTag());
+            } else if (getPostListType() == ReaderPostListType.BLOG_PREVIEW) {
+                getPostAdapter().setCurrentBlogAndFeed(mCurrentBlogId, mCurrentFeedId);
             }
         }
         return mPostAdapter;

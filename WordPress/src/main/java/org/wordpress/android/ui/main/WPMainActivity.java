@@ -63,7 +63,10 @@ public class WPMainActivity extends Activity
     private WPMainTabLayout mTabLayout;
     private WPMainTabAdapter mTabAdapter;
     private TextView mConnectionBar;
+
     private boolean mWasPaused;
+
+    private final Handler mHandler = new Handler();
 
     public static final String ARG_OPENED_FROM_PUSH = "opened_from_push";
     private static final String KEY_WAS_PAUSED = "was_paused";
@@ -75,6 +78,75 @@ public class WPMainActivity extends Activity
     public interface OnScrollToTopListener {
         void onScrollToTop();
     }
+
+    private static final long HALF_SECOND_MS = 500;
+    private final ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
+        @Override
+        public void onPageSelected(final int position) {
+            AppPrefs.setMainTabIndex(position);
+            trackLastVisibleTab(position);
+
+            if (position == WPMainTabAdapter.TAB_NOTIFS) {
+                new UpdateLastSeenTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+
+            // tell the masterbar fragment at this position that it just become active
+            BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(position);
+            if (fragment != null) {
+                fragment.onMasterbarTabActivated();
+            } else {
+                // if fragment is null, try again after a short delay so there's time for it to be
+                // created - this will happen at startup when the current page is first set
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // make sure this is still the current position
+                        if (!isFinishing() && position == getCurrentPosition()) {
+                            BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(position);
+                            if (fragment != null) {
+                                fragment.onMasterbarTabActivated();
+                            }
+                        }
+                    }
+                }, HALF_SECOND_MS);
+            }
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+            // noop
+        }
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            // fire event if the "My Site" page is being scrolled so the fragment can
+            // animate its fab to match
+            if (position == WPMainTabAdapter.TAB_MY_SITE) {
+                EventBus.getDefault().post(new MainViewPagerScrolled(positionOffset));
+            }
+        }
+    };
+
+    private final TabLayout.OnTabSelectedListener mOnTabSelectedListener = new TabLayout.OnTabSelectedListener() {
+        @Override
+        public void onTabSelected(TabLayout.Tab tab) {
+            mViewPager.setCurrentItem(tab.getPosition());
+        }
+
+        @Override
+        public void onTabUnselected(TabLayout.Tab tab) {
+            //  nop
+        }
+
+        @Override
+        public void onTabReselected(TabLayout.Tab tab) {
+            // scroll the active fragment to the top, if available
+            Fragment fragment = mTabAdapter.getFragment(tab.getPosition());
+            if (fragment instanceof OnScrollToTopListener) {
+                ((OnScrollToTopListener) fragment).onScrollToTop();
+            }
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,7 +165,7 @@ public class WPMainActivity extends Activity
             public void onClick(View v) {
                 // slide out the bar on click, then re-check connection after a brief delay
                 AniUtils.animateBottomBar(mConnectionBar, false);
-                new Handler().postDelayed(new Runnable() {
+                mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         if (!isFinishing()) {
@@ -103,64 +175,14 @@ public class WPMainActivity extends Activity
                 }, 2000);
             }
         });
+
         mTabLayout = (WPMainTabLayout) findViewById(R.id.tab_layout);
         mTabLayout.createTabs();
 
-        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                mViewPager.setCurrentItem(tab.getPosition());
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                //  nop
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-                // scroll the active fragment to the top, if available
-                Fragment fragment = mTabAdapter.getFragment(tab.getPosition());
-                if (fragment instanceof OnScrollToTopListener) {
-                    ((OnScrollToTopListener) fragment).onScrollToTop();
-                }
-            }
-        });
+        mTabLayout.setOnTabSelectedListener(mOnTabSelectedListener);
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                AppPrefs.setMainTabIndex(position);
-
-                switch (position) {
-                    case WPMainTabAdapter.TAB_NOTIFS:
-                        new UpdateLastSeenTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                        break;
-                }
-                trackLastVisibleTab(position);
-
-                // tell the masterbar fragment at this position that it just become active
-                BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(position);
-                if (fragment != null) {
-                    fragment.onMasterbarTabActivated();
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                // noop
-            }
-
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                // fire event if the "My Site" page is being scrolled so the fragment can
-                // animate its fab to match
-                if (position == WPMainTabAdapter.TAB_MY_SITE) {
-                    EventBus.getDefault().post(new MainViewPagerScrolled(positionOffset));
-                }
-            }
-        });
+        mViewPager.addOnPageChangeListener(mOnPageChangeListener);
 
         if (savedInstanceState != null) {
             mWasPaused = savedInstanceState.getBoolean(KEY_WAS_PAUSED);
@@ -174,7 +196,7 @@ public class WPMainActivity extends Activity
                 launchWithNoteId();
             } else {
                 int position = AppPrefs.getMainTabIndex();
-                if (mTabAdapter.isValidPosition(position) && position != mViewPager.getCurrentItem()) {
+                if (mTabAdapter.isValidPosition(position) && position != getCurrentPosition()) {
                     mViewPager.setCurrentItem(position);
                 }
             }
@@ -284,10 +306,10 @@ public class WPMainActivity extends Activity
 
             // We need to track the current item on the screen when this activity is resumed.
             // Ex: Notifications -> notifications detail -> back to notifications
-            trackLastVisibleTab(mViewPager.getCurrentItem());
+            trackLastVisibleTab(getCurrentPosition());
 
             // tell the active masterbar fragment that the main activity was resumed
-            BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(mViewPager.getCurrentItem());
+            BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(getCurrentPosition());
             if (fragment != null) {
                 fragment.onMasterbarTabResumed();
             }
@@ -328,7 +350,7 @@ public class WPMainActivity extends Activity
         ReaderPostListFragment.resetLastUpdateDt();
 
         // remember the current tab position, then recreate the adapter so new fragments are created
-        int position = mViewPager.getCurrentItem();
+        int position = getCurrentPosition();
         mTabAdapter = new WPMainTabAdapter(getFragmentManager());
         mViewPager.setAdapter(mTabAdapter);
 
@@ -419,12 +441,13 @@ public class WPMainActivity extends Activity
         }
     }
 
+    private int getCurrentPosition() {
+        return mViewPager.getCurrentItem();
+    }
+
     private BaseMasterbarFragment getMasterbarFragmentAtPosition(int position) {
         Fragment fragment = (mTabAdapter != null ? mTabAdapter.getFragment(position) : null);
-        if (fragment instanceof BaseMasterbarFragment) {
-            return (BaseMasterbarFragment) fragment;
-        }
-        return null;
+        return (fragment instanceof BaseMasterbarFragment) ? (BaseMasterbarFragment) fragment : null;
     }
 
     /*
@@ -536,7 +559,7 @@ public class WPMainActivity extends Activity
     }
 
     private boolean isViewingNotificationsTab() {
-        return mViewPager.getCurrentItem() == WPMainTabAdapter.TAB_NOTIFS;
+        return getCurrentPosition() == WPMainTabAdapter.TAB_NOTIFS;
     }
 
     @Override
