@@ -71,6 +71,9 @@ public class WPMainActivity extends Activity
     public static final String ARG_OPENED_FROM_PUSH = "opened_from_push";
     private static final String KEY_WAS_PAUSED = "was_paused";
 
+    private static final long QUARTER_SECOND_MS = 500L;
+    private static final long TWO_SECONDS_MS = 2000L;
+
     /*
      * tab fragments implement this if their contents can be scrolled, called when user
      * requests to scroll to the top
@@ -79,7 +82,6 @@ public class WPMainActivity extends Activity
         void onScrollToTop();
     }
 
-    private static final long HALF_SECOND_MS = 500;
     private final ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
         public void onPageSelected(final int position) {
@@ -108,7 +110,7 @@ public class WPMainActivity extends Activity
                             }
                         }
                     }
-                }, HALF_SECOND_MS);
+                }, QUARTER_SECOND_MS);
             }
         }
 
@@ -156,7 +158,6 @@ public class WPMainActivity extends Activity
         setContentView(R.layout.main_activity);
 
         mViewPager = (WPViewPager) findViewById(R.id.viewpager_main);
-        mViewPager.setOffscreenPageLimit(WPMainTabAdapter.NUM_TABS - 1);
         mTabAdapter = new WPMainTabAdapter(getFragmentManager());
         mViewPager.setAdapter(mTabAdapter);
 
@@ -173,7 +174,7 @@ public class WPMainActivity extends Activity
                             checkConnection();
                         }
                     }
-                }, 2000);
+                }, TWO_SECONDS_MS);
             }
         });
 
