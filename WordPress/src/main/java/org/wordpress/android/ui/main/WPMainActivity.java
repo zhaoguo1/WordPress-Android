@@ -141,9 +141,9 @@ public class WPMainActivity extends Activity
         @Override
         public void onTabReselected(TabLayout.Tab tab) {
             // scroll the active fragment to the top, if available
-            Fragment fragment = mTabAdapter.getFragment(tab.getPosition());
-            if (fragment instanceof OnScrollToTopListener) {
-                ((OnScrollToTopListener) fragment).onScrollToTop();
+            BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(tab.getPosition());
+            if (fragment != null) {
+                fragment.onScrollToTop();
             }
         }
     };

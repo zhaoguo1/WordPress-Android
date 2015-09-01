@@ -35,8 +35,7 @@ import org.wordpress.android.widgets.WPTextView;
 
 import de.greenrobot.event.EventBus;
 
-public class MySiteFragment extends BaseMasterbarFragment
-        implements WPMainActivity.OnScrollToTopListener {
+public class MySiteFragment extends BaseMasterbarFragment {
 
     private static final long ALERT_ANIM_OFFSET_MS   = 1000l;
     private static final long ALERT_ANIM_DURATION_MS = 1000l;
@@ -314,6 +313,7 @@ public class MySiteFragment extends BaseMasterbarFragment
 
     @Override
     public void onScrollToTop() {
+        super.onScrollToTop();
         if (isAdded()) {
             mScrollView.smoothScrollTo(0, 0);
         }

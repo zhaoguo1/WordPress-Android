@@ -24,7 +24,6 @@ import org.wordpress.android.models.Note;
 import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.RequestCodes;
 import org.wordpress.android.ui.main.BaseMasterbarFragment;
-import org.wordpress.android.ui.main.WPMainActivity;
 import org.wordpress.android.ui.notifications.adapters.NotesAdapter;
 import org.wordpress.android.ui.notifications.utils.SimperiumUtils;
 import org.wordpress.android.util.AppLog;
@@ -36,8 +35,7 @@ import javax.annotation.Nonnull;
 import de.greenrobot.event.EventBus;
 
 public class NotificationsListFragment extends BaseMasterbarFragment
-        implements Bucket.Listener<Note>,
-                   WPMainActivity.OnScrollToTopListener {
+        implements Bucket.Listener<Note> {
     public static final String NOTE_ID_EXTRA = "noteId";
     public static final String NOTE_INSTANT_REPLY_EXTRA = "instantReply";
     public static final String NOTE_MODERATE_ID_EXTRA = "moderateNoteId";
@@ -346,6 +344,7 @@ public class NotificationsListFragment extends BaseMasterbarFragment
 
     @Override
     public void onScrollToTop() {
+        super.onScrollToTop();
         if (isAdded() && getScrollPosition() > 0) {
             mLinearLayoutManager.smoothScrollToPosition(mRecyclerView, null, 0);
         }

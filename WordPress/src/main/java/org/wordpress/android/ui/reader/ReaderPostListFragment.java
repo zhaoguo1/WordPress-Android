@@ -25,7 +25,6 @@ import org.wordpress.android.models.ReaderPostDiscoverData;
 import org.wordpress.android.models.ReaderTag;
 import org.wordpress.android.models.ReaderTagType;
 import org.wordpress.android.ui.main.BaseMasterbarFragment;
-import org.wordpress.android.ui.main.WPMainActivity;
 import org.wordpress.android.ui.prefs.AppPrefs;
 import org.wordpress.android.ui.reader.ReaderTypes.ReaderPostListType;
 import org.wordpress.android.ui.reader.actions.ReaderActions;
@@ -65,8 +64,7 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
         implements ReaderInterfaces.OnPostSelectedListener,
                    ReaderInterfaces.OnTagSelectedListener,
                    ReaderInterfaces.OnPostPopupListener,
-                   ReaderTagToolbar.OnTagChangedListener,
-                   WPMainActivity.OnScrollToTopListener {
+                   ReaderTagToolbar.OnTagChangedListener {
 
     private ReaderPostAdapter mPostAdapter;
     private ReaderRecyclerView mRecyclerView;
@@ -1102,6 +1100,7 @@ public class ReaderPostListFragment extends BaseMasterbarFragment
 
     @Override
     public void onScrollToTop() {
+        super.onScrollToTop();
         if (isAdded() && getCurrentPosition() > 0) {
             mRecyclerView.getLayoutManager().smoothScrollToPosition(mRecyclerView, null, 0);
         }
