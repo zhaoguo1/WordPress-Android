@@ -71,7 +71,7 @@ public class WPMainActivity extends Activity
     public static final String ARG_OPENED_FROM_PUSH = "opened_from_push";
     private static final String KEY_WAS_PAUSED = "was_paused";
 
-    private static final long QUARTER_SECOND_MS = 500L;
+    private static final long ONE_SECOND_MS  = 1000L;
     private static final long TWO_SECONDS_MS = 2000L;
 
     private final ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
@@ -102,7 +102,7 @@ public class WPMainActivity extends Activity
                             }
                         }
                     }
-                }, QUARTER_SECOND_MS);
+                }, ONE_SECOND_MS);
             }
         }
 
@@ -229,6 +229,8 @@ public class WPMainActivity extends Activity
     private void launchWithNoteId() {
         if (isFinishing() || getIntent() == null) return;
 
+        mViewPager.setCurrentItem(WPMainTabAdapter.TAB_NOTIFS);
+
         // Check for push authorization request
         if (getIntent().hasExtra(NotificationsUtils.ARG_PUSH_AUTH_TOKEN)) {
             Bundle extras = getIntent().getExtras();
@@ -246,8 +248,6 @@ public class WPMainActivity extends Activity
                 NotificationsUtils.showPushAuthAlert(this, token, title, message);
             }
         }
-
-        mViewPager.setCurrentItem(WPMainTabAdapter.TAB_NOTIFS);
 
         boolean shouldShowKeyboard = getIntent().getBooleanExtra(NotificationsListFragment.NOTE_INSTANT_REPLY_EXTRA, false);
         if (GCMIntentService.getNotificationsCount() == 1) {
