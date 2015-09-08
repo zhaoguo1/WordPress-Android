@@ -71,8 +71,8 @@ public class WPMainActivity extends Activity
     public static final String ARG_OPENED_FROM_PUSH = "opened_from_push";
     private static final String KEY_WAS_PAUSED = "was_paused";
 
-    private static final long ONE_SECOND_MS  = 1000L;
-    private static final long TWO_SECONDS_MS = 2000L;
+    private static final long QUARTER_SECOND_MS = 250L;
+    private static final long TWO_SECONDS_MS    = 2000L;
 
     private final ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
@@ -85,25 +85,7 @@ public class WPMainActivity extends Activity
             }
 
             // tell the masterbar fragment at this position that it just become active
-            BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(position);
-            if (fragment != null) {
-                fragment.onMasterbarTabActivated();
-            } else {
-                // if fragment is null, try again after a short delay so there's time for it to be
-                // created - this will happen at startup when the current page is first set
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        // make sure this is still the current position
-                        if (!isFinishing() && position == getCurrentPosition()) {
-                            BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(position);
-                            if (fragment != null) {
-                                fragment.onMasterbarTabActivated();
-                            }
-                        }
-                    }
-                }, ONE_SECOND_MS);
-            }
+            notifyMasterbarTabActivated(position, 0);
         }
 
         @Override
@@ -141,6 +123,30 @@ public class WPMainActivity extends Activity
             }
         }
     };
+
+    /*
+     * called when ViewPager tab changes, notifies the newly-active fragment that it has been
+     * activated - takes care of the situation where fragment hasn't been created yet (which
+     * may happen at startup) by waiting using incremental backoff
+     */
+    private void notifyMasterbarTabActivated(final int position, final int counter) {
+        BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(position);
+        if (fragment != null) {
+            fragment.onMasterbarTabActivated();
+        } else if (counter < 3) {
+            AppLog.i(T.MAIN, "main activity > waiting for fragment at position " + position + ", count=" + counter);
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (!isFinishing() && position == getCurrentPosition()) {
+                        notifyMasterbarTabActivated(position, counter + 1);
+                    }
+                }
+            }, QUARTER_SECOND_MS);
+        } else {
+            AppLog.w(T.MAIN, "main activity > failed waiting for fragment at position " + position);
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
