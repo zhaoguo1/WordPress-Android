@@ -85,7 +85,7 @@ public class WPMainActivity extends Activity
             }
 
             // tell the masterbar fragment at this position that it just become active
-            notifyMasterbarTabActivated(position, 0);
+            notifyMasterbarFragment(MasterbarFragmentEvent.FRAGMENT_ACTIVATED, position, 0);
         }
 
         @Override
@@ -125,21 +125,33 @@ public class WPMainActivity extends Activity
     };
 
     /*
-     * called when ViewPager tab changes, notifies the newly-active fragment that it has been
-     * activated - takes care of the situation where fragment hasn't been created yet (which
-     * may happen at startup) by waiting using incremental backoff
+     * notifies the newly-active fragment that it has been activated or resumed - takes care of
+     * the situation where fragment hasn't been created yet by waiting using incremental backoff
      */
-    private void notifyMasterbarTabActivated(final int position, final int counter) {
+    private enum MasterbarFragmentEvent {
+        FRAGMENT_ACTIVATED,
+        FRAGMENT_RESUMED
+    }
+    private void notifyMasterbarFragment(final MasterbarFragmentEvent event,
+                                         final int position,
+                                         final int counter) {
         BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(position);
         if (fragment != null) {
-            fragment.onMasterbarTabActivated();
+            switch (event) {
+                case FRAGMENT_ACTIVATED:
+                    fragment.onMasterbarTabActivated();
+                    break;
+                case FRAGMENT_RESUMED:
+                    fragment.onMasterbarTabResumed();
+                    break;
+            }
         } else if (counter < 3) {
             AppLog.i(T.MAIN, "main activity > waiting for fragment at position " + position + ", count=" + counter);
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     if (!isFinishing() && position == getCurrentPosition()) {
-                        notifyMasterbarTabActivated(position, counter + 1);
+                        notifyMasterbarFragment(event, position, counter + 1);
                     }
                 }
             }, QUARTER_SECOND_MS);
@@ -306,13 +318,11 @@ public class WPMainActivity extends Activity
 
             // We need to track the current item on the screen when this activity is resumed.
             // Ex: Notifications -> notifications detail -> back to notifications
-            trackLastVisibleTab(getCurrentPosition());
+            int position = getCurrentPosition();
+            trackLastVisibleTab(position);
 
             // tell the active masterbar fragment that the main activity was resumed
-            BaseMasterbarFragment fragment = getMasterbarFragmentAtPosition(getCurrentPosition());
-            if (fragment != null) {
-                fragment.onMasterbarTabResumed();
-            }
+            notifyMasterbarFragment(MasterbarFragmentEvent.FRAGMENT_RESUMED, position, 0);
         }
     }
 
