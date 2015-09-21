@@ -32,9 +32,12 @@ public class CustomTabsUtils {
 
             CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
                 @Override
-                public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) { }
+                public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
+                }
+
                 @Override
-                public void onServiceDisconnected(ComponentName name) { }
+                public void onServiceDisconnected(ComponentName name) {
+                }
             };
 
             mIsCustomTabsSupported = CustomTabsClient.bindCustomTabsService(context, packageNameToBind, connection);
@@ -47,63 +50,65 @@ public class CustomTabsUtils {
     }
 
     public enum OpenUrlType {
+        // show pages in-app even if custom tabs aren't supported
         INTERNAL,
+        // show pages in-app only if custom tabs are supported (external browser otherwise)
         INTERNAL_IF_CUSTOM_TABS_SUPPORTED,
+        // show pages in external browser
         EXTERNAL
     }
 
     public static void openUrl(Context context, String url) {
         openUrl(context, url, OpenUrlType.INTERNAL);
     }
+
     public static void openUrl(Context context, String url, OpenUrlType openUrlType) {
         if (context == null || TextUtils.isEmpty(url)) return;
 
-        boolean isInternal;
+        boolean isExternal;
         switch (openUrlType) {
-            case INTERNAL:
-                isInternal = true;
+            case EXTERNAL:
+                isExternal = true;
                 break;
             case INTERNAL_IF_CUSTOM_TABS_SUPPORTED:
-                isInternal = isCustomTabsSupported(context);
+                isExternal = !isCustomTabsSupported(context);
                 break;
             default:
-                isInternal = false;
+                isExternal = false;
                 break;
         }
 
-        if (isInternal) {
-            if (isCustomTabsSupported(context)) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                Bundle extras = new Bundle();
-                extras.putBinder(CustomTabsIntent.EXTRA_SESSION, null);
-                intent.putExtras(extras);
-
-                intent.putExtra(CustomTabsIntent.EXTRA_TITLE_VISIBILITY_STATE, CustomTabsIntent.SHOW_PAGE_TITLE);
-
-                Bitmap icon = BitmapFactory.decodeResource(
-                        context.getResources(), R.drawable.ic_arrow_back_black_24dp);
-                intent.putExtra(CustomTabsIntent.EXTRA_CLOSE_BUTTON_ICON, icon);
-
-                Bundle finishBundle = ActivityOptions.makeCustomAnimation(
-                        context, R.anim.do_nothing, R.anim.activity_slide_out_to_right).toBundle();
-                intent.putExtra(CustomTabsIntent.EXTRA_EXIT_ANIMATION_BUNDLE, finishBundle);
-
-                Bundle startBundle = ActivityOptions.makeCustomAnimation(
-                        context, R.anim.activity_slide_in_from_right, R.anim.do_nothing).toBundle();
-
-                context.startActivity(intent, startBundle);
-            } else {
-                WPWebViewActivity.openURL(context, url);
-            }
-        } else {
+        if (isExternal) {
             try {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 context.startActivity(intent);
                 AppLockManager.getInstance().setExtendedTimeout();
             } catch (ActivityNotFoundException e) {
-                String readerToastErrorUrlIntent = context.getString(R.string.reader_toast_err_url_intent);
-                ToastUtils.showToast(context, String.format(readerToastErrorUrlIntent, url), ToastUtils.Duration.LONG);
+                String errString = context.getString(R.string.reader_toast_err_url_intent);
+                ToastUtils.showToast(context, String.format(errString, url), ToastUtils.Duration.LONG);
             }
+        } else if (isCustomTabsSupported(context)) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            Bundle extras = new Bundle();
+            extras.putBinder(CustomTabsIntent.EXTRA_SESSION, null);
+            intent.putExtras(extras);
+
+            intent.putExtra(CustomTabsIntent.EXTRA_TITLE_VISIBILITY_STATE, CustomTabsIntent.SHOW_PAGE_TITLE);
+
+            Bitmap icon = BitmapFactory.decodeResource(
+                    context.getResources(), R.drawable.ic_arrow_back_black_24dp);
+            intent.putExtra(CustomTabsIntent.EXTRA_CLOSE_BUTTON_ICON, icon);
+
+            Bundle finishBundle = ActivityOptions.makeCustomAnimation(
+                    context, R.anim.do_nothing, R.anim.activity_slide_out_to_right).toBundle();
+            intent.putExtra(CustomTabsIntent.EXTRA_EXIT_ANIMATION_BUNDLE, finishBundle);
+
+            Bundle startBundle = ActivityOptions.makeCustomAnimation(
+                    context, R.anim.activity_slide_in_from_right, R.anim.do_nothing).toBundle();
+
+            context.startActivity(intent, startBundle);
+        } else {
+            WPWebViewActivity.openURL(context, url);
         }
     }
 }
