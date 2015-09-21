@@ -60,6 +60,7 @@ import org.wordpress.android.ui.suggestion.util.SuggestionUtils;
 import org.wordpress.android.util.AniUtils;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.AppLog.T;
+import org.wordpress.android.util.CustomTabsUtils;
 import org.wordpress.android.util.DateTimeUtils;
 import org.wordpress.android.util.EditTextUtils;
 import org.wordpress.android.util.GravatarUtils;
@@ -571,7 +572,7 @@ public class CommentDetailFragment extends Fragment implements NotificationFragm
             View.OnClickListener authorListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ReaderActivityLauncher.openUrl(getActivity(), mComment.getAuthorUrl());
+                    CustomTabsUtils.openUrl(getActivity(), mComment.getAuthorUrl());
                 }
             };
             imgAvatar.setOnClickListener(authorListener);

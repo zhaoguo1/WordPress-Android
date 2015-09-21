@@ -1,25 +1,20 @@
 package org.wordpress.android.ui.reader;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.text.TextUtils;
 import android.view.View;
 
-import org.wordpress.android.R;
 import org.wordpress.android.analytics.AnalyticsTracker;
 import org.wordpress.android.models.ReaderComment;
 import org.wordpress.android.models.ReaderPost;
 import org.wordpress.android.models.ReaderTag;
 import org.wordpress.android.ui.ActivityLauncher;
-import org.wordpress.android.ui.WPWebViewActivity;
 import org.wordpress.android.ui.reader.ReaderTypes.ReaderPostListType;
-import org.wordpress.android.util.ToastUtils;
 
 public class ReaderActivityLauncher {
 
@@ -207,32 +202,6 @@ public class ReaderActivityLauncher {
             }
         } else {
             context.startActivity(intent);
-        }
-    }
-
-    public enum OpenUrlType { INTERNAL, EXTERNAL }
-    public static void openUrl(Context context, String url) {
-        openUrl(context, url, OpenUrlType.INTERNAL);
-    }
-    public static void openUrl(Context context, String url, OpenUrlType openUrlType) {
-        if (TextUtils.isEmpty(url)) {
-            return;
-        }
-
-        if (openUrlType == OpenUrlType.INTERNAL) {
-            // Open the URL by using the internal browser without authenticating to wpcom.
-            // See: https://github.com/wordpress-mobile/WordPress-Android/issues/1921
-            // If you pass a wpcom URL that needs authentication to be viewed, it will work since
-            // the reader authenticates to wpcom at startup by calling ReaderAuthActions.updateCookies
-            WPWebViewActivity.openURL(context, url);
-        } else {
-            try {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                context.startActivity(intent);
-            } catch (ActivityNotFoundException e) {
-                String readerToastErrorUrlIntent = context.getString(R.string.reader_toast_err_url_intent);
-                ToastUtils.showToast(context, String.format(readerToastErrorUrlIntent, url), ToastUtils.Duration.LONG);
-            }
         }
     }
 }
