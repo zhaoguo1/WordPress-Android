@@ -5,6 +5,8 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsClient;
@@ -78,9 +80,9 @@ public class CustomTabsUtils {
 
                 intent.putExtra(CustomTabsIntent.EXTRA_TITLE_VISIBILITY_STATE, CustomTabsIntent.SHOW_PAGE_TITLE);
 
-                /*Bitmap icon = BitmapFactory.decodeResource(
+                Bitmap icon = BitmapFactory.decodeResource(
                         context.getResources(), R.drawable.ic_arrow_back_black_24dp);
-                intent.putExtra(CustomTabsIntent.EXTRA_CLOSE_BUTTON_ICON, icon);*/
+                intent.putExtra(CustomTabsIntent.EXTRA_CLOSE_BUTTON_ICON, icon);
 
                 Bundle finishBundle = ActivityOptions.makeCustomAnimation(
                         context, R.anim.do_nothing, R.anim.activity_slide_out_to_right).toBundle();
