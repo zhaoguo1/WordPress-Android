@@ -89,11 +89,12 @@ public class CustomTabsUtils {
             }
         } else if (isCustomTabsSupported(context)) {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            intent.putExtra(CustomTabsIntent.EXTRA_TITLE_VISIBILITY_STATE, CustomTabsIntent.SHOW_PAGE_TITLE);
+            CustomTabsHelper.addKeepAliveExtra(context, intent);
+
             Bundle extras = new Bundle();
             extras.putBinder(CustomTabsIntent.EXTRA_SESSION, null);
             intent.putExtras(extras);
-
-            intent.putExtra(CustomTabsIntent.EXTRA_TITLE_VISIBILITY_STATE, CustomTabsIntent.SHOW_PAGE_TITLE);
 
             Bitmap icon = BitmapFactory.decodeResource(
                     context.getResources(), R.drawable.ic_arrow_back_black_24dp);
