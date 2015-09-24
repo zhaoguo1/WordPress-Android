@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Bundle;
+import android.support.customtabs.CustomTabsCallback;
 import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
@@ -41,9 +43,9 @@ public class CustomTabsManager {
         EXTERNAL
     }
 
-    private CustomTabsSession mCustomTabsSession;
-    private CustomTabsClient mCustomTabsClient;
-    private CustomTabsServiceConnection mCustomTabsServiceConnection;
+    private CustomTabsSession mSession;
+    private CustomTabsClient mClient;
+    private CustomTabsServiceConnection mConnection;
 
     public static CustomTabsManager newInstance() {
         return new CustomTabsManager();
@@ -62,45 +64,58 @@ public class CustomTabsManager {
     }
 
     public void bindCustomTabsService(Context context) {
-        if (mCustomTabsClient != null) return;
+        if (mClient != null) return;
         if (!isCustomTabsSupported(context)) return;
 
         String packageNameToBind = CustomTabsHelper.getPackageNameToUse(context);
         if (packageNameToBind == null) return;
 
-        mCustomTabsServiceConnection = new CustomTabsServiceConnection() {
+        mConnection = new CustomTabsServiceConnection() {
             @Override
             public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
-                mCustomTabsClient = client;
-                mCustomTabsClient.warmup(0);
-                mCustomTabsSession = mCustomTabsClient.newSession(null);
+                mClient = client;
+                mClient.warmup(0);
             }
-
             @Override
             public void onServiceDisconnected(ComponentName name) {
-                mCustomTabsClient = null;
+                mClient = null;
             }
         };
 
-        boolean isConnected = CustomTabsClient.bindCustomTabsService(context, packageNameToBind, mCustomTabsServiceConnection);
+        boolean isConnected = CustomTabsClient.bindCustomTabsService(context, packageNameToBind, mConnection);
         if (!isConnected) {
-            mCustomTabsServiceConnection = null;
+            mConnection = null;
         }
     }
 
+    private CustomTabsSession getSession() {
+        if (mClient == null) {
+            mSession = null;
+        } else if (mSession == null) {
+            mSession = mClient.newSession(new CustomTabsCallback() {
+                @Override
+                public void onNavigationEvent(int navigationEvent, Bundle extras) {
+                    AppLog.d(AppLog.T.UTILS, "chrome onNavigationEvent > Code = " + navigationEvent);
+                }
+            });
+        }
+        return mSession;
+    }
+
     public void unbindCustomTabsService(Context context) {
-        if (mCustomTabsServiceConnection == null) return;
+        if (mConnection == null) return;
 
-        context.unbindService(mCustomTabsServiceConnection);
+        context.unbindService(mConnection);
 
-        mCustomTabsClient = null;
-        mCustomTabsSession = null;
-        mCustomTabsServiceConnection = null;
+        mClient = null;
+        mSession = null;
+        mConnection = null;
     }
 
     public void mayLaunchUrl(String url) {
-        if (mCustomTabsSession != null) {
-            mCustomTabsSession.mayLaunchUrl(Uri.parse(url), null, null);
+        CustomTabsSession session = getSession();
+        if (session != null) {
+            session.mayLaunchUrl(Uri.parse(url), null, null);
         }
     }
 
@@ -121,8 +136,8 @@ public class CustomTabsManager {
                 ToastUtils.showToast(context, String.format(errString, url), ToastUtils.Duration.LONG);
             }
         } else if (isCustomTabsSupported(context) && context instanceof Activity) {
-            // note that it's okay for mCustomTabsSession to be null here
-            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(mCustomTabsSession);
+            // note that it's okay for session to be null here
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(getSession());
             builder.setShowTitle(true);
             builder.setStartAnimations(context, R.anim.activity_slide_in_from_right, R.anim.do_nothing);
             builder.setExitAnimations(context, R.anim.do_nothing, R.anim.activity_slide_out_to_right);
