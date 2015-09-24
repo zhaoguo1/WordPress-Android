@@ -42,7 +42,7 @@ import org.wordpress.android.ui.reader.views.ReaderWebView.ReaderWebViewUrlClick
 import org.wordpress.android.util.AniUtils;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.AppLog.T;
-import org.wordpress.android.util.CustomTabsUtils;
+import org.wordpress.android.util.CustomTabsManager;
 import org.wordpress.android.util.DateTimeUtils;
 import org.wordpress.android.util.GravatarUtils;
 import org.wordpress.android.util.NetworkUtils;
@@ -190,10 +190,10 @@ public class ReaderPostDetailFragment extends Fragment
         int i = item.getItemId();
         if (i == R.id.menu_browse) {
             if (hasPost()) {
-                CustomTabsUtils.openUrl(
+                CustomTabsManager.browseUrl(
                         getActivity(),
                         mPost.getUrl(),
-                        CustomTabsUtils.OpenUrlType.INTERNAL_IF_CUSTOM_TABS_SUPPORTED);
+                        CustomTabsManager.OpenUrlType.INTERNAL_IF_CUSTOM_TABS_SUPPORTED);
             }
             return true;
         } else if (i == R.id.menu_share) {
@@ -804,9 +804,9 @@ public class ReaderPostDetailFragment extends Fragment
         // open YouTube videos in external app so they launch the YouTube player, open all other
         // urls using an AuthenticatedWebViewActivity
         if (ReaderVideoUtils.isYouTubeVideoLink(url)) {
-            CustomTabsUtils.openUrl(getActivity(), url, CustomTabsUtils.OpenUrlType.EXTERNAL);
+            CustomTabsManager.browseUrl(getActivity(), url, CustomTabsManager.OpenUrlType.EXTERNAL);
         } else {
-            CustomTabsUtils.openUrl(getActivity(), url, CustomTabsUtils.OpenUrlType.INTERNAL);
+            CustomTabsManager.browseUrl(getActivity(), url, CustomTabsManager.OpenUrlType.INTERNAL);
         }
         return true;
     }

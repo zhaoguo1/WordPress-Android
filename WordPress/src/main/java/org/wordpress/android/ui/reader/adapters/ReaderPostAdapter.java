@@ -32,7 +32,7 @@ import org.wordpress.android.ui.reader.views.ReaderIconCountView;
 import org.wordpress.android.ui.reader.views.ReaderTagInfoView;
 import org.wordpress.android.ui.reader.views.ReaderTagToolbar;
 import org.wordpress.android.util.AppLog;
-import org.wordpress.android.util.CustomTabsUtils;
+import org.wordpress.android.util.CustomTabsManager;
 import org.wordpress.android.util.DateTimeUtils;
 import org.wordpress.android.util.DisplayUtils;
 import org.wordpress.android.util.GravatarUtils;
@@ -454,7 +454,7 @@ public class ReaderPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                     v.getContext(),
                                     discoverData.getBlogId());
                         } else if (discoverData.hasBlogUrl()) {
-                            CustomTabsUtils.openUrl(v.getContext(), discoverData.getBlogUrl());
+                            CustomTabsManager.browseUrl(v.getContext(), discoverData.getBlogUrl());
                         }
                     }
                 });

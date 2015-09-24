@@ -43,7 +43,7 @@ import org.wordpress.android.ui.reader.views.ReaderTagToolbar;
 import org.wordpress.android.util.AniUtils;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.AppLog.T;
-import org.wordpress.android.util.CustomTabsUtils;
+import org.wordpress.android.util.CustomTabsManager;
 import org.wordpress.android.util.DateTimeUtils;
 import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ToastUtils;
@@ -948,7 +948,7 @@ public class ReaderPostListFragment extends Fragment
                 } else if (discoverData.hasPermalink()) {
                     // if we don't have a blogId/postId, we sadly resort to showing the post
                     // in a WebView activity - this will happen for non-JP self-hosted
-                    CustomTabsUtils.openUrl(getActivity(), discoverData.getPermaLink());
+                    CustomTabsManager.browseUrl(getActivity(), discoverData.getPermaLink());
                     return;
                 }
             }
