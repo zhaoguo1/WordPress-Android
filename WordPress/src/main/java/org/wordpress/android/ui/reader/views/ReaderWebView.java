@@ -31,8 +31,8 @@ import java.net.URL;
 public class ReaderWebView extends WebView {
 
     public interface ReaderWebViewUrlClickListener {
-        boolean onUrlClick(String url);
-        boolean onImageUrlClick(String imageUrl, View view, int x, int y);
+        boolean onWebViewUrlClick(String url);
+        boolean onWebViewImageUrlClick(String imageUrl, View view, int x, int y);
     }
 
     public interface ReaderCustomViewListener {
@@ -163,13 +163,13 @@ public class ReaderWebView extends WebView {
             HitTestResult hr = getHitTestResult();
             if (hr != null && isValidClickedUrl(hr.getExtra())) {
                 if (UrlUtils.isImageUrl(hr.getExtra())) {
-                    return mUrlClickListener.onImageUrlClick(
+                    return mUrlClickListener.onWebViewImageUrlClick(
                             hr.getExtra(),
                             this,
                             (int) event.getX(),
                             (int) event.getY());
                 } else {
-                    return mUrlClickListener.onUrlClick(hr.getExtra());
+                    return mUrlClickListener.onWebViewUrlClick(hr.getExtra());
                 }
             }
         }
@@ -202,7 +202,7 @@ public class ReaderWebView extends WebView {
             if (view.getVisibility() == View.VISIBLE
                     && mReaderWebView.hasUrlClickListener()
                     && isValidClickedUrl(url)) {
-                return mReaderWebView.getUrlClickListener().onUrlClick(url);
+                return mReaderWebView.getUrlClickListener().onWebViewUrlClick(url);
             } else {
                 return false;
             }

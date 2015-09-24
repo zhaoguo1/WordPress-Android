@@ -29,6 +29,7 @@ import org.wordpress.android.ui.reader.services.ReaderPostService;
 import org.wordpress.android.util.AniUtils;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.CustomTabsManager;
+import org.wordpress.android.util.CustomTabsManager.OpenUrlType;
 import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.widgets.WPViewPager;
 
@@ -378,7 +379,7 @@ public class ReaderPostPagerActivity extends AppCompatActivity
      */
     @Override
     public void onReaderUrlClicked(String url) {
-        mCustomTabsManager.openUrl(this, url);
+        mCustomTabsManager.openUrl(this, url, OpenUrlType.INTERNAL_IF_CUSTOM_TABS_SUPPORTED);
     }
 
     /**

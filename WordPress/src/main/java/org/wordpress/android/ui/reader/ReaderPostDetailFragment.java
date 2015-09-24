@@ -798,7 +798,7 @@ public class ReaderPostDetailFragment extends Fragment
     }
 
     @Override
-    public boolean onUrlClick(String url) {
+    public boolean onWebViewUrlClick(String url) {
         // if this is a "wordpress://blogpreview?" link, show blog preview for the blog - this is
         // used for Discover posts that highlight a blog
         if (ReaderUtils.isBlogPreviewUrl(url)) {
@@ -813,15 +813,18 @@ public class ReaderPostDetailFragment extends Fragment
         if (ReaderVideoUtils.isYouTubeVideoLink(url)) {
             CustomTabsManager.browseUrl(getActivity(), url, CustomTabsManager.OpenUrlType.EXTERNAL);
         } else if (mUrlClickListener != null) {
+            // pass to the activity's url listener (ReaderPostPagerActivity)
             mUrlClickListener.onReaderUrlClicked(url);
         } else {
+            // open in internal browser
             CustomTabsManager.browseUrl(getActivity(), url, CustomTabsManager.OpenUrlType.INTERNAL);
         }
+
         return true;
     }
 
     @Override
-    public boolean onImageUrlClick(String imageUrl, View view, int x, int y) {
+    public boolean onWebViewImageUrlClick(String imageUrl, View view, int x, int y) {
         return showPhotoViewer(imageUrl, view, x, y);
     }
 

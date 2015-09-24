@@ -55,8 +55,12 @@ public class CustomTabsManager {
         // noop for now
     }
 
+    /*
+     * activities should call this in onResume()
+     */
     public void bindCustomTabsService(Context context) {
         if (mCustomTabsClient != null) return;
+        if (!isCustomTabsSupported(context)) return;
 
         String packageNameToBind = CustomTabsHelper.getPackageNameToUse(context);
         if (packageNameToBind == null) return;
@@ -81,11 +85,17 @@ public class CustomTabsManager {
         }
     }
 
+    /*
+     * activities should call this in onPause()
+     */
     public void unbindCustomTabsService(Context context) {
         if (mCustomTabsServiceConnection == null) return;
+
         context.unbindService(mCustomTabsServiceConnection);
+
         mCustomTabsClient = null;
         mCustomTabsSession = null;
+        mCustomTabsServiceConnection = null;
     }
 
     public void mayLaunchUrl(String url) {
@@ -110,7 +120,7 @@ public class CustomTabsManager {
                 String errString = context.getString(org.wordpress.android.R.string.reader_toast_err_url_intent);
                 ToastUtils.showToast(context, String.format(errString, url), ToastUtils.Duration.LONG);
             }
-        } else if (isCustomTabsSupported(context)) {
+        } else if (isCustomTabsSupported(context) && context instanceof Activity) {
             // note that it's okay for mCustomTabsSession to be null here
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(mCustomTabsSession);
             builder.setShowTitle(true);
@@ -120,30 +130,8 @@ public class CustomTabsManager {
                     BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_arrow_back_black_24dp));
             CustomTabsIntent customTabsIntent = builder.build();
             CustomTabsHelper.addKeepAliveExtra(context, customTabsIntent.intent);
-            // TODO: could passed context be anything other than an activity?
+            // instanceof check in else statement was so we could safely pass an activity here
             customTabsIntent.launchUrl((Activity) context, Uri.parse(url));
-
-            /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            intent.putExtra(CustomTabsIntent.EXTRA_TITLE_VISIBILITY_STATE, CustomTabsIntent.SHOW_PAGE_TITLE);
-            CustomTabsHelper.addKeepAliveExtra(context, intent);
-
-            Bundle extras = new Bundle();
-            extras.putBinder(CustomTabsIntent.EXTRA_SESSION,
-                    mCustomTabsSession.asBinder()); // <-- asBinder is package local!
-            intent.putExtras(extras);
-
-            Bitmap icon = BitmapFactory.decodeResource(
-                    context.getResources(), R.drawable.ic_arrow_back_black_24dp);
-            intent.putExtra(CustomTabsIntent.EXTRA_CLOSE_BUTTON_ICON, icon);
-
-            Bundle finishBundle = ActivityOptions.makeCustomAnimation(
-                    context, R.anim.do_nothing, R.anim.activity_slide_out_to_right).toBundle();
-            intent.putExtra(CustomTabsIntent.EXTRA_EXIT_ANIMATION_BUNDLE, finishBundle);
-
-            Bundle startBundle = ActivityOptions.makeCustomAnimation(
-                    context, R.anim.activity_slide_in_from_right, R.anim.do_nothing).toBundle();
-
-            context.startActivity(intent, startBundle);*/
         } else {
             WPWebViewActivity.openURL(context, url);
         }
