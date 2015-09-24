@@ -28,6 +28,7 @@ import org.wordpress.android.ui.reader.models.ReaderBlogIdPostIdList;
 import org.wordpress.android.ui.reader.services.ReaderPostService;
 import org.wordpress.android.util.AniUtils;
 import org.wordpress.android.util.AppLog;
+import org.wordpress.android.util.CustomTabsManager;
 import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.widgets.WPViewPager;
 
@@ -43,7 +44,7 @@ import de.greenrobot.event.EventBus;
  * post detail
  */
 public class ReaderPostPagerActivity extends AppCompatActivity
-        implements ReaderInterfaces.AutoHideToolbarListener {
+        implements ReaderInterfaces.AutoHideToolbarListener, ReaderInterfaces.OnReaderUrlClickedListener {
 
     private WPViewPager mViewPager;
     private ProgressBar mProgress;
@@ -57,6 +58,7 @@ public class ReaderPostPagerActivity extends AppCompatActivity
     private boolean mIsRequestingMorePosts;
     private boolean mIsSinglePostView;
 
+    private final CustomTabsManager mCustomTabsManager = CustomTabsManager.newInstance();
     private final HashSet<Integer> mBumpedPageViewPositions = new HashSet<>();
 
     private static final String ARG_IS_SINGLE_POST = "is_single_post";
@@ -111,6 +113,9 @@ public class ReaderPostPagerActivity extends AppCompatActivity
                 AnalyticsTracker.track(AnalyticsTracker.Stat.READER_OPENED_ARTICLE);
                 onShowHideToolbar(true);
                 bumpPageViewIfNeeded(position);
+                // tell the custom tab manager that the user may display this post's url
+                String url = getPagerAdapter().getPostUrlAtPosition(position);
+                mCustomTabsManager.mayLaunchUrl(url);
             }
 
             @Override
@@ -135,6 +140,7 @@ public class ReaderPostPagerActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
+        mCustomTabsManager.bindCustomTabsService(this);
         if (!hasPagerAdapter()) {
             loadPosts(mBlogId, mPostId);
         }
@@ -143,6 +149,7 @@ public class ReaderPostPagerActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
+        mCustomTabsManager.unbindCustomTabsService(this);
         EventBus.getDefault().unregister(this);
     }
 
@@ -366,6 +373,14 @@ public class ReaderPostPagerActivity extends AppCompatActivity
         }
     }
 
+    /*
+     * called by detail fragment when user clicks a link or shows the post in the browser
+     */
+    @Override
+    public void onReaderUrlClicked(String url) {
+        mCustomTabsManager.openUrl(this, url);
+    }
+
     /**
      * pager adapter containing post detail fragments
      **/
@@ -467,6 +482,15 @@ public class ReaderPostPagerActivity extends AppCompatActivity
         ReaderBlogIdPostId getBlogIdPostIdAtPosition(int position) {
             if (isValidPosition(position)) {
                 return mIdList.get(position);
+            } else {
+                return null;
+            }
+        }
+
+        String getPostUrlAtPosition(int position) {
+            ReaderBlogIdPostId ids = getBlogIdPostIdAtPosition(position);
+            if (ids != null) {
+                return ReaderPostTable.getPostUrl(ids.getBlogId(), ids.getPostId());
             } else {
                 return null;
             }

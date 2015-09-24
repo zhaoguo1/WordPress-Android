@@ -81,7 +81,7 @@ public class CustomTabsManager {
         }
     }
 
-    private void unbindCustomTabsService(Context context) {
+    public void unbindCustomTabsService(Context context) {
         if (mCustomTabsServiceConnection == null) return;
         context.unbindService(mCustomTabsServiceConnection);
         mCustomTabsClient = null;
@@ -120,6 +120,7 @@ public class CustomTabsManager {
                     BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_arrow_back_black_24dp));
             CustomTabsIntent customTabsIntent = builder.build();
             CustomTabsHelper.addKeepAliveExtra(context, customTabsIntent.intent);
+            // TODO: could passed context be anything other than an activity?
             customTabsIntent.launchUrl((Activity) context, Uri.parse(url));
 
             /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));

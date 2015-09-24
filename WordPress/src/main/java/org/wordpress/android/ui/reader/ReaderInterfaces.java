@@ -6,25 +6,32 @@ import org.wordpress.android.models.ReaderPost;
 
 public class ReaderInterfaces {
 
-    public static interface OnPostSelectedListener {
+    public interface OnPostSelectedListener {
         public void onPostSelected(ReaderPost post);
     }
 
-    public static interface OnTagSelectedListener {
+    public interface OnTagSelectedListener {
         public void onTagSelected(String tagName);
+    }
+
+    /*
+     * called from post detail fragment when user clicks a link
+     */
+    public interface OnReaderUrlClickedListener {
+        public void onReaderUrlClicked(String url);
     }
 
     /*
      * called from post detail fragment so toolbar can animate in/out when scrolling
      */
-    public static interface AutoHideToolbarListener {
+    public interface AutoHideToolbarListener {
         public void onShowHideToolbar(boolean show);
     }
 
     /*
      * called when user taps the dropdown arrow next to a post to show the popup menu
      */
-    public static interface OnPostPopupListener {
+    public interface OnPostPopupListener {
         public void onShowPostPopup(View view, ReaderPost post);
     }
 

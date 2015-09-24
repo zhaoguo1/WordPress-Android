@@ -76,6 +76,7 @@ public class ReaderPostDetailFragment extends Fragment
     private int mToolbarHeight;
 
     private ReaderInterfaces.AutoHideToolbarListener mAutoHideToolbarListener;
+    private ReaderInterfaces.OnReaderUrlClickedListener mUrlClickListener;
 
     public static ReaderPostDetailFragment newInstance(long blogId, long postId) {
         return newInstance(blogId, postId, null);
@@ -122,6 +123,9 @@ public class ReaderPostDetailFragment extends Fragment
         super.onAttach(activity);
         if (activity instanceof ReaderInterfaces.AutoHideToolbarListener) {
             mAutoHideToolbarListener = (ReaderInterfaces.AutoHideToolbarListener) activity;
+        }
+        if (activity instanceof ReaderInterfaces.OnReaderUrlClickedListener) {
+            mUrlClickListener = (ReaderInterfaces.OnReaderUrlClickedListener) activity;
         }
         mToolbarHeight = activity.getResources().getDimensionPixelSize(R.dimen.toolbar_height);
     }
@@ -190,10 +194,14 @@ public class ReaderPostDetailFragment extends Fragment
         int i = item.getItemId();
         if (i == R.id.menu_browse) {
             if (hasPost()) {
-                CustomTabsManager.browseUrl(
-                        getActivity(),
-                        mPost.getUrl(),
-                        CustomTabsManager.OpenUrlType.INTERNAL_IF_CUSTOM_TABS_SUPPORTED);
+                if (mUrlClickListener != null) {
+                    mUrlClickListener.onReaderUrlClicked(mPost.getUrl());
+                } else {
+                    CustomTabsManager.browseUrl(
+                            getActivity(),
+                            mPost.getUrl(),
+                            CustomTabsManager.OpenUrlType.INTERNAL_IF_CUSTOM_TABS_SUPPORTED);
+                }
             }
             return true;
         } else if (i == R.id.menu_share) {
@@ -801,10 +809,11 @@ public class ReaderPostDetailFragment extends Fragment
             return true;
         }
 
-        // open YouTube videos in external app so they launch the YouTube player, open all other
-        // urls using an AuthenticatedWebViewActivity
+        // open YouTube videos in external app so they launch the YouTube player
         if (ReaderVideoUtils.isYouTubeVideoLink(url)) {
             CustomTabsManager.browseUrl(getActivity(), url, CustomTabsManager.OpenUrlType.EXTERNAL);
+        } else if (mUrlClickListener != null) {
+            mUrlClickListener.onReaderUrlClicked(url);
         } else {
             CustomTabsManager.browseUrl(getActivity(), url, CustomTabsManager.OpenUrlType.INTERNAL);
         }
