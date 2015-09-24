@@ -18,8 +18,17 @@ import org.wordpress.android.R;
 import org.wordpress.android.ui.WPWebViewActivity;
 import org.wordpress.passcodelock.AppLockManager;
 
-/*
+/**
  * enables simplified handling of Chrome custom tabs in any activity
+ *
+ *  1. create CustomTabsManager instance in onCreate()
+ *  2. call bindCustomTabService() in onResume()
+ *  3. call unbindCustomTabService() in onPause()
+ *  4. call mayLaunchUrl() to provide hints on urls the user may load
+ *  5. call openUrl() to display the page
+ *
+ * activities which don't need the benefits on mayLaunchUrl() can skip all that
+ * and simply call the static browseUrl() method
  */
 public class CustomTabsManager {
 
@@ -40,9 +49,6 @@ public class CustomTabsManager {
         return new CustomTabsManager();
     }
 
-    /*
-     * use these two routines to open a URL when a CustomTabsManager isn't necessary
-     */
     public static void browseUrl(Context context, String url) {
         newInstance().openUrl(context, url);
     }
@@ -55,9 +61,6 @@ public class CustomTabsManager {
         // noop for now
     }
 
-    /*
-     * activities should call this in onResume()
-     */
     public void bindCustomTabsService(Context context) {
         if (mCustomTabsClient != null) return;
         if (!isCustomTabsSupported(context)) return;
@@ -85,9 +88,6 @@ public class CustomTabsManager {
         }
     }
 
-    /*
-     * activities should call this in onPause()
-     */
     public void unbindCustomTabsService(Context context) {
         if (mCustomTabsServiceConnection == null) return;
 
@@ -137,6 +137,9 @@ public class CustomTabsManager {
         }
     }
 
+    /*
+     * test whether Chrome custom tabs are supported by attempting to bind to the service
+     */
     private static Boolean mIsCustomTabsSupported;
     private static boolean isCustomTabsSupported(Context context) {
         if (mIsCustomTabsSupported == null) {

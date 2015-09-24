@@ -379,7 +379,7 @@ public class ReaderPostPagerActivity extends AppCompatActivity
      */
     @Override
     public void onReaderUrlClicked(String url) {
-        mCustomTabsManager.openUrl(this, url, OpenUrlType.INTERNAL_IF_CUSTOM_TABS_SUPPORTED);
+        mCustomTabsManager.openUrl(this, url);
     }
 
     /**
