@@ -289,7 +289,9 @@ public class ReaderPostDetailFragment extends Fragment
         refreshIconCounts();
 
         if (isAskingToLike) {
-            AnalyticsTracker.track(AnalyticsTracker.Stat.READER_LIKED_ARTICLE);
+            AnalyticsTracker.track(AnalyticsTracker.Stat.READER_ARTICLE_LIKED);
+        } else {
+            AnalyticsTracker.track(AnalyticsTracker.Stat.READER_ARTICLE_UNLIKED);
         }
     }
 
@@ -644,13 +646,16 @@ public class ReaderPostDetailFragment extends Fragment
 
             txtTitle.setText(mPost.hasTitle() ? mPost.getTitle() : getString(R.string.reader_untitled_post));
 
-            followButton.setIsFollowed(mPost.isFollowedByCurrentUser);
-            followButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    togglePostFollowed();
-                }
-            });
+            followButton.setVisibility(mIsLoggedOutReader ? View.GONE : View.VISIBLE);
+            if (!mIsLoggedOutReader) {
+                followButton.setIsFollowed(mPost.isFollowedByCurrentUser);
+                followButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        togglePostFollowed();
+                    }
+                });
+            }
 
             // clicking the header shows blog preview
             if (getPostListType() != ReaderPostListType.BLOG_PREVIEW) {
@@ -890,16 +895,26 @@ public class ReaderPostDetailFragment extends Fragment
     }
 
     private boolean canShowCommentCount() {
-        return mPost != null
-                && mPost.isWP()
+        if (mPost == null) {
+            return false;
+        }
+        if (mIsLoggedOutReader) {
+            return mPost.numReplies > 0;
+        }
+        return mPost.isWP()
                 && !mPost.isJetpack
                 && !mPost.isDiscoverPost()
                 && (mPost.isCommentsOpen || mPost.numReplies > 0);
     }
 
     private boolean canShowLikeCount() {
-        return mPost != null
-                && (mPost.canLikePost() || mPost.numLikes > 0);
+        if (mPost == null) {
+            return false;
+        }
+        if (mIsLoggedOutReader) {
+            return mPost.numLikes > 0;
+        }
+        return mPost.canLikePost() || mPost.numLikes > 0;
     }
 
 }
