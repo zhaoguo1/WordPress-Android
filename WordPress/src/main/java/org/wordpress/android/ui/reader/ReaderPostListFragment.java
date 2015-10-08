@@ -735,6 +735,16 @@ public class ReaderPostListFragment extends Fragment
     }
 
     /*
+     * same as above but clears posts before refreshing
+     */
+    private void reloadPosts() {
+        hideNewPostsBar();
+        if (hasPostAdapter()) {
+            getPostAdapter().reload();
+        }
+    }
+
+    /*
      * get posts for the current blog from the server
      */
     private void updatePostsInCurrentBlogOrFeed(final UpdateAction updateAction) {
@@ -781,6 +791,12 @@ public class ReaderPostListFragment extends Fragment
         } else {
             boolean requestFailed = (event.getResult() == ReaderActions.UpdateResult.FAILED);
             setEmptyTitleAndDescription(requestFailed);
+            // if we requested posts in order to fill a gap but the request failed or didn't
+            // return any posts, reload the adapter so the gap marker is reset (hiding its
+            // progress bar)
+            if (event.getAction() == UpdateAction.REQUEST_OLDER_THAN_GAP) {
+                reloadPosts();
+            }
         }
     }
 
@@ -879,6 +895,12 @@ public class ReaderPostListFragment extends Fragment
             showSwipeToRefreshProgress(false);
         }
         mIsUpdating = isUpdating;
+
+        // if swipe-to-refresh isn't active, keep it disabled during an update - this prevents
+        // doing a refresh while another update is already in progress
+        if (mSwipeToRefreshHelper != null && !mSwipeToRefreshHelper.isRefreshing()) {
+            mSwipeToRefreshHelper.setEnabled(!isUpdating);
+        }
     }
 
     /*
@@ -895,6 +917,9 @@ public class ReaderPostListFragment extends Fragment
 
         AniUtils.startAnimation(mNewPostsBar, R.anim.reader_top_bar_in);
         mNewPostsBar.setVisibility(View.VISIBLE);
+
+        // remove the gap marker if it's showing, since it's no longer valid
+        getPostAdapter().removeGapMarker();
     }
 
     private void hideNewPostsBar() {
