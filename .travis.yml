@@ -22,6 +22,11 @@ env:
     - GRADLE_OPTS="-XX:MaxPermSize=4g -Xmx4g"
     - ANDROID_SDKS=android-14
     - ANDROID_TARGET=android-14
+    # Username
+    - secure: "YChsdOlmprsul75Wp96y63eUp0ZFafM9f1Syi1S6d1AewfIvaJmWw+cq26vQPE8868KJfhLvSH2eQJ67/jR4agUs9Z4vWlD4zYV+PSA0l3dXh2LIkBaJ28ACdpvFmZzh/gZpcNLEyBu160K9afKx9TSc40eiQgHAYjTvqbnq7H4="
+    # Password
+    - secure: "JootE3YTPaKW6tbDBH0XdpjUUQxfSHQO5Ji3a1zfYRto4fttaNW8m3I7UJBQa62lWD+TorvsgFX6d2YrBIe6RS07Hn5kN/iblC7Eh7wXpvj8K24dZKboSeTXxkjOmbqpk9eQiQd32uUeXqCPzrZYpTYzBCbEjROGs+7OT0fN1QQ="
+    - "SAUCE=1"
 
 install:
   # Setup gradle.properties
@@ -32,11 +37,6 @@ addons:
     username: "srstancil"
     access_key:
       secure: "YFkTrLnL2yOUbhJK4a08AK9gLAk7WPCvu78MvnVv0W7XajLq+7/bdlQtME0MXz5OuvRFalF0Kv2sxZjLGmUi/EJ/zkVlECCWt9kBL4vxMjI7f4J/TiP9Q+QCuupfr1pFUXT6npcflR8LOPMxAzkdPbtZeC9/3qAu/VyrUPTkQfs="
-
-env:
-  - secure: "Mepx2TQH11n/2dGKUBobeQ2Jxz2cBdcd3v8XlJhcL/7yRxhDNPdf2QRQ+FUXkzOfwB3WZ4El83bw5LVexI6UL/6aHT6xjhAMH4/ruxoxstpFZ0QWDtzb8+SVbWrcWeW2TJeAm+Md8RuYM9j5xiGOPzcX5mg5CBav8T1GG6bNGuU=" # Username
-  - secure: "NddERPVyE9xjU3CsGmBwf+6wXmKjeox4tBpvfn5BdUr4/xsqj1Aqm2hB2n5uK/KWwEmcsTYVIvPtCSrRd1XXYDxWHL9acUl9DAW2TNWI2sL3RJcuxGFU/hiqKIZncz2hPysdVPGNS4hFWdgDCZnc+MBMFZU7/lHxMCJxRUQREoI=" # Password
-  - "SAUCE=1"
 
 before_script:
   - npm install
