@@ -27,9 +27,18 @@ install:
   # Setup gradle.properties
   - cp WordPress/gradle.properties-example WordPress/gradle.properties
 
+addons:
+  sauce_connect:
+    username: "srstancil"
+    access_key:
+      secure: "YFkTrLnL2yOUbhJK4a08AK9gLAk7WPCvu78MvnVv0W7XajLq+7/bdlQtME0MXz5OuvRFalF0Kv2sxZjLGmUi/EJ/zkVlECCWt9kBL4vxMjI7f4J/TiP9Q+QCuupfr1pFUXT6npcflR8LOPMxAzkdPbtZeC9/3qAu/VyrUPTkQfs="
+
+env:
+  - "SAUCE=1"
+
 before_script:
   - npm install
 
 script:
-  - ./gradlew -PdisablePreDex build
+  # Temporarily removing to speed up first hack at testing - ./gradlew -PdisablePreDex build
   - npm test
