@@ -1,0 +1,21 @@
+{
+  "name": "wordpress-android-tests",
+  "version": "1.0.0",
+  "description": "Appium tests for the WordPress Android app",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/specs"
+  },
+  "author": "hoverduck",
+  "license": "Apache 2",
+  "devDependencies": {
+    "chai": "^2.2.0",
+    "chai-as-promised": "^5.0.0",
+    "colors": "^1.0.3",
+    "express": "^4.12.3",
+    "q": "^2.0.2",
+    "underscore": "^1.8.3",
+    "wd": "^0.3.11",
+    "mocha": "^2.3.3"
+  }
+}

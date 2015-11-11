@@ -27,5 +27,9 @@ install:
   # Setup gradle.properties
   - cp WordPress/gradle.properties-example WordPress/gradle.properties
 
+before_script:
+  - npm install
+
 script:
   - ./gradlew -PdisablePreDex build
+  - npm test
