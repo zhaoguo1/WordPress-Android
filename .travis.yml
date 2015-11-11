@@ -34,8 +34,8 @@ addons:
       secure: "YFkTrLnL2yOUbhJK4a08AK9gLAk7WPCvu78MvnVv0W7XajLq+7/bdlQtME0MXz5OuvRFalF0Kv2sxZjLGmUi/EJ/zkVlECCWt9kBL4vxMjI7f4J/TiP9Q+QCuupfr1pFUXT6npcflR8LOPMxAzkdPbtZeC9/3qAu/VyrUPTkQfs="
 
 env:
-  secure: "Mepx2TQH11n/2dGKUBobeQ2Jxz2cBdcd3v8XlJhcL/7yRxhDNPdf2QRQ+FUXkzOfwB3WZ4El83bw5LVexI6UL/6aHT6xjhAMH4/ruxoxstpFZ0QWDtzb8+SVbWrcWeW2TJeAm+Md8RuYM9j5xiGOPzcX5mg5CBav8T1GG6bNGuU=" # Username
-  secure: "NddERPVyE9xjU3CsGmBwf+6wXmKjeox4tBpvfn5BdUr4/xsqj1Aqm2hB2n5uK/KWwEmcsTYVIvPtCSrRd1XXYDxWHL9acUl9DAW2TNWI2sL3RJcuxGFU/hiqKIZncz2hPysdVPGNS4hFWdgDCZnc+MBMFZU7/lHxMCJxRUQREoI=" # Password
+  - secure: "Mepx2TQH11n/2dGKUBobeQ2Jxz2cBdcd3v8XlJhcL/7yRxhDNPdf2QRQ+FUXkzOfwB3WZ4El83bw5LVexI6UL/6aHT6xjhAMH4/ruxoxstpFZ0QWDtzb8+SVbWrcWeW2TJeAm+Md8RuYM9j5xiGOPzcX5mg5CBav8T1GG6bNGuU=" # Username
+  - secure: "NddERPVyE9xjU3CsGmBwf+6wXmKjeox4tBpvfn5BdUr4/xsqj1Aqm2hB2n5uK/KWwEmcsTYVIvPtCSrRd1XXYDxWHL9acUl9DAW2TNWI2sL3RJcuxGFU/hiqKIZncz2hPysdVPGNS4hFWdgDCZnc+MBMFZU7/lHxMCJxRUQREoI=" # Password
   - "SAUCE=1"
 
 before_script:
