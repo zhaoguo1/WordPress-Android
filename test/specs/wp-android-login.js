@@ -56,8 +56,8 @@ describe("WordPress Android", function () {
     var loggedInConfirmation = "//android.widget.LinearLayout[1]/android.widget.FrameLayout[1]/android.widget.RelativeLayout[1]/android.widget.HorizontalScrollView[1]/android.widget.LinearLayout[1]/android.support.v7.app.ActionBar.Tab[1]";
     return driver.elementById("org.wordpress.android:id/nux_username")
         .should.eventually.exist
-        .elementById("org.wordpress.android:id/nux_username").click().sendKeys("hd83")
-        .elementById("org.wordpress.android:id/nux_password").click().sendKeys("Abcde123@")
+        .elementById("org.wordpress.android:id/nux_username").click().sendKeys(process.env.TEST_USERNAME)
+        .elementById("org.wordpress.android:id/nux_password").click().sendKeys(process.env.TEST_PASSWORD)
 	.takeScreenshot()
         .elementById("org.wordpress.android:id/nux_sign_in_button").click()
         .elementByXPath(loggedInConfirmation).should.eventually.exist

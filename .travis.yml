@@ -34,6 +34,8 @@ addons:
       secure: "YFkTrLnL2yOUbhJK4a08AK9gLAk7WPCvu78MvnVv0W7XajLq+7/bdlQtME0MXz5OuvRFalF0Kv2sxZjLGmUi/EJ/zkVlECCWt9kBL4vxMjI7f4J/TiP9Q+QCuupfr1pFUXT6npcflR8LOPMxAzkdPbtZeC9/3qAu/VyrUPTkQfs="
 
 env:
+  secure: "NKjJLUHGqq7m7KoH+yVZxvqDatBBFOac7h8TCVPl7igKynDsMJ6jq8db68i/6qVXORwO/7SFsoXScOkxzxuMG0HzyF2ZD3YjGM/hsnNMAZFdELsMvvQ5rUv4U/M/PCRzqV6sodK3aRTcqH+W2OdrRo992R/eipiUAf8dZmQsoJ4="
+  secure: "DyK0OqOJaE2OZiJwUr2sbHSQZbC6vl7pXQZILNmpop2/NKpp5kln8uKFQbqgNkNCyQXX31SOYAHk2ud8NkrtzlEjzAe5psIDIzAfFdoguXqRRbnAfMJCivSfwfAE+hS44BBlG8zENeY0TOMEM6LPZlAn2C1RE4bljA26N6M6hSg="
   - "SAUCE=1"
 
 before_script:
