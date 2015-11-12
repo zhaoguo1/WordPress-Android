@@ -40,7 +40,7 @@ Q.all(jobs).done(function onFulfilled(array) {
     var device = "at least one device";
     var msgSplit = reject.message.split('#');
     if (msgSplit.length > 0) {
-      device = msgSplit[1].trim();
+      device = msgSplit[1];
     }
     throw(new Error("Test for " + device + " failed.  Other devices may have also failed, check Test Object/Sauce Labs for details"));
 });
