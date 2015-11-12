@@ -4,7 +4,7 @@
   "description": "Appium tests for the WordPress Android app",
   "main": "index.js",
   "scripts": {
-    "test": "node test/lib/helpers/parallel-mochas.js test/specs/wp-android-login.js android18 Nexus7Emulator GalaxyS4Emulator"
+    "test": "node test/lib/helpers/parallel-mochas.js test/specs/wp-android-login-to.js TestObjectHTCOneM8 TestObjectMotoX TestObjectLG_G3"
   },
   "author": "hoverduck",
   "license": "Apache 2",

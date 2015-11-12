@@ -33,14 +33,45 @@ exports.android22 = {
 	app: undefined // will be set later
 }
 
-exports.TestObject = {
+exports.TestObjectHTCOneM8 = {
+	'deviceName'		     :   'HTC One M8',
 	'testobject_api_key'         :   process.env.TESTOBJECT_API_KEY,
 	'testobject_app_id'          :   '2',
 	'testobject_device'          :   'HTC_One_M8_real',
 	'testobject_appium_version'  :   '1.3.7',
 	'testobject_suite_name'      :   'Suite Life',
 	'testobject_test_name'       :   'Build ' + process.env.TRAVIS_BUILD_NUMBER
-    };
+};
+
+exports.TestObjectMotoX = {
+	'deviceName'		     :   'Moto X',
+	'testobject_api_key'         :   process.env.TESTOBJECT_API_KEY,
+	'testobject_app_id'          :   '2',
+	'testobject_device'          :   'Motorola_Moto_X_2nd_gen_real',
+	'testobject_appium_version'  :   '1.3.7',
+	'testobject_suite_name'      :   'Suite Life',
+	'testobject_test_name'       :   'Build ' + process.env.TRAVIS_BUILD_NUMBER
+};
+
+exports.TestObjectLG_G3 = {
+	'deviceName'		     :   'LG G3',
+	'testobject_api_key'         :   process.env.TESTOBJECT_API_KEY,
+	'testobject_app_id'          :   '2',
+	'testobject_device'          :   'LG_G3_real',
+	'testobject_appium_version'  :   '1.3.7',
+	'testobject_suite_name'      :   'Suite Life',
+	'testobject_test_name'       :   'Build ' + process.env.TRAVIS_BUILD_NUMBER
+};
+
+exports.TestObjectKindleFire = {
+	'deviceName'		     :   'Kindle Fire',
+	'testobject_api_key'         :   process.env.TESTOBJECT_API_KEY,
+	'testobject_app_id'          :   '2',
+	'testobject_device'          :   'Amazon_Kindle_Fire_HD_8.9_real',
+	'testobject_appium_version'  :   '1.3.7',
+	'testobject_suite_name'      :   'Suite Life',
+	'testobject_test_name'       :   'Build ' + process.env.TRAVIS_BUILD_NUMBER
+};
 
 exports.Nexus7Emulator = {
   'browserName' : '',

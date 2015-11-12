@@ -23,25 +23,20 @@ function run_mocha(device, done) {
   var env = _(process.env).clone();
   env.DEVICE = device;
 
-  var mocha = exec('mocha ' + mochaArgs, {env: env}, done);
-//  var mocha = exec('mocha ' + mochaArgs + '>/tmp/stout 2>/tmp/stderr; echo $SAUCE > /tmp/sauce', {env: env}, done);
+  var mocha = exec('mocha ' + mochaArgs + ' #' + device, {env: env}, done);
   mocha.stdout.on('data', log.bind(null, device));
   mocha.stderr.on('data', log.bind(null, device));
 }
 
 // building job list
 var jobs = _(devices).map(function(device) {
-  return Q.nfcall(run_mocha, device, function(error, stdout, stderr) {
-    console.log(stdout);
-    if (error !== null) {
-      console.log('Device ' + device + ' Failed.  Please log into Sauce Labs to see details');
-      throw(error);
-    }
-  });
+  return Q.nfcall(run_mocha, device);
 }).value();
 
 // running jobs in parallel
-Q.all(jobs).then(function() {
-  console.log("ALL TESTS SUCCESSFUL");
-})
-.done();
+Q.all(jobs).done(function onFulfilled(array) {
+    console.log("ALL TESTS PASSED!");
+}, function onRejected(reject) {
+    var device = reject.message.split('#')[1].trim();
+    throw(new Error("Test for " + device + " failed.  Other devices may have also failed, check Test Object/Sauce Labs for details"));
+});

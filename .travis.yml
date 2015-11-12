@@ -30,18 +30,18 @@ env:
 #              ^^ Wrong password to test failure
     # Test Object API Key
     - secure: "NyPP4x1Qn7dXNCUy+eHCchPfnfa3ymM9hISbHVwYh9QoAwEX2IVC4Axq2M9+DKbBWoFxY6ky1QNr4hSaXgoIuGod1pgWZMSJBCjFRPtqWyrvn13KvuAuzL3sTeyuCX60jXOFuLFGroYn4ckZ2r3Z3vEQQbY748JYKj8FoKDN0wU="
-#    - "TESTOBJECT=1"
-    - "SAUCE=1"
+    - "TESTOBJECT=1"
+#    - "SAUCE=1"
 
 install:
   # Setup gradle.properties
   - cp WordPress/gradle.properties-example WordPress/gradle.properties
 
-addons:
-  sauce_connect:
-    username: "srstancil"
-    access_key:
-      secure: "YFkTrLnL2yOUbhJK4a08AK9gLAk7WPCvu78MvnVv0W7XajLq+7/bdlQtME0MXz5OuvRFalF0Kv2sxZjLGmUi/EJ/zkVlECCWt9kBL4vxMjI7f4J/TiP9Q+QCuupfr1pFUXT6npcflR8LOPMxAzkdPbtZeC9/3qAu/VyrUPTkQfs="
+#addons:
+#  sauce_connect:
+#    username: "srstancil"
+#    access_key:
+#      secure: "YFkTrLnL2yOUbhJK4a08AK9gLAk7WPCvu78MvnVv0W7XajLq+7/bdlQtME0MXz5OuvRFalF0Kv2sxZjLGmUi/EJ/zkVlECCWt9kBL4vxMjI7f4J/TiP9Q+QCuupfr1pFUXT6npcflR8LOPMxAzkdPbtZeC9/3qAu/VyrUPTkQfs="
 
 before_script:
   - npm install
