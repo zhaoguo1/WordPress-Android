@@ -41,7 +41,7 @@ Q.all(jobs).done(function onFulfilled(array) {
     var msgSplit = reject.message.split('#');
     if (msgSplit.length > 0) {
       device = msgSplit[msgSplit.length];
-console.log(msgSplit);
+console.log("Reject.message = " + reject.message);
     }
     throw(new Error("Test for " + device + " failed.  Other devices may have also failed, check Test Object/Sauce Labs for details"));
 });
