@@ -25,13 +25,13 @@ env:
     # WordPress.com Username
     - secure: "YChsdOlmprsul75Wp96y63eUp0ZFafM9f1Syi1S6d1AewfIvaJmWw+cq26vQPE8868KJfhLvSH2eQJ67/jR4agUs9Z4vWlD4zYV+PSA0l3dXh2LIkBaJ28ACdpvFmZzh/gZpcNLEyBu160K9afKx9TSc40eiQgHAYjTvqbnq7H4="
     # WordPress.com Password
-#    - secure: "JootE3YTPaKW6tbDBH0XdpjUUQxfSHQO5Ji3a1zfYRto4fttaNW8m3I7UJBQa62lWD+TorvsgFX6d2YrBIe6RS07Hn5kN/iblC7Eh7wXpvj8K24dZKboSeTXxkjOmbqpk9eQiQd32uUeXqCPzrZYpTYzBCbEjROGs+7OT0fN1QQ="
-    - secure: "lo8iKih1PpgvYJcz2aasrWGXNEv+9Nw0BpXrF9h8NwAKbd38+X8OSUvS+37jZrVC/X55qDLpfsbeLpdLBXM69NH/x5UkVdBbccxzxPRYfUWTwXzdav1CLRJpZOdDuDw+gWUmKfyxpdLGyXY5kK2Yh1mdSWa1P9y1O98WBR6VipE="
+    - secure: "JootE3YTPaKW6tbDBH0XdpjUUQxfSHQO5Ji3a1zfYRto4fttaNW8m3I7UJBQa62lWD+TorvsgFX6d2YrBIe6RS07Hn5kN/iblC7Eh7wXpvj8K24dZKboSeTXxkjOmbqpk9eQiQd32uUeXqCPzrZYpTYzBCbEjROGs+7OT0fN1QQ="
+#    - secure: "lo8iKih1PpgvYJcz2aasrWGXNEv+9Nw0BpXrF9h8NwAKbd38+X8OSUvS+37jZrVC/X55qDLpfsbeLpdLBXM69NH/x5UkVdBbccxzxPRYfUWTwXzdav1CLRJpZOdDuDw+gWUmKfyxpdLGyXY5kK2Yh1mdSWa1P9y1O98WBR6VipE="
 #              ^^ Wrong password to test failure
     # Test Object API Key
-    - secure: "nrEW1yrh5lL1U+NXPO4WTl5zXTTefS+C27ueF++uMLgl83ICtW35NClNqprWJuEa8aJzdZWE7Vi1jXyvLuzopqvOhItEH+8k3LIN7EM/R212gbKLzUditl1vT47D4qQk4mEElCo3ju8Lp7QGdn1rQV2wDtDYVcqVpqtWM+FzzT4="
-    - "TESTOBJECT=1"
-#    - "SAUCE=1"
+    - secure: "NyPP4x1Qn7dXNCUy+eHCchPfnfa3ymM9hISbHVwYh9QoAwEX2IVC4Axq2M9+DKbBWoFxY6ky1QNr4hSaXgoIuGod1pgWZMSJBCjFRPtqWyrvn13KvuAuzL3sTeyuCX60jXOFuLFGroYn4ckZ2r3Z3vEQQbY748JYKj8FoKDN0wU="
+#    - "TESTOBJECT=1"
+    - "SAUCE=1"
 
 install:
   # Setup gradle.properties

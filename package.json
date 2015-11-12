@@ -4,7 +4,7 @@
   "description": "Appium tests for the WordPress Android app",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/specs"
+    "test": "node test/lib/helpers/parallel-mochas.js test/specs/wp-android-login.js android18 Nexus7Emulator GalaxyS4Emulator"
   },
   "author": "hoverduck",
   "license": "Apache 2",
@@ -13,9 +13,10 @@
     "chai-as-promised": "^5.0.0",
     "colors": "^1.0.3",
     "express": "^4.12.3",
-    "q": "^2.0.2",
+    "q": "~0.9.7",
     "underscore": "^1.8.3",
     "wd": "^0.3.11",
-    "mocha": "^2.3.3"
+    "mocha": "^2.3.3",
+    "lodash": "^3.10.1"
   }
 }

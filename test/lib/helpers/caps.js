@@ -13,7 +13,7 @@ exports.android18 = {
   platformName: 'Android',
   platformVersion: '4.3',
   deviceName: 'Android Emulator',
-  app: undefined // will be set later
+  'app' : 'sauce-storage:WordPress.apk'
 };
 
 exports.android19 = {
@@ -34,21 +34,30 @@ exports.android22 = {
 }
 
 exports.TestObject = {
-	'testobject_api_key'         :   '80BB2BEDBBF64E51AC2FB725283774EF',
+	'testobject_api_key'         :   process.env.TESTOBJECT_API_KEY,
 	'testobject_app_id'          :   '2',
 	'testobject_device'          :   'HTC_One_M8_real',
 	'testobject_appium_version'  :   '1.3.7',
-	'testobject_suite_name'      :   'Default Appium Suite',
-	'testobject_test_name'       :   'Default Appium Test'
+	'testobject_suite_name'      :   'Suite Life',
+	'testobject_test_name'       :   'Build ' + process.env.TRAVIS_BUILD_NUMBER
     };
 
+exports.Nexus7Emulator = {
+  'browserName' : '',
+  'appiumVersion' : '1.4.14',
+  'deviceName' : 'Google Nexus 7 HD Emulator',
+  'deviceOrientation' : 'portrait',
+  'platformVersion' : '4.4',
+  'platformName' : 'Android',
+  'app' : 'sauce-storage:WordPress.apk'
+};
 
-exports.selendroid16 = {
-  browserName: '',
-  'appium-version': '1.3',
-  platformName: 'Android',
-  platformVersion: '4.1',
-  automationName: 'selendroid',
-  deviceName: 'Android Emulator',
-  app: undefined // will be set later
+exports.GalaxyS4Emulator = {
+  'browserName' : '',
+  'appiumVersion' : '1.4.14',
+  'deviceName' : 'Samsung Galaxy S4 Emulator',
+  'deviceOrientation' : 'portrait',
+  'platformVersion' : '4.4',
+  'platformName' : 'Android',
+  'app' : 'sauce-storage:WordPress.apk'
 };
