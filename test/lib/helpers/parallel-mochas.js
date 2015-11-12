@@ -1,4 +1,4 @@
-// Code from https://github.com/saucelabs/node-tutorials/blob/master/mocha-wd-parallel/parallel-mochas.js
+// Modified code from https://github.com/saucelabs/node-tutorials/blob/master/mocha-wd-parallel/parallel-mochas.js
 var exec = require('child_process').exec;
 var Q = require('q');
 var _ = require('lodash');
@@ -35,6 +35,7 @@ var jobs = _(devices).map(function(device) {
     console.log(stdout);
     if (error !== null) {
       console.log('Device ' + device + ' Failed.  Please log into Sauce Labs to see details');
+      throw(error);
     }
   });
 }).value();
