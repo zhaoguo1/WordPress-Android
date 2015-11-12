@@ -37,6 +37,10 @@ var jobs = _(devices).map(function(device) {
 Q.all(jobs).done(function onFulfilled(array) {
     console.log("ALL TESTS PASSED!");
 }, function onRejected(reject) {
-    var device = reject.message.split('#')[1].trim();
+    var device = "at least one device";
+    var msgSplit = reject.message.split('#');
+    if (msgSplit.length > 0) {
+      device = msgSplit[1].trim();
+    }
     throw(new Error("Test for " + device + " failed.  Other devices may have also failed, check Test Object/Sauce Labs for details"));
 });
