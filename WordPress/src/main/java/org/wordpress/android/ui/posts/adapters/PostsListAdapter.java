@@ -6,6 +6,7 @@ import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.content.Context;
 import android.content.res.Resources;
+import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -23,15 +24,16 @@ import android.widget.TextView;
 
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
+import org.wordpress.android.databinding.PostCardviewBinding;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.PostStatus;
 import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.models.PostsListPostList;
-import org.wordpress.android.ui.posts.PostUtils;
 import org.wordpress.android.ui.posts.PostsListFragment;
 import org.wordpress.android.ui.posts.services.PostMediaService;
 import org.wordpress.android.ui.reader.utils.ReaderImageScanner;
 import org.wordpress.android.ui.reader.utils.ReaderUtils;
+import org.wordpress.android.ui.viewmodels.PostViewModel;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.DateTimeUtils;
 import org.wordpress.android.util.DisplayUtils;
@@ -153,8 +155,9 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             View view = mLayoutInflater.inflate(R.layout.page_item, parent, false);
             return new PageViewHolder(view);
         } else {
-            View view = mLayoutInflater.inflate(R.layout.post_cardview, parent, false);
-            return new PostViewHolder(view);
+            PostCardviewBinding postCardviewBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),
+                    R.layout.post_cardview, parent, false);
+            return new PostViewHolder(postCardviewBinding);
         }
     }
 
@@ -177,37 +180,21 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (holder instanceof PostViewHolder) {
             PostViewHolder postHolder = (PostViewHolder) holder;
 
-            if (post.hasTitle()) {
-                postHolder.txtTitle.setText(post.getTitle());
-            } else {
-                postHolder.txtTitle.setText("(" + context.getResources().getText(R.string.untitled) + ")");
-            }
-
-            if (post.hasExcerpt()) {
-                postHolder.txtExcerpt.setVisibility(View.VISIBLE);
-                postHolder.txtExcerpt.setText(PostUtils.collapseShortcodes(post.getExcerpt()));
-            } else {
-                postHolder.txtExcerpt.setVisibility(View.GONE);
-            }
+            postHolder.getBinding().setPostViewModel(new PostViewModel(context, post));
+            postHolder.getBinding().executePendingBindings();
 
             if (post.hasFeaturedImageId() || post.hasFeaturedImageUrl()) {
-                postHolder.imgFeatured.setVisibility(View.VISIBLE);
-                postHolder.imgFeatured.setImageUrl(post.getFeaturedImageUrl(), WPNetworkImageView.ImageType.PHOTO);
-            } else {
-                postHolder.imgFeatured.setVisibility(View.GONE);
+                postHolder.getBinding().imageFeatured.setImageUrl(post.getFeaturedImageUrl(), WPNetworkImageView
+                        .ImageType.PHOTO);
             }
 
             // local drafts say "delete" instead of "trash"
             if (post.isLocalDraft()) {
-                postHolder.txtDate.setVisibility(View.GONE);
-                postHolder.btnTrash.setButtonType(PostListButton.BUTTON_DELETE);
+                postHolder.getBinding().btnTrash.setButtonType(PostListButton.BUTTON_DELETE);
             } else {
-                postHolder.txtDate.setText(post.getFormattedDate());
-                postHolder.txtDate.setVisibility(View.VISIBLE);
-                postHolder.btnTrash.setButtonType(PostListButton.BUTTON_TRASH);
+                postHolder.getBinding().btnTrash.setButtonType(PostListButton.BUTTON_TRASH);
             }
 
-            updateStatusText(postHolder.txtStatus, post);
             configurePostButtons(postHolder, post);
         } else if (holder instanceof PageViewHolder) {
             PageViewHolder pageHolder = (PageViewHolder) holder;
@@ -378,29 +365,29 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                       final PostsListPost post) {
         // posts with local changes have preview rather than view button
         if (post.isLocalDraft() || post.hasLocalChanges()) {
-            holder.btnView.setButtonType(PostListButton.BUTTON_PREVIEW);
+            holder.getBinding().btnView.setButtonType(PostListButton.BUTTON_PREVIEW);
         } else {
-            holder.btnView.setButtonType(PostListButton.BUTTON_VIEW);
+            holder.getBinding().btnView.setButtonType(PostListButton.BUTTON_VIEW);
         }
 
         boolean canShowStatsButton = canShowStatsForPost(post);
         int numVisibleButtons = (canShowStatsButton ? 4 : 3);
 
         // edit / view are always visible
-        holder.btnEdit.setVisibility(View.VISIBLE);
-        holder.btnView.setVisibility(View.VISIBLE);
+        holder.getBinding().btnEdit.setVisibility(View.VISIBLE);
+        holder.getBinding().btnView.setVisibility(View.VISIBLE);
 
         // if we have enough room to show all buttons, hide the back/more buttons and show stats/trash
         if (mAlwaysShowAllButtons || numVisibleButtons <= 3) {
-            holder.btnMore.setVisibility(View.GONE);
-            holder.btnBack.setVisibility(View.GONE);
-            holder.btnTrash.setVisibility(View.VISIBLE);
-            holder.btnStats.setVisibility(canShowStatsButton ? View.VISIBLE : View.GONE);
+            holder.getBinding().btnMore.setVisibility(View.GONE);
+            holder.getBinding().btnBack.setVisibility(View.GONE);
+            holder.getBinding().btnTrash.setVisibility(View.VISIBLE);
+            holder.getBinding().btnStats.setVisibility(canShowStatsButton ? View.VISIBLE : View.GONE);
         } else {
-            holder.btnMore.setVisibility(View.VISIBLE);
-            holder.btnBack.setVisibility(View.GONE);
-            holder.btnTrash.setVisibility(View.GONE);
-            holder.btnStats.setVisibility(View.GONE);
+            holder.getBinding().btnMore.setVisibility(View.VISIBLE);
+            holder.getBinding().btnBack.setVisibility(View.GONE);
+            holder.getBinding().btnTrash.setVisibility(View.GONE);
+            holder.getBinding().btnStats.setVisibility(View.GONE);
         }
 
         View.OnClickListener btnClickListener = new View.OnClickListener() {
@@ -423,12 +410,12 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
             }
         };
-        holder.btnEdit.setOnClickListener(btnClickListener);
-        holder.btnView.setOnClickListener(btnClickListener);
-        holder.btnStats.setOnClickListener(btnClickListener);
-        holder.btnTrash.setOnClickListener(btnClickListener);
-        holder.btnMore.setOnClickListener(btnClickListener);
-        holder.btnBack.setOnClickListener(btnClickListener);
+        holder.getBinding().btnEdit.setOnClickListener(btnClickListener);
+        holder.getBinding().btnView.setOnClickListener(btnClickListener);
+        holder.getBinding().btnStats.setOnClickListener(btnClickListener);
+        holder.getBinding().btnTrash.setOnClickListener(btnClickListener);
+        holder.getBinding().btnMore.setOnClickListener(btnClickListener);
+        holder.getBinding().btnBack.setOnClickListener(btnClickListener);
     }
 
     /*
@@ -443,7 +430,7 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         // then animate the row layout back in
         PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 0f);
         PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 0f);
-        ObjectAnimator animOut = ObjectAnimator.ofPropertyValuesHolder(holder.layoutButtons, scaleX, scaleY);
+        ObjectAnimator animOut = ObjectAnimator.ofPropertyValuesHolder(holder.getBinding().layoutButtons, scaleX, scaleY);
         animOut.setDuration(ROW_ANIM_DURATION);
         animOut.setInterpolator(new AccelerateInterpolator());
 
@@ -451,17 +438,17 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             @Override
             public void onAnimationEnd(Animator animation) {
                 // row 1
-                holder.btnEdit.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
-                holder.btnView.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
-                holder.btnMore.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
+                holder.getBinding().btnEdit.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
+                holder.getBinding().btnView.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
+                holder.getBinding().btnMore.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
                 // row 2
-                holder.btnStats.setVisibility(!showRow1 && canShowStatsForPost(post) ? View.VISIBLE : View.GONE);
-                holder.btnTrash.setVisibility(!showRow1 ? View.VISIBLE : View.GONE);
-                holder.btnBack.setVisibility(!showRow1 ? View.VISIBLE : View.GONE);
+                holder.getBinding().btnStats.setVisibility(!showRow1 && canShowStatsForPost(post) ? View.VISIBLE : View.GONE);
+                holder.getBinding().btnTrash.setVisibility(!showRow1 ? View.VISIBLE : View.GONE);
+                holder.getBinding().btnBack.setVisibility(!showRow1 ? View.VISIBLE : View.GONE);
 
                 PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f, 1f);
                 PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f, 1f);
-                ObjectAnimator animIn = ObjectAnimator.ofPropertyValuesHolder(holder.layoutButtons, scaleX, scaleY);
+                ObjectAnimator animIn = ObjectAnimator.ofPropertyValuesHolder(holder.getBinding().layoutButtons, scaleX, scaleY);
                 animIn.setDuration(ROW_ANIM_DURATION);
                 animIn.setInterpolator(new DecelerateInterpolator());
                 animIn.start();
@@ -519,40 +506,16 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     class PostViewHolder extends RecyclerView.ViewHolder {
-        private final TextView txtTitle;
-        private final TextView txtExcerpt;
-        private final TextView txtDate;
-        private final TextView txtStatus;
+        private PostCardviewBinding binding;
 
-        private final PostListButton btnEdit;
-        private final PostListButton btnView;
-        private final PostListButton btnMore;
+        public PostViewHolder(PostCardviewBinding postCardviewBinding) {
+            super(postCardviewBinding.cardView);
 
-        private final PostListButton btnStats;
-        private final PostListButton btnTrash;
-        private final PostListButton btnBack;
+            binding = postCardviewBinding;
+        }
 
-        private final WPNetworkImageView imgFeatured;
-        private final ViewGroup layoutButtons;
-
-        public PostViewHolder(View view) {
-            super(view);
-
-            txtTitle = (TextView) view.findViewById(R.id.text_title);
-            txtExcerpt = (TextView) view.findViewById(R.id.text_excerpt);
-            txtDate = (TextView) view.findViewById(R.id.text_date);
-            txtStatus = (TextView) view.findViewById(R.id.text_status);
-
-            btnEdit = (PostListButton) view.findViewById(R.id.btn_edit);
-            btnView = (PostListButton) view.findViewById(R.id.btn_view);
-            btnMore = (PostListButton) view.findViewById(R.id.btn_more);
-
-            btnStats = (PostListButton) view.findViewById(R.id.btn_stats);
-            btnTrash = (PostListButton) view.findViewById(R.id.btn_trash);
-            btnBack = (PostListButton) view.findViewById(R.id.btn_back);
-
-            imgFeatured = (WPNetworkImageView) view.findViewById(R.id.image_featured);
-            layoutButtons = (ViewGroup) view.findViewById(R.id.layout_buttons);
+        public PostCardviewBinding getBinding() {
+            return binding;
         }
     }
 

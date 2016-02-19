@@ -5,6 +5,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath "com.android.databinding:dataBinder:1.0-rc1"
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
@@ -39,6 +40,10 @@ android {
 
         buildConfigField "boolean", "VISUAL_EDITOR_AVAILABLE", "false"
         buildConfigField "boolean", "IN_APP_BILLING_AVAILABLE", "false"
+    }
+
+    dataBinding {
+        enabled = true
     }
 
     productFlavors {
