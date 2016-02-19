@@ -5,6 +5,7 @@ import org.wordpress.android.models.PostStatus;
 import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.ui.posts.PostUtils;
 import org.wordpress.android.util.StringUtils;
+import org.wordpress.android.widgets.WPNetworkImageView;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -41,6 +42,18 @@ public class PostViewModel {
 
     public int getExcerptVisibility() {
         return mPostsListPost.hasExcerpt() ? View.VISIBLE : View.GONE;
+    }
+
+    public String getFeaturedImageUrl() {
+        if (mPostsListPost.hasFeaturedImageId() || mPostsListPost.hasFeaturedImageUrl()) {
+            return mPostsListPost.getFeaturedImageUrl();
+        } else {
+            return null;
+        }
+    }
+
+    public WPNetworkImageView.ImageType getFeaturedImageType() {
+        return WPNetworkImageView.ImageType.PHOTO;
     }
 
     public int getFeaturedImageVisibility() {

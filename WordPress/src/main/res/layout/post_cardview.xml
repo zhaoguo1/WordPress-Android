@@ -29,6 +29,8 @@
                 android:layout_height="@dimen/postlist_featured_image_height"
                 android:layout_below="@+id/layout_post_header"
                 android:scaleType="centerCrop"
+                wp:imageUrl="@{postViewModel.featuredImageUrl}"
+                wp:imageType="@{postViewModel.featuredImageType}"
                 android:visibility="@{postViewModel.featuredImageVisibility}"
                 tools:visibility="visible" />
 

@@ -183,11 +183,6 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             postHolder.getBinding().setPostViewModel(new PostViewModel(context, post));
             postHolder.getBinding().executePendingBindings();
 
-            if (post.hasFeaturedImageId() || post.hasFeaturedImageUrl()) {
-                postHolder.getBinding().imageFeatured.setImageUrl(post.getFeaturedImageUrl(), WPNetworkImageView
-                        .ImageType.PHOTO);
-            }
-
             // local drafts say "delete" instead of "trash"
             if (post.isLocalDraft()) {
                 postHolder.getBinding().btnTrash.setButtonType(PostListButton.BUTTON_DELETE);

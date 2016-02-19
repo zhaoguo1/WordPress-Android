@@ -2,6 +2,7 @@ package org.wordpress.android.widgets;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.databinding.BindingAdapter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
@@ -66,6 +67,11 @@ public class WPNetworkImageView extends AppCompatImageView {
     }
     public WPNetworkImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    @BindingAdapter({"bind:imageUrl", "bind:imageType"})
+    public static void setImageUrl(WPNetworkImageView wpNetworkImageView, String url, ImageType imageType) {
+        wpNetworkImageView.setImageUrl(url, imageType);
     }
 
     public void setImageUrl(String url, ImageType imageType) {
