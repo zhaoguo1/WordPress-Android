@@ -2,6 +2,8 @@ package org.wordpress.android.widgets;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.databinding.BindingMethod;
+import android.databinding.BindingMethods;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -12,6 +14,11 @@ import org.wordpress.android.R;
 /*
  * buttons in footer of post cards
  */
+@BindingMethods({
+        @BindingMethod(type = org.wordpress.android.widgets.PostListButton.class,
+                attribute = "wpPostButtonType",
+                method = "setButtonType")
+})
 public class PostListButton extends LinearLayout {
 
     private ImageView mImageView;

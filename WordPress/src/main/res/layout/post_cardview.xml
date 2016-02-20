@@ -139,7 +139,7 @@
                         android:gravity="center"
                         android:visibility="gone"
                         tools:visibility="visible"
-                        wp:wpPostButtonType="trash" />
+                        wp:wpPostButtonType="@{postViewModel.trashButtonType}" />
 
                     <org.wordpress.android.widgets.PostListButton
                         android:id="@+id/btn_back"

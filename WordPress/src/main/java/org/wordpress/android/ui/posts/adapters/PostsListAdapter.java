@@ -38,7 +38,6 @@ import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.DateTimeUtils;
 import org.wordpress.android.util.DisplayUtils;
 import org.wordpress.android.widgets.PostListButton;
-import org.wordpress.android.widgets.WPNetworkImageView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -182,13 +181,6 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             postHolder.getBinding().setPostViewModel(new PostViewModel(context, post));
             postHolder.getBinding().executePendingBindings();
-
-            // local drafts say "delete" instead of "trash"
-            if (post.isLocalDraft()) {
-                postHolder.getBinding().btnTrash.setButtonType(PostListButton.BUTTON_DELETE);
-            } else {
-                postHolder.getBinding().btnTrash.setButtonType(PostListButton.BUTTON_TRASH);
-            }
 
             configurePostButtons(postHolder, post);
         } else if (holder instanceof PageViewHolder) {

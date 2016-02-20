@@ -5,6 +5,7 @@ import org.wordpress.android.models.PostStatus;
 import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.ui.posts.PostUtils;
 import org.wordpress.android.util.StringUtils;
+import org.wordpress.android.widgets.PostListButton;
 import org.wordpress.android.widgets.WPNetworkImageView;
 
 import android.content.Context;
@@ -181,4 +182,8 @@ public class PostViewModel {
         return (statusIconResId != 0 ? mContext.getResources().getDrawable(statusIconResId) : null);
     }
 
+    public int getTrashButtonType() {
+        // local drafts say "delete" instead of "trash"
+        return mPostsListPost.isLocalDraft() ? PostListButton.BUTTON_DELETE : PostListButton.BUTTON_TRASH;
+    }
 }
