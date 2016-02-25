@@ -1,15 +1,20 @@
 package org.wordpress.android.ui.accounts;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
+import org.wordpress.android.networking.HealthCheck;
 import org.wordpress.android.ui.ActivityId;
 import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.AppLogViewerActivity;
@@ -41,6 +46,37 @@ public class HelpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(v.getContext(), AppLogViewerActivity.class));
+            }
+        });
+
+        WPTextView healthCheckButton = (WPTextView) findViewById(R.id.health_check_button);
+        healthCheckButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AsyncTask<Void, Void, String>() {
+                    @Override
+                    protected String doInBackground(Void... params) {
+                        if (HealthCheck.failsWith404("http://xmlrpc404.artin.org")) {
+                            return "xmlrpc.php is missing";
+                        }
+
+                        if (HealthCheck.failsWith404("https://xmlrpc404.artin.org")) {
+                            return "xmlrpc.php is missing";
+                        }
+
+                        return "No detectable error";
+                    }
+
+                    @Override
+                    protected void onPostExecute(String result) {
+                        Log.i("HEALTHCHECK", getString(R.string.health_check_title) + ": " + result);
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(HelpActivity.this);
+                        builder.setTitle(getString(R.string.health_check_title));
+                        builder.setMessage(R.string.health_check_error_xmlrpc_missing);
+                        builder.create().show();
+                    }
+                }.execute();
             }
         });
     }

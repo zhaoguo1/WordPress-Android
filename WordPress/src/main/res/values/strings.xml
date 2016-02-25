@@ -1181,6 +1181,7 @@
     <string name="help_center">Help center</string>
     <string name="browse_our_faq_button">Browse our FAQ</string>
     <string name="faq_button">FAQ</string>
+    <string name="health_check_button">Run Health Checks</string>
 
     <!--My Site-->
     <string name="my_site_header_admin">Admin</string>
@@ -1286,5 +1287,9 @@
     <string name="pending_email_change_snackbar">Click the verification link in the email sent to %1$s to confirm your new address</string>
     <string name="primary_site">Primary site</string>
     <string name="web_address">Web Address</string>
+
+    <!--Health-Check-->
+    <string name="health_check_title">Health-Check result</string>
+    <string name="health_check_error_xmlrpc_missing">File \'xmlrpc.php\' is missing</string>
 
 </resources>
