@@ -57,11 +57,11 @@ public class HelpActivity extends AppCompatActivity {
                     @Override
                     protected String doInBackground(Void... params) {
                         if (HealthCheck.failsWith404("http://xmlrpc404.artin.org")) {
-                            return "xmlrpc.php is missing";
+                            return getString(R.string.health_check_error_xmlrpc_missing);
                         }
 
                         if (HealthCheck.failsWith404("https://xmlrpc404.artin.org")) {
-                            return "xmlrpc.php is missing";
+                            return getString(R.string.health_check_error_xmlrpc_missing);
                         }
 
                         return "No detectable error";
@@ -73,7 +73,7 @@ public class HelpActivity extends AppCompatActivity {
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(HelpActivity.this);
                         builder.setTitle(getString(R.string.health_check_title));
-                        builder.setMessage(R.string.health_check_error_xmlrpc_missing);
+                        builder.setMessage(result);
                         builder.create().show();
                     }
                 }.execute();
