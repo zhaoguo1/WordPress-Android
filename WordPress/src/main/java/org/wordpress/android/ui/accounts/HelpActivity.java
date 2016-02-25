@@ -53,18 +53,10 @@ public class HelpActivity extends AppCompatActivity {
         healthCheckButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AsyncTask<Void, Void, String>() {
+                new AsyncTask<String, Void, String>() {
                     @Override
-                    protected String doInBackground(Void... params) {
-                        if (HealthCheck.failsWith404("http://xmlrpc404.artin.org")) {
-                            return getString(R.string.health_check_error_xmlrpc_missing);
-                        }
-
-                        if (HealthCheck.failsWith404("https://xmlrpc404.artin.org")) {
-                            return getString(R.string.health_check_error_xmlrpc_missing);
-                        }
-
-                        return "No detectable error";
+                    protected String doInBackground(String... urls) {
+                        return HealthCheck.checkInSequence(HelpActivity.this, urls[0]);
                     }
 
                     @Override
@@ -76,7 +68,7 @@ public class HelpActivity extends AppCompatActivity {
                         builder.setMessage(result);
                         builder.create().show();
                     }
-                }.execute();
+                }.execute("http://45.55.63.166");
             }
         });
     }
