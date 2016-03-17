@@ -26,7 +26,7 @@ import android.widget.SearchView;
 
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
-import org.wordpress.android.models.AccountHelper;
+import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.ui.ActivityId;
 import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.RequestCodes;
@@ -37,6 +37,8 @@ import org.wordpress.android.util.CoreEvents;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.WPActivityUtils;
 import org.xmlrpc.android.ApiHelper;
+
+import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
@@ -58,6 +60,8 @@ public class SitePickerActivity extends AppCompatActivity
     private SearchView mSearchView;
     private int mCurrentLocalId;
     private boolean mDidUserSelectSite;
+
+    @Inject AccountStore mAccountStore;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -144,7 +148,7 @@ public class SitePickerActivity extends AppCompatActivity
             showSoftKeyboard();
             return true;
         } else if (itemId == R.id.menu_add) {
-            addSite(this);
+            addSite(this, mAccountStore.hasAccessToken());
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -428,10 +432,10 @@ public class SitePickerActivity extends AppCompatActivity
         }
     }
 
-    public static void addSite(Activity activity) {
+    public static void addSite(Activity activity, boolean isSignedInWpCom) {
         // if user is signed into wp.com use the dialog to enable choosing whether to
         // create a new wp.com blog or add a self-hosted one
-        if (AccountHelper.isSignedInWordPressDotCom()) {
+        if (isSignedInWpCom) {
             DialogFragment dialog = new AddSiteDialog();
             dialog.show(activity.getFragmentManager(), AddSiteDialog.ADD_SITE_DIALOG_TAG);
         } else {

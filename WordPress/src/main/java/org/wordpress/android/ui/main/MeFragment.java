@@ -21,6 +21,8 @@ import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
 import org.wordpress.android.models.Account;
 import org.wordpress.android.models.AccountHelper;
+import org.wordpress.android.stores.store.AccountStore;
+import org.wordpress.android.stores.store.SiteStore;
 import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.prefs.PrefsEvents;
 import org.wordpress.android.util.GravatarUtils;
@@ -29,6 +31,8 @@ import org.wordpress.android.util.StringUtils;
 import org.wordpress.android.widgets.WPNetworkImageView;
 
 import java.lang.ref.WeakReference;
+
+import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
@@ -44,6 +48,9 @@ public class MeFragment extends Fragment {
     private View mNotificationsView;
     private View mNotificationsDividerView;
     private ProgressDialog mDisconnectProgressDialog;
+
+    @Inject AccountStore mAccountStore;
+    @Inject SiteStore mSiteStore;
 
     public static MeFragment newInstance() {
         return new MeFragment();
@@ -97,7 +104,7 @@ public class MeFragment extends Fragment {
         rootView.findViewById(R.id.row_logout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (AccountHelper.isSignedInWordPressDotCom()) {
+                if (mAccountStore.hasAccessToken()) {
                     signOutWordPressComWithConfirmation();
                 } else {
                     ActivityLauncher.showSignInForResult(getActivity());
@@ -166,7 +173,7 @@ public class MeFragment extends Fragment {
 
     private void refreshAccountDetails() {
         // we only want to show user details for WordPress.com users
-        if (AccountHelper.isSignedInWordPressDotCom()) {
+        if (mAccountStore.hasAccessToken()) {
             Account defaultAccount = AccountHelper.getDefaultAccount();
 
             mDisplayNameTextView.setVisibility(View.VISIBLE);

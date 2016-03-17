@@ -19,10 +19,9 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.wordpress.android.WordPress;
 import org.wordpress.android.models.Blog;
-import org.wordpress.android.models.AccountHelper;
+import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.AppLog.T;
-import org.wordpress.android.util.StringUtils;
 import org.wordpress.android.util.UrlUtils;
 import org.wordpress.android.util.WPUrlUtils;
 
@@ -40,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.inject.Inject;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -60,7 +60,10 @@ public class WPDelayedHurlStack implements HttpStack {
     private final Context mCtx;
     private final Object monitor = new Object();
 
+    @Inject AccountStore mAccountStore;
+
     public WPDelayedHurlStack(final Context ctx, final Blog currentBlog) {
+        ((WordPress) ctx.getApplicationContext()).component().inject(this);
         mCurrentBlog = currentBlog;
         mCtx = ctx;
 
@@ -101,9 +104,9 @@ public class WPDelayedHurlStack implements HttpStack {
             }
 
             if (WPUrlUtils.safeToAddWordPressComAuthToken(request.getUrl()) && mCtx != null
-                    && AccountHelper.isSignedInWordPressDotCom()) {
+                    && mAccountStore.hasAccessToken()) {
                 // Add the auth header to access private WP.com files
-                additionalHeaders.put("Authorization", "Bearer " + AccountHelper.getDefaultAccount().getAccessToken());
+                additionalHeaders.put("Authorization", "Bearer " + mAccountStore.getAccessToken());
             }
         }
 

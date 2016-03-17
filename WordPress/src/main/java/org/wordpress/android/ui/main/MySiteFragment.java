@@ -24,6 +24,7 @@ import org.wordpress.android.models.Account;
 import org.wordpress.android.models.AccountHelper;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.CommentStatus;
+import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.RequestCodes;
 import org.wordpress.android.ui.accounts.BlogUtils;
@@ -43,6 +44,8 @@ import org.wordpress.android.widgets.WPTextView;
 
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
+
+import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
@@ -75,6 +78,8 @@ public class MySiteFragment extends Fragment
     private int mBlavatarSz;
 
     private int mBlogLocalId = BlogUtils.BLOG_ID_INVALID;
+
+    @Inject AccountStore mAccountStore;
 
     public static MySiteFragment newInstance() {
         return new MySiteFragment();
@@ -241,7 +246,7 @@ public class MySiteFragment extends Fragment
         rootView.findViewById(R.id.my_site_add_site_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SitePickerActivity.addSite(getActivity());
+                SitePickerActivity.addSite(getActivity(), mAccountStore.hasAccessToken());
             }
         });
 
