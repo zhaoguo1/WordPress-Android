@@ -731,7 +731,7 @@ public class StatsActivity extends AppCompatActivity
             // for self-hosted sites; launch the user into an activity where they can provide their credentials
             if (!currentBlog.isDotcomFlag()
                     && !currentBlog.hasValidJetpackCredentials() && mResultCode != RESULT_CANCELED) {
-                if (AccountHelper.isSignedInWordPressDotCom()) {
+                if (mAccountStore.hasAccessToken()) {
                     // Let's try the global wpcom credentials them first
                     String username = AccountHelper.getDefaultAccount().getUserName();
                     currentBlog.setDotcom_username(username);
@@ -760,7 +760,7 @@ public class StatsActivity extends AppCompatActivity
 
         // check again that we've valid credentials for a Jetpack site
         if (!currentBlog.isDotcomFlag() && !currentBlog.hasValidJetpackCredentials() &&
-                !AccountHelper.isSignedInWordPressDotCom()) {
+                mAccountStore.hasAccessToken()) {
             mSwipeToRefreshHelper.setRefreshing(false);
             AppLog.w(T.STATS, "Jetpack blog with no wpcom credentials");
             return false;

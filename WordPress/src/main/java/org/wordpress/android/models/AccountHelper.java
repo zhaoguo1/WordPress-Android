@@ -18,8 +18,4 @@ public class AccountHelper {
         }
         return sAccount;
     }
-
-    public static boolean isSignedInWordPressDotCom() {
-        return getDefaultAccount().hasAccessToken();
-    }
 }

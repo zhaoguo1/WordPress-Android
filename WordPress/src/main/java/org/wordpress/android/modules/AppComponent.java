@@ -29,7 +29,10 @@ import org.wordpress.android.ui.reader.adapters.ReaderCommentAdapter;
 import org.wordpress.android.ui.reader.adapters.ReaderPostAdapter;
 import org.wordpress.android.ui.reader.services.ReaderUpdateService;
 import org.wordpress.android.ui.reader.views.ReaderBlogInfoView;
+import org.wordpress.android.ui.reader.views.ReaderLikingUsersView;
 import org.wordpress.android.ui.reader.views.ReaderTagInfoView;
+import org.wordpress.android.ui.reader.views.ReaderWebView;
+import org.wordpress.android.ui.stats.StatsAbstractFragment;
 import org.wordpress.android.ui.stats.StatsActivity;
 import org.wordpress.android.ui.stats.StatsWidgetConfigureActivity;
 
@@ -52,6 +55,7 @@ public interface AppComponent {
 
     void inject(StatsWidgetConfigureActivity object);
     void inject(StatsActivity object);
+    void inject(StatsAbstractFragment object);
 
     void inject(GCMMessageService object);
     void inject(GCMRegistrationIntentService object);
@@ -79,7 +83,9 @@ public interface AppComponent {
     void inject(ReaderPostAdapter object);
     void inject(ReaderBlogInfoView object);
     void inject(ReaderTagInfoView object);
+    void inject(ReaderLikingUsersView object);
+    void inject(ReaderWebView object);
 
-    // WPDelayedHurlStack will burn in hell as soon as we have all the stores ready
+    // WPDelayedHurlStack will burn in hell as soon as we have all the stores ready.
     void inject(WPDelayedHurlStack object);
 }

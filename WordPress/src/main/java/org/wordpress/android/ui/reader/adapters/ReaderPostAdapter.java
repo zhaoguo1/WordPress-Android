@@ -484,7 +484,8 @@ public class ReaderPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                     v.getContext(),
                                     discoverData.getBlogId());
                         } else if (discoverData.hasBlogUrl()) {
-                            ReaderActivityLauncher.openUrl(v.getContext(), discoverData.getBlogUrl());
+                            ReaderActivityLauncher.openUrl(v.getContext(), discoverData.getBlogUrl(),
+                                    mAccountStore.getAccount().getUserName());
                         }
                     }
                 });
@@ -729,7 +730,7 @@ public class ReaderPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         boolean isAskingToLike = !isCurrentlyLiked;
         ReaderAnim.animateLikeButton(holder.likeCount.getImageView(), isAskingToLike);
 
-        if (!ReaderPostActions.performLikeAction(post, isAskingToLike)) {
+        if (!ReaderPostActions.performLikeAction(post, isAskingToLike, mAccountStore.getAccount().getUserId())) {
             ToastUtils.showToast(context, R.string.reader_toast_err_generic);
             return;
         }

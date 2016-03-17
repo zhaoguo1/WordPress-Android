@@ -15,7 +15,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import org.wordpress.android.WordPress;
-import org.wordpress.android.models.AccountHelper;
+import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.UrlUtils;
 import org.wordpress.android.util.WPRestClient;
@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import javax.inject.Inject;
 
 /*
  * WebView descendant used by ReaderPostDetailFragment - handles
@@ -59,9 +61,11 @@ public class ReaderWebView extends WebView {
 
     private boolean mIsDestroyed;
 
+    @Inject AccountStore mAccountStore;
 
     public ReaderWebView(Context context) {
         super(context);
+        ((WordPress) context.getApplicationContext()).component().inject(this);
         init();
     }
 
@@ -88,7 +92,7 @@ public class ReaderWebView extends WebView {
     @SuppressLint("NewApi")
     private void init() {
         if (!isInEditMode()) {
-            mToken = AccountHelper.getDefaultAccount().getAccessToken();
+            mToken = mAccountStore.getAccessToken();
 
             mReaderChromeClient = new ReaderWebChromeClient(this);
             this.setWebChromeClient(mReaderChromeClient);

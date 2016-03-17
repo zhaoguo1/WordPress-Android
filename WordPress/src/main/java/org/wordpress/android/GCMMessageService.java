@@ -21,7 +21,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.wordpress.android.analytics.AnalyticsTracker;
 import org.wordpress.android.analytics.AnalyticsTracker.Stat;
 import org.wordpress.android.analytics.AnalyticsTrackerMixpanel;
-import org.wordpress.android.models.AccountHelper;
 import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.ui.main.WPMainActivity;
 import org.wordpress.android.ui.notifications.NotificationDismissBroadcastReceiver;
@@ -92,9 +91,9 @@ public class GCMMessageService extends GcmListenerService {
 
     private void handleDefaultPush(String from, @NonNull Bundle data) {
         // Ensure Simperium is running so that notes sync
-        SimperiumUtils.configureSimperium(this, AccountHelper.getDefaultAccount().getAccessToken());
+        SimperiumUtils.configureSimperium(this, mAccountStore.getAccessToken());
 
-        long wpcomUserId = AccountHelper.getDefaultAccount().getUserId();
+        long wpcomUserId = mAccountStore.getAccount().getUserId();
         String pushUserId = data.getString(PUSH_ARG_USER);
         // pushUserId is always set server side, but better to double check it here.
         if (!String.valueOf(wpcomUserId).equals(pushUserId)) {

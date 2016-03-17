@@ -609,7 +609,8 @@ public class CommentDetailFragment extends Fragment implements NotificationFragm
             View.OnClickListener authorListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ReaderActivityLauncher.openUrl(getActivity(), mComment.getAuthorUrl());
+                    ReaderActivityLauncher.openUrl(getActivity(), mComment.getAuthorUrl(), mAccountStore.getAccount()
+                            .getUserName());
                 }
             };
             imgAvatar.setOnClickListener(authorListener);

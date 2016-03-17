@@ -13,7 +13,6 @@ import android.view.View;
 
 import org.wordpress.android.R;
 import org.wordpress.android.analytics.AnalyticsTracker;
-import org.wordpress.android.models.AccountHelper;
 import org.wordpress.android.models.ReaderComment;
 import org.wordpress.android.models.ReaderPost;
 import org.wordpress.android.models.ReaderTag;
@@ -222,10 +221,12 @@ public class ReaderActivityLauncher {
     }
 
     public enum OpenUrlType { INTERNAL, EXTERNAL }
-    public static void openUrl(Context context, String url) {
-        openUrl(context, url, OpenUrlType.INTERNAL);
+
+    public static void openUrl(Context context, String url, String wpComUsername) {
+        openUrl(context, url, OpenUrlType.INTERNAL, wpComUsername);
     }
-    public static void openUrl(Context context, String url, OpenUrlType openUrlType) {
+
+    public static void openUrl(Context context, String url, OpenUrlType openUrlType, String wpComUsername) {
         if (TextUtils.isEmpty(url)) {
             return;
         }
@@ -233,8 +234,7 @@ public class ReaderActivityLauncher {
         if (openUrlType == OpenUrlType.INTERNAL) {
             // That won't work on wpcom sites with custom urls
             if (WPUrlUtils.isWordPressCom(url)) {
-                WPWebViewActivity.openUrlByUsingWPCOMCredentials(context, url,
-                        AccountHelper.getDefaultAccount().getUserName());
+                WPWebViewActivity.openUrlByUsingWPCOMCredentials(context, url, wpComUsername);
             } else {
                 WPWebViewActivity.openURL(context, url);
             }

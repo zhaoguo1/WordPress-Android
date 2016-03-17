@@ -206,7 +206,8 @@ public class ReaderPostDetailFragment extends Fragment
         int i = item.getItemId();
         if (i == R.id.menu_browse) {
             if (hasPost()) {
-                ReaderActivityLauncher.openUrl(getActivity(), mPost.getUrl(), OpenUrlType.EXTERNAL);
+                ReaderActivityLauncher.openUrl(getActivity(), mPost.getUrl(), OpenUrlType.EXTERNAL,
+                        mAccountStore.getAccount().getUserName());
             }
             return true;
         } else if (i == R.id.menu_share) {
@@ -281,7 +282,7 @@ public class ReaderPostDetailFragment extends Fragment
         likeCount.setSelected(isAskingToLike);
         ReaderAnim.animateLikeButton(likeCount.getImageView(), isAskingToLike);
 
-        if (!ReaderPostActions.performLikeAction(mPost, isAskingToLike)) {
+        if (!ReaderPostActions.performLikeAction(mPost, isAskingToLike, mAccountStore.getAccount().getUserId())) {
             likeCount.setSelected(!isAskingToLike);
             return;
         }
@@ -855,7 +856,7 @@ public class ReaderPostDetailFragment extends Fragment
         } else {
             openUrlType = OpenUrlType.INTERNAL;
         }
-        ReaderActivityLauncher.openUrl(getActivity(), url, openUrlType);
+        ReaderActivityLauncher.openUrl(getActivity(), url, openUrlType, mAccountStore.getAccount().getUserName());
         return true;
     }
 

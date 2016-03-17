@@ -10,7 +10,6 @@ import android.view.View;
 import org.wordpress.android.R;
 import org.wordpress.android.datasets.ReaderCommentTable;
 import org.wordpress.android.datasets.ReaderPostTable;
-import org.wordpress.android.models.AccountHelper;
 import org.wordpress.android.util.FormatUtils;
 import org.wordpress.android.util.PhotonUtils;
 import org.wordpress.android.util.StringUtils;
@@ -120,14 +119,6 @@ public class ReaderUtils {
                 String count = FormatUtils.formatInt(numComments);
                 return String.format(context.getString(R.string.reader_short_comment_count_multi), count);
         }
-    }
-
-    /*
-     * returns true if the reader should provide a "logged out" experience - no likes,
-     * comments, or anything else that requires a wp.com account
-     */
-    public static boolean isLoggedOutReader() {
-        return !AccountHelper.isSignedInWordPressDotCom();
     }
 
     /*

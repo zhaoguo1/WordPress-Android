@@ -356,7 +356,8 @@ public class WordPress extends Application {
     public static RestClientUtils getRestClientUtilsV1_1() {
         if (mRestClientUtilsVersion1_1 == null) {
             OAuthAuthenticator authenticator = OAuthAuthenticatorFactory.instantiate();
-            mRestClientUtilsVersion1_1 = new RestClientUtils(requestQueue, authenticator, mOnAuthFailedListener, RestClient.REST_CLIENT_VERSIONS.V1_1);
+            mRestClientUtilsVersion1_1 = new RestClientUtils(requestQueue, authenticator, mOnAuthFailedListener,
+                    RestClient.REST_CLIENT_VERSIONS.V1_1);
         }
         return mRestClientUtilsVersion1_1;
     }
@@ -364,7 +365,8 @@ public class WordPress extends Application {
     public static RestClientUtils getRestClientUtilsV1_2() {
         if (mRestClientUtilsVersion1_2 == null) {
             OAuthAuthenticator authenticator = OAuthAuthenticatorFactory.instantiate();
-            mRestClientUtilsVersion1_2 = new RestClientUtils(requestQueue, authenticator, mOnAuthFailedListener, RestClient.REST_CLIENT_VERSIONS.V1_2);
+            mRestClientUtilsVersion1_2 = new RestClientUtils(requestQueue, authenticator, mOnAuthFailedListener,
+                    RestClient.REST_CLIENT_VERSIONS.V1_2);
         }
         return mRestClientUtilsVersion1_2;
     }
@@ -372,7 +374,8 @@ public class WordPress extends Application {
     public static RestClientUtils getRestClientUtilsV1_3() {
         if (mRestClientUtilsVersion1_3 == null) {
             OAuthAuthenticator authenticator = OAuthAuthenticatorFactory.instantiate();
-            mRestClientUtilsVersion1_3 = new RestClientUtils(requestQueue, authenticator, mOnAuthFailedListener, RestClient.REST_CLIENT_VERSIONS.V1_3);
+            mRestClientUtilsVersion1_3 = new RestClientUtils(requestQueue, authenticator, mOnAuthFailedListener,
+                    RestClient.REST_CLIENT_VERSIONS.V1_3);
         }
         return mRestClientUtilsVersion1_3;
     }

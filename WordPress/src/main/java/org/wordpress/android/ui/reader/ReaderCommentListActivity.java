@@ -470,12 +470,14 @@ public class ReaderCommentListActivity extends AppCompatActivity {
             }
         };
 
+        long wpComUserId = mAccountStore.getAccount().getUserId();
         ReaderComment newComment = ReaderCommentActions.submitPostComment(
                 getPost(),
                 fakeCommentId,
                 commentText,
                 mReplyToCommentId,
-                actionListener);
+                actionListener,
+                wpComUserId);
 
         if (newComment != null) {
             mEditComment.setText(null);

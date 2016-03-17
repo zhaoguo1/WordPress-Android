@@ -9,6 +9,7 @@ public class OAuthAuthenticator implements Authenticator {
     @Override
     public void authenticate(final AuthenticatorRequest request) {
         String siteId = request.getSiteId();
+        // TODO: STORES: kill this
         String token = AccountHelper.getDefaultAccount().getAccessToken();
 
         if (siteId != null) {

@@ -1075,7 +1075,8 @@ public class ReaderPostListFragment extends Fragment
                 } else if (discoverData.hasPermalink()) {
                     // if we don't have a blogId/postId, we sadly resort to showing the post
                     // in a WebView activity - this will happen for non-JP self-hosted
-                    ReaderActivityLauncher.openUrl(getActivity(), discoverData.getPermaLink());
+                    ReaderActivityLauncher.openUrl(getActivity(), discoverData.getPermaLink(),
+                            mAccountStore.getAccount().getUserName());
                     return;
                 }
             }
