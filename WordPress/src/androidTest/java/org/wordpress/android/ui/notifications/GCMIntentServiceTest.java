@@ -8,8 +8,6 @@ import android.test.ServiceTestCase;
 import org.wordpress.android.FactoryUtils;
 import org.wordpress.android.GCMMessageService;
 import org.wordpress.android.TestUtils;
-import org.wordpress.android.models.AccountHelper;
-import org.wordpress.android.models.AccountLegacy;
 
 public class GCMIntentServiceTest extends ServiceTestCase<GCMMessageService> {
     protected Context mTargetContext;
@@ -42,9 +40,6 @@ public class GCMIntentServiceTest extends ServiceTestCase<GCMMessageService> {
     }
 
     public void testOnMessageReceived() throws InterruptedException {
-        AccountLegacy account = AccountHelper.getDefaultAccount();
-        account.setAccessToken("secret token");
-        account.setUserId(1);
         final Bundle bundle = new Bundle();
         bundle.putString("user", "1");
         for (int i = 0; i < 1000; i++) {

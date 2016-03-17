@@ -57,11 +57,11 @@ import org.wordpress.android.editor.EditorMediaUploadListener;
 import org.wordpress.android.editor.EditorWebViewAbstract.ErrorListener;
 import org.wordpress.android.editor.ImageSettingsDialogFragment;
 import org.wordpress.android.editor.LegacyEditorFragment;
-import org.wordpress.android.models.AccountHelper;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.MediaUploadState;
 import org.wordpress.android.models.Post;
 import org.wordpress.android.models.PostStatus;
+import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.ui.ActivityId;
 import org.wordpress.android.ui.RequestCodes;
 import org.wordpress.android.ui.media.MediaGalleryActivity;
@@ -116,6 +116,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
@@ -200,9 +202,12 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
     // For opening the context menu after permissions have been granted
     private View mMenuView = null;
 
+    @Inject AccountStore mAccountStore;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((WordPress) getApplication()).component().inject(this);
         setContentView(R.layout.new_edit_post_activity);
 
         // Check whether to show the visual editor
@@ -2025,7 +2030,7 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
     public String onAuthHeaderRequested(String url) {
         String authHeader = "";
         Blog currentBlog = WordPress.getCurrentBlog();
-        String token = AccountHelper.getDefaultAccount().getAccessToken();
+        String token = mAccountStore.getAccessToken();
 
         if (currentBlog != null && currentBlog.isPrivate() && WPUrlUtils.safeToAddWordPressComAuthToken(url) &&
                 !TextUtils.isEmpty(token)) {

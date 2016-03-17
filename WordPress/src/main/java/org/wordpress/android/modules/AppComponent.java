@@ -18,8 +18,11 @@ import org.wordpress.android.ui.comments.CommentDetailFragment;
 import org.wordpress.android.ui.main.MeFragment;
 import org.wordpress.android.ui.main.MySiteFragment;
 import org.wordpress.android.ui.main.SitePickerActivity;
+import org.wordpress.android.ui.main.SitePickerAdapter;
 import org.wordpress.android.ui.main.WPMainActivity;
+import org.wordpress.android.ui.notifications.NotificationsDetailActivity;
 import org.wordpress.android.ui.notifications.NotificationsListFragment;
+import org.wordpress.android.ui.posts.EditPostActivity;
 import org.wordpress.android.ui.prefs.AccountSettingsFragment;
 import org.wordpress.android.ui.prefs.AppSettingsFragment;
 import org.wordpress.android.ui.prefs.BlogPreferencesActivity;
@@ -38,6 +41,7 @@ import org.wordpress.android.ui.reader.views.ReaderWebView;
 import org.wordpress.android.ui.stats.StatsAbstractFragment;
 import org.wordpress.android.ui.stats.StatsActivity;
 import org.wordpress.android.ui.stats.StatsWidgetConfigureActivity;
+import org.wordpress.android.util.HelpshiftHelper;
 
 import javax.inject.Singleton;
 
@@ -66,18 +70,24 @@ public interface AppComponent {
     void inject(DeepLinkingIntentReceiverActivity object);
     void inject(ShareIntentReceiverActivity object);
 
+    void inject(HelpshiftHelper object);
+
     void inject(CommentDetailFragment object);
 
     void inject(MeFragment object);
     void inject(AccountSettingsFragment object);
     void inject(MySiteFragment object);
     void inject(SitePickerActivity object);
+    void inject(SitePickerAdapter object);
     void inject(SiteSettingsFragment object);
     void inject(BlogPreferencesActivity object);
     void inject(AppSettingsFragment object);
 
+    void inject(EditPostActivity object);
+
     void inject(NotificationsListFragment object);
     void inject(NotificationsSettingsFragment object);
+    void inject(NotificationsDetailActivity object);
 
     void inject(ReaderCommentListActivity object);
     void inject(ReaderUpdateService object);
