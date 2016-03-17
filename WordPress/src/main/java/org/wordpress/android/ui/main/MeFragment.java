@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
-import org.wordpress.android.models.AccountHelper;
 import org.wordpress.android.stores.model.AccountModel;
 import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.stores.store.SiteStore;
@@ -224,8 +223,8 @@ public class MeFragment extends Fragment {
     }
 
     private void signOutWordPressComWithConfirmation() {
-        String message = String.format(getString(R.string.sign_out_wpcom_confirm), AccountHelper.getDefaultAccount()
-                .getUserName());
+        String message = String.format(getString(R.string.sign_out_wpcom_confirm),
+                mAccountStore.getAccount().getUserName());
 
         new AlertDialog.Builder(getActivity())
                 .setMessage(message)

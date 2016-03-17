@@ -402,6 +402,7 @@ public class MySiteFragment extends Fragment
         if (!blog.isDotcomFlag()) {
             return false;
         } else {
+            // TODO: STORES: https://github.com/wordpress-mobile/WordPress-Stores-Android/issues/31
             AccountLegacy account = AccountHelper.getDefaultAccount();
 
             GregorianCalendar calendar = new GregorianCalendar(HIDE_WP_ADMIN_YEAR, HIDE_WP_ADMIN_MONTH, HIDE_WP_ADMIN_DAY);
