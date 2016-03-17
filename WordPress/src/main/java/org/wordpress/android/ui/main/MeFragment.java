@@ -19,8 +19,8 @@ import android.widget.TextView;
 
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
-import org.wordpress.android.models.Account;
 import org.wordpress.android.models.AccountHelper;
+import org.wordpress.android.stores.model.AccountModel;
 import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.stores.store.SiteStore;
 import org.wordpress.android.ui.ActivityLauncher;
@@ -189,7 +189,7 @@ public class MeFragment extends Fragment {
     private void refreshAccountDetails() {
         // we only want to show user details for WordPress.com users
         if (mAccountStore.hasAccessToken()) {
-            Account defaultAccount = AccountHelper.getDefaultAccount();
+            AccountModel defaultAccount = mAccountStore.getAccount();
 
             mDisplayNameTextView.setVisibility(View.VISIBLE);
             mUsernameTextView.setVisibility(View.VISIBLE);

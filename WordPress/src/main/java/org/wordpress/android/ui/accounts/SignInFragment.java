@@ -35,6 +35,7 @@ import org.wordpress.android.analytics.AnalyticsTracker;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.networking.SelfSignedSSLCertsManager;
 import org.wordpress.android.stores.Dispatcher;
+import org.wordpress.android.stores.action.AccountAction;
 import org.wordpress.android.stores.action.AuthenticationAction;
 import org.wordpress.android.stores.action.SiteAction;
 import org.wordpress.android.stores.store.AccountStore;
@@ -787,6 +788,7 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
     @Subscribe
     public void onAccountChanged(OnAccountChanged event) {
         AppLog.i(T.NUX, event.toString());
+        // TODO: STORES: We should probably wait for this and onSiteChanged before finishing the current activity
     }
 
     @Subscribe
@@ -797,8 +799,10 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
             showAuthErrorMessage();
             endProgress();
             return;
+        } else {
+            // Fetch user infos
+            mDispatcher.dispatch(AccountAction.FETCH);
         }
-
     }
 
     @Subscribe
