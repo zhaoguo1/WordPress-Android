@@ -18,6 +18,7 @@ import org.wordpress.android.ui.main.SitePickerActivity;
 import org.wordpress.android.ui.main.WPMainActivity;
 import org.wordpress.android.ui.notifications.NotificationsListFragment;
 import org.wordpress.android.ui.prefs.AccountSettingsFragment;
+import org.wordpress.android.ui.prefs.AppSettingsFragment;
 import org.wordpress.android.ui.prefs.BlogPreferencesActivity;
 import org.wordpress.android.ui.prefs.SiteSettingsFragment;
 import org.wordpress.android.ui.prefs.notifications.NotificationsSettingsFragment;
@@ -65,6 +66,7 @@ public interface AppComponent {
     void inject(SitePickerActivity object);
     void inject(SiteSettingsFragment object);
     void inject(BlogPreferencesActivity object);
+    void inject(AppSettingsFragment object);
 
     void inject(NotificationsListFragment object);
     void inject(NotificationsSettingsFragment object);
@@ -77,7 +79,7 @@ public interface AppComponent {
     void inject(ReaderPostAdapter object);
     void inject(ReaderBlogInfoView object);
     void inject(ReaderTagInfoView object);
-    
+
     // WPDelayedHurlStack will burn in hell as soon as we have all the stores ready
     void inject(WPDelayedHurlStack object);
 }
