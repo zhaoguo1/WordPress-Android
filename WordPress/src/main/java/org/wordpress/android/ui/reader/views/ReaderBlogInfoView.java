@@ -8,14 +8,17 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.wordpress.android.R;
+import org.wordpress.android.WordPress;
 import org.wordpress.android.datasets.ReaderBlogTable;
 import org.wordpress.android.models.ReaderBlog;
+import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.ui.reader.actions.ReaderActions;
 import org.wordpress.android.ui.reader.actions.ReaderBlogActions;
-import org.wordpress.android.ui.reader.utils.ReaderUtils;
 import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.UrlUtils;
+
+import javax.inject.Inject;
 
 /**
  * topmost view in post adapter when showing blog preview - displays description, follower
@@ -33,8 +36,11 @@ public class ReaderBlogInfoView extends LinearLayout {
     private ReaderBlog mBlogInfo;
     private OnBlogInfoLoadedListener mBlogInfoListener;
 
+    @Inject AccountStore mAccountStore;
+
     public ReaderBlogInfoView(Context context) {
         super(context);
+        ((WordPress) context.getApplicationContext()).component().inject(this);
         initView(context);
     }
 
@@ -128,7 +134,7 @@ public class ReaderBlogInfoView extends LinearLayout {
 
         txtFollowCount.setText(String.format(getContext().getString(R.string.reader_label_follow_count), blogInfo.numSubscribers));
 
-        if (ReaderUtils.isLoggedOutReader()) {
+        if (!mAccountStore.hasAccessToken()) {
             mFollowButton.setVisibility(View.GONE);
         } else {
             mFollowButton.setVisibility(View.VISIBLE);

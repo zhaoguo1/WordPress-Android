@@ -18,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.wordpress.android.R;
+import org.wordpress.android.WordPress;
 import org.wordpress.android.analytics.AnalyticsTracker;
 import org.wordpress.android.datasets.ReaderBlogTable;
 import org.wordpress.android.datasets.ReaderDatabase;
@@ -29,6 +30,7 @@ import org.wordpress.android.models.ReaderPostDiscoverData;
 import org.wordpress.android.models.ReaderTag;
 import org.wordpress.android.models.ReaderTagList;
 import org.wordpress.android.models.ReaderTagType;
+import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.ui.EmptyViewMessageType;
 import org.wordpress.android.ui.FilteredRecyclerView;
 import org.wordpress.android.ui.main.WPMainActivity;
@@ -63,6 +65,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 
 public class ReaderPostListFragment extends Fragment
@@ -96,6 +100,8 @@ public class ReaderPostListFragment extends Fragment
     private static Date mLastAutoUpdateDt;
 
     private final HistoryStack mTagPreviewHistory = new HistoryStack("tag_preview_history");
+
+    @Inject AccountStore mAccountStore;
 
     private static class HistoryStack extends Stack<String> {
         private final String keyName;
@@ -198,6 +204,7 @@ public class ReaderPostListFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((WordPress) getActivity().getApplication()).component().inject(this);
 
         if (savedInstanceState != null) {
             AppLog.d(T.READER, "reader post list > restoring instance state");
@@ -454,7 +461,7 @@ public class ReaderPostListFragment extends Fragment
         int spacingVertical = context.getResources().getDimensionPixelSize(R.dimen.reader_card_gutters);
         mRecyclerView.addItemDecoration(new RecyclerItemDecoration(spacingHorizontal, spacingVertical, false));
 
-        if (!ReaderUtils.isLoggedOutReader()) {
+        if (mAccountStore.hasAccessToken()) {
             View settingsControl = inflater.inflate(R.layout.filtered_recyclerview_settings_control, null);
             mRecyclerView.addToolbarCustomControl(settingsControl, new View.OnClickListener() {
                 @Override

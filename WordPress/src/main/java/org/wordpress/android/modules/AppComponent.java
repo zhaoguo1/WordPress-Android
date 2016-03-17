@@ -21,6 +21,14 @@ import org.wordpress.android.ui.prefs.AccountSettingsFragment;
 import org.wordpress.android.ui.prefs.BlogPreferencesActivity;
 import org.wordpress.android.ui.prefs.SiteSettingsFragment;
 import org.wordpress.android.ui.prefs.notifications.NotificationsSettingsFragment;
+import org.wordpress.android.ui.reader.ReaderCommentListActivity;
+import org.wordpress.android.ui.reader.ReaderPostDetailFragment;
+import org.wordpress.android.ui.reader.ReaderPostListFragment;
+import org.wordpress.android.ui.reader.adapters.ReaderCommentAdapter;
+import org.wordpress.android.ui.reader.adapters.ReaderPostAdapter;
+import org.wordpress.android.ui.reader.services.ReaderUpdateService;
+import org.wordpress.android.ui.reader.views.ReaderBlogInfoView;
+import org.wordpress.android.ui.reader.views.ReaderTagInfoView;
 import org.wordpress.android.ui.stats.StatsActivity;
 import org.wordpress.android.ui.stats.StatsWidgetConfigureActivity;
 
@@ -38,27 +46,38 @@ import dagger.Component;
 })
 public interface AppComponent {
     void inject(WordPress application);
-    void inject(SignInFragment object);
     void inject(WPMainActivity object);
-    void inject(ShareIntentReceiverActivity object);
-    void inject(BlogPreferencesActivity object);
-    void inject(SiteSettingsFragment object);
-    void inject(AccountSettingsFragment object);
+    void inject(SignInFragment object);
+
     void inject(StatsWidgetConfigureActivity object);
     void inject(StatsActivity object);
+
     void inject(GCMMessageService object);
     void inject(GCMRegistrationIntentService object);
     void inject(DeepLinkingIntentReceiverActivity object);
+    void inject(ShareIntentReceiverActivity object);
+
     void inject(CommentDetailFragment object);
+
     void inject(MeFragment object);
-    void inject(SitePickerActivity object);
+    void inject(AccountSettingsFragment object);
     void inject(MySiteFragment object);
+    void inject(SitePickerActivity object);
+    void inject(SiteSettingsFragment object);
+    void inject(BlogPreferencesActivity object);
+
     void inject(NotificationsListFragment object);
     void inject(NotificationsSettingsFragment object);
 
-
-
-
+    void inject(ReaderCommentListActivity object);
+    void inject(ReaderUpdateService object);
+    void inject(ReaderPostDetailFragment object);
+    void inject(ReaderPostListFragment object);
+    void inject(ReaderCommentAdapter object);
+    void inject(ReaderPostAdapter object);
+    void inject(ReaderBlogInfoView object);
+    void inject(ReaderTagInfoView object);
+    
     // WPDelayedHurlStack will burn in hell as soon as we have all the stores ready
     void inject(WPDelayedHurlStack object);
 }

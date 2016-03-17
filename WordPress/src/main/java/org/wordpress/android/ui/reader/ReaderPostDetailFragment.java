@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.wordpress.android.R;
+import org.wordpress.android.WordPress;
 import org.wordpress.android.analytics.AnalyticsTracker;
 import org.wordpress.android.datasets.ReaderLikeTable;
 import org.wordpress.android.datasets.ReaderPostTable;
@@ -26,6 +27,8 @@ import org.wordpress.android.models.ReaderPost;
 import org.wordpress.android.models.ReaderPostDiscoverData;
 import org.wordpress.android.models.ReaderTag;
 import org.wordpress.android.models.ReaderTagType;
+import org.wordpress.android.stores.store.AccountStore;
+import org.wordpress.android.stores.store.SiteStore;
 import org.wordpress.android.ui.reader.ReaderActivityLauncher.OpenUrlType;
 import org.wordpress.android.ui.reader.ReaderInterfaces.AutoHideToolbarListener;
 import org.wordpress.android.ui.reader.ReaderTypes.ReaderPostListType;
@@ -53,6 +56,8 @@ import org.wordpress.android.util.UrlUtils;
 import org.wordpress.android.widgets.WPNetworkImageView;
 import org.wordpress.android.widgets.WPScrollView;
 import org.wordpress.android.widgets.WPScrollView.ScrollDirectionListener;
+
+import javax.inject.Inject;
 
 public class ReaderPostDetailFragment extends Fragment
         implements ScrollDirectionListener,
@@ -85,6 +90,7 @@ public class ReaderPostDetailFragment extends Fragment
     // min scroll distance before toggling toolbar
     private static final float MIN_SCROLL_DISTANCE_Y = 10;
 
+    @Inject AccountStore mAccountStore;
 
     public static ReaderPostDetailFragment newInstance(long blogId, long postId) {
         return newInstance(blogId, postId, null);
@@ -111,7 +117,8 @@ public class ReaderPostDetailFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mIsLoggedOutReader = ReaderUtils.isLoggedOutReader();
+        ((WordPress) getActivity().getApplication()).component().inject(this);
+        mIsLoggedOutReader = !mAccountStore.hasAccessToken();
     }
 
     @Override

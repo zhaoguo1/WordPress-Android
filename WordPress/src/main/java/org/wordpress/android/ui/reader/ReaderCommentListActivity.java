@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.wordpress.android.R;
+import org.wordpress.android.WordPress;
 import org.wordpress.android.analytics.AnalyticsTracker;
 import org.wordpress.android.datasets.ReaderCommentTable;
 import org.wordpress.android.datasets.ReaderPostTable;
@@ -22,12 +23,12 @@ import org.wordpress.android.datasets.SuggestionTable;
 import org.wordpress.android.models.ReaderComment;
 import org.wordpress.android.models.ReaderPost;
 import org.wordpress.android.models.Suggestion;
+import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.reader.actions.ReaderActions;
 import org.wordpress.android.ui.reader.actions.ReaderCommentActions;
 import org.wordpress.android.ui.reader.adapters.ReaderCommentAdapter;
 import org.wordpress.android.ui.reader.services.ReaderCommentService;
-import org.wordpress.android.ui.reader.utils.ReaderUtils;
 import org.wordpress.android.ui.reader.views.ReaderRecyclerView;
 import org.wordpress.android.ui.suggestion.adapters.SuggestionAdapter;
 import org.wordpress.android.ui.suggestion.service.SuggestionEvents;
@@ -46,6 +47,8 @@ import org.wordpress.android.widgets.SuggestionAutoCompleteText;
 
 import java.util.List;
 import java.util.Locale;
+
+import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
@@ -73,9 +76,12 @@ public class ReaderCommentListActivity extends AppCompatActivity {
     private long mCommentId;
     private int mRestorePosition;
 
+    @Inject AccountStore mAccountStore;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((WordPress) getApplication()).component().inject(this);
         setContentView(R.layout.reader_activity_comment_list);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -221,7 +227,7 @@ public class ReaderCommentListActivity extends AppCompatActivity {
         }
 
         TextView txtCommentsClosed = (TextView) findViewById(R.id.text_comments_closed);
-        if (ReaderUtils.isLoggedOutReader()) {
+        if (!mAccountStore.hasAccessToken()) {
             mCommentBox.setVisibility(View.GONE);
             txtCommentsClosed.setVisibility(View.GONE);
         } else if (mPost.isCommentsOpen) {
