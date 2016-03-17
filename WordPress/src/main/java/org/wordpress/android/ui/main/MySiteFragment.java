@@ -20,7 +20,7 @@ import android.widget.ScrollView;
 
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
-import org.wordpress.android.models.Account;
+import org.wordpress.android.models.AccountLegacy;
 import org.wordpress.android.models.AccountHelper;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.CommentStatus;
@@ -402,7 +402,7 @@ public class MySiteFragment extends Fragment
         if (!blog.isDotcomFlag()) {
             return false;
         } else {
-            Account account = AccountHelper.getDefaultAccount();
+            AccountLegacy account = AccountHelper.getDefaultAccount();
 
             GregorianCalendar calendar = new GregorianCalendar(HIDE_WP_ADMIN_YEAR, HIDE_WP_ADMIN_MONTH, HIDE_WP_ADMIN_DAY);
             calendar.setTimeZone(TimeZone.getTimeZone(HIDE_WP_ADMIN_GMT_TIME_ZONE));

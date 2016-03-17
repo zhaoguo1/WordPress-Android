@@ -18,8 +18,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
-import org.wordpress.android.ui.accounts.helpers.CreateUserAndBlog;
 import org.wordpress.android.models.AccountHelper;
+import org.wordpress.android.stores.store.AccountStore;
+import org.wordpress.android.ui.accounts.helpers.CreateUserAndBlog;
 import org.wordpress.android.ui.plans.PlansConstants;
 import org.wordpress.android.util.AlertUtils;
 import org.wordpress.android.util.AppLog;
@@ -27,6 +28,8 @@ import org.wordpress.android.util.AppLog.T;
 import org.wordpress.android.util.EditTextUtils;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.widgets.WPTextView;
+
+import javax.inject.Inject;
 
 public class NewBlogFragment extends AbstractFragment implements TextWatcher {
     private EditText mSiteUrlTextField;
@@ -38,7 +41,12 @@ public class NewBlogFragment extends AbstractFragment implements TextWatcher {
     private boolean mSignoutOnCancelMode;
     private boolean mAutoCompleteUrl;
 
-    public NewBlogFragment() {
+    @Inject AccountStore mAccountStore;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ((WordPress) getActivity().getApplication()).component().inject(this);
     }
 
     @Override
@@ -197,7 +205,7 @@ public class NewBlogFragment extends AbstractFragment implements TextWatcher {
                     String xmlRpcUrl = details.getString("xmlrpc");
                     String homeUrl = details.getString("url");
                     String blogId = details.getString("blogid");
-                    String username = AccountHelper.getDefaultAccount().getUserName();
+                    String username = mAccountStore.getAccount().getUserName();
                     BlogUtils.addOrUpdateBlog(blogName, xmlRpcUrl, homeUrl, blogId, username, null, null, null,
                             true, true, PlansConstants.DEFAULT_PLAN_ID_FOR_NEW_BLOG, null);
                     ToastUtils.showToast(getActivity(), R.string.new_blog_wpcom_created);

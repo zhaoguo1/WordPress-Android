@@ -7,13 +7,13 @@ import org.wordpress.android.datasets.AccountTable;
  * need the account data.
  */
 public class AccountHelper {
-    private static Account sAccount;
+    private static AccountLegacy sAccount;
 
-    public static Account getDefaultAccount() {
+    public static AccountLegacy getDefaultAccount() {
         if (sAccount == null) {
             sAccount = AccountTable.getDefaultAccount();
             if (sAccount == null) {
-                sAccount = new Account();
+                sAccount = new AccountLegacy();
             }
         }
         return sAccount;

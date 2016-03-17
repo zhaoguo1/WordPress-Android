@@ -18,9 +18,9 @@ import com.google.gson.reflect.TypeToken;
 
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
-import org.wordpress.android.models.AccountHelper;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.Post;
+import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.StringUtils;
 import org.wordpress.android.util.UrlUtils;
@@ -34,6 +34,8 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 /**
  * Activity for opening external WordPress links in a webview.
@@ -68,6 +70,8 @@ import java.util.Map;
  *
  */
 public class WPWebViewActivity extends WebViewActivity {
+    @Inject AccountStore mAccountStore;
+
     public static final String AUTHENTICATION_URL = "authenticated_url";
     public static final String AUTHENTICATION_USER = "authenticated_user";
     public static final String AUTHENTICATION_PASSWD = "authenticated_passwd";
@@ -77,6 +81,12 @@ public class WPWebViewActivity extends WebViewActivity {
     public static final String SHARABLE_URL = "sharable_url";
 
     private static final String ENCODING_UTF8 = "UTF-8";
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ((WordPress) getApplication()).component().inject(this);
+    }
 
     public static void openUrlByUsingWPCOMCredentials(Context context, String url, String user) {
         openWPCOMURL(context, url, user);
@@ -232,7 +242,7 @@ public class WPWebViewActivity extends WebViewActivity {
      */
     protected void loadAuthenticatedUrl(String authenticationURL, String urlToLoad, String username, String password) {
         String postData = getAuthenticationPostData(authenticationURL, urlToLoad, username, password,
-                AccountHelper.getDefaultAccount().getAccessToken());
+                mAccountStore.getAccessToken());
 
         mWebView.postUrl(authenticationURL, postData.getBytes());
     }

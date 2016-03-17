@@ -12,7 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
-import org.wordpress.android.models.Account;
+import org.wordpress.android.models.AccountLegacy;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.ui.notifications.utils.SimperiumUtils;
 import org.wordpress.android.models.AccountHelper;
@@ -81,7 +81,7 @@ public class LoginWPCom extends LoginAbstract {
                     WordPress.wpDB.saveBlog(mJetpackBlog);
                 }
 
-                Account account = AccountHelper.getDefaultAccount();
+                AccountLegacy account = AccountHelper.getDefaultAccount();
 
                 if (mJetpackBlog == null) {
                     // Store token in global account

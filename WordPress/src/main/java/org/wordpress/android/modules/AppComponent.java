@@ -10,6 +10,9 @@ import org.wordpress.android.stores.module.ReleaseNetworkModule;
 import org.wordpress.android.stores.module.ReleaseStoreModule;
 import org.wordpress.android.ui.DeepLinkingIntentReceiverActivity;
 import org.wordpress.android.ui.ShareIntentReceiverActivity;
+import org.wordpress.android.ui.ViewSiteActivity;
+import org.wordpress.android.ui.WPWebViewActivity;
+import org.wordpress.android.ui.accounts.NewBlogFragment;
 import org.wordpress.android.ui.accounts.SignInFragment;
 import org.wordpress.android.ui.comments.CommentDetailFragment;
 import org.wordpress.android.ui.main.MeFragment;
@@ -52,6 +55,7 @@ public interface AppComponent {
     void inject(WordPress application);
     void inject(WPMainActivity object);
     void inject(SignInFragment object);
+    void inject(NewBlogFragment object);
 
     void inject(StatsWidgetConfigureActivity object);
     void inject(StatsActivity object);
@@ -85,6 +89,9 @@ public interface AppComponent {
     void inject(ReaderTagInfoView object);
     void inject(ReaderLikingUsersView object);
     void inject(ReaderWebView object);
+
+    void inject(ViewSiteActivity object);
+    void inject(WPWebViewActivity object);
 
     // WPDelayedHurlStack will burn in hell as soon as we have all the stores ready.
     void inject(WPDelayedHurlStack object);

@@ -18,7 +18,7 @@ import org.wordpress.android.datasets.AccountTable;
 import org.wordpress.android.datasets.CommentTable;
 import org.wordpress.android.datasets.SiteSettingsTable;
 import org.wordpress.android.datasets.SuggestionTable;
-import org.wordpress.android.models.Account;
+import org.wordpress.android.models.AccountLegacy;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.MediaUploadState;
 import org.wordpress.android.models.Post;
@@ -456,7 +456,7 @@ public class WordPressDB {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         String oldAccessToken = settings.getString(DEPRECATED_ACCESS_TOKEN_PREFERENCE, null);
         String oldUsername = settings.getString(DEPRECATED_WPCOM_USERNAME_PREFERENCE, null);
-        Account account = new Account();
+        AccountLegacy account = new AccountLegacy();
         account.setUserName(oldUsername);
         if (oldAccessToken != null) {
             account.setAccessToken(oldAccessToken);

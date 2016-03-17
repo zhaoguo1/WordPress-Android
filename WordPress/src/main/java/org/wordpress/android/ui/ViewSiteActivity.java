@@ -16,8 +16,8 @@ import com.google.gson.reflect.TypeToken;
 
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
-import org.wordpress.android.models.AccountHelper;
 import org.wordpress.android.models.Blog;
+import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.util.StringUtils;
 import org.wordpress.android.util.WPWebViewClient;
 import org.wordpress.android.util.helpers.WPWebChromeClient;
@@ -26,13 +26,18 @@ import org.wordpress.passcodelock.AppLockManager;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 /**
  * Activity to view the WordPress blog in a WebView
  */
 public class ViewSiteActivity extends WebViewActivity {
+    @Inject AccountStore mAccountStore;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((WordPress) getApplication()).component().inject(this);
         ActivityId.trackLastActivity(ActivityId.VIEW_SITE);
     }
 
@@ -88,7 +93,7 @@ public class ViewSiteActivity extends WebViewActivity {
 
         String postData = WPWebViewActivity.getAuthenticationPostData(
                 authenticationUrl, siteURL, blog.getUsername(), blog.getPassword(),
-                AccountHelper.getDefaultAccount().getAccessToken()
+                mAccountStore.getAccessToken()
         );
 
         mWebView.postUrl(authenticationUrl, postData.getBytes());

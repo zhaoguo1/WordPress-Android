@@ -16,9 +16,9 @@ import android.widget.TextView;
 
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
-import org.wordpress.android.models.Account;
+import org.wordpress.android.models.AccountLegacy;
 import org.wordpress.android.models.AccountHelper;
-import org.wordpress.android.models.AccountModel;
+import org.wordpress.android.models.AccountModelLegacy;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.stores.store.SiteStore;
@@ -141,7 +141,7 @@ public class AccountSettingsFragment extends PreferenceFragment implements Prefe
     }
 
     private void refreshAccountDetails() {
-        Account account = AccountHelper.getDefaultAccount();
+        AccountLegacy account = AccountHelper.getDefaultAccount();
         mUsernamePreference.setSummary(account.getUserName());
         mEmailPreference.setSummary(account.getEmail());
         mWebAddressPreference.setSummary(account.getWebAddress());
@@ -153,7 +153,7 @@ public class AccountSettingsFragment extends PreferenceFragment implements Prefe
     }
 
     private void checkIfEmailChangeIsPending() {
-        final Account account = AccountHelper.getDefaultAccount();
+        final AccountLegacy account = AccountHelper.getDefaultAccount();
         if (account.getPendingEmailChange()) {
             showPendingEmailChangeSnackbar(account.getNewEmail());
         } else if (mEmailSnackbar != null && mEmailSnackbar.isShown()){
@@ -189,7 +189,7 @@ public class AccountSettingsFragment extends PreferenceFragment implements Prefe
 
     private void cancelPendingEmailChange() {
         Map<String, String> params = new HashMap<>();
-        params.put(AccountModel.RestParam.EMAIL_CHANGE_PENDING.getDescription(), "false");
+        params.put(AccountModelLegacy.RestParam.EMAIL_CHANGE_PENDING.getDescription(), "false");
         AccountHelper.getDefaultAccount().postAccountSettings(params);
         if (mEmailSnackbar != null && mEmailSnackbar.isShown()) {
             mEmailSnackbar.dismiss();
@@ -206,23 +206,23 @@ public class AccountSettingsFragment extends PreferenceFragment implements Prefe
     }
 
     private void updateEmail(String newEmail) {
-        Account account = AccountHelper.getDefaultAccount();
+        AccountLegacy account = AccountHelper.getDefaultAccount();
         Map<String, String> params = new HashMap<>();
-        params.put(AccountModel.RestParam.EMAIL.getDescription(), newEmail);
+        params.put(AccountModelLegacy.RestParam.EMAIL.getDescription(), newEmail);
         account.postAccountSettings(params);
     }
 
     private void updatePrimaryBlog(String blogId) {
-        Account account = AccountHelper.getDefaultAccount();
+        AccountLegacy account = AccountHelper.getDefaultAccount();
         Map<String, String> params = new HashMap<>();
-        params.put(AccountModel.RestParam.PRIMARY_BLOG.getDescription(), blogId);
+        params.put(AccountModelLegacy.RestParam.PRIMARY_BLOG.getDescription(), blogId);
         account.postAccountSettings(params);
     }
 
     public void updateWebAddress(String newWebAddress) {
-        Account account = AccountHelper.getDefaultAccount();
+        AccountLegacy account = AccountHelper.getDefaultAccount();
         Map<String, String> params = new HashMap<>();
-        params.put(AccountModel.RestParam.WEB_ADDRESS.getDescription(), newWebAddress);
+        params.put(AccountModelLegacy.RestParam.WEB_ADDRESS.getDescription(), newWebAddress);
         account.postAccountSettings(params);
     }
 
