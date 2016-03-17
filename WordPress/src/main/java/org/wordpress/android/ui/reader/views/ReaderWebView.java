@@ -1,6 +1,5 @@
 package org.wordpress.android.ui.reader.views;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
@@ -64,33 +63,16 @@ public class ReaderWebView extends WebView {
     @Inject AccountStore mAccountStore;
 
     public ReaderWebView(Context context) {
-        super(context);
-        ((WordPress) context.getApplicationContext()).component().inject(this);
-        init();
-    }
-
-    @Override
-    public void destroy() {
-        mIsDestroyed = true;
-        super.destroy();
-    }
-
-    public boolean isDestroyed() {
-        return mIsDestroyed;
+        this(context, null);
     }
 
     public ReaderWebView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
     public ReaderWebView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init();
-    }
-
-    @SuppressLint("NewApi")
-    private void init() {
+        ((WordPress) context.getApplicationContext()).component().inject(this);
         if (!isInEditMode()) {
             mToken = mAccountStore.getAccessToken();
 
@@ -105,6 +87,17 @@ public class ReaderWebView extends WebView {
             }
         }
     }
+
+    @Override
+    public void destroy() {
+        mIsDestroyed = true;
+        super.destroy();
+    }
+
+    public boolean isDestroyed() {
+        return mIsDestroyed;
+    }
+
 
     private ReaderWebViewUrlClickListener getUrlClickListener() {
         return mUrlClickListener;
