@@ -66,6 +66,7 @@ public class SitePickerActivity extends AppCompatActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((WordPress) getApplication()).component().inject(this);
 
         setContentView(R.layout.site_picker_activity);
         restoreSavedInstanceState(savedInstanceState);

@@ -94,7 +94,7 @@ public class MySiteFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        ((WordPress) getActivity().getApplication()).component().inject(this);
         mBlogLocalId = BlogUtils.getBlogLocalId(WordPress.getCurrentBlog());
     }
 

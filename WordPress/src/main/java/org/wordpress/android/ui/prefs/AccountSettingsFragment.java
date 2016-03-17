@@ -228,7 +228,7 @@ public class AccountSettingsFragment extends PreferenceFragment implements OnPre
     }
 
     private void checkWordPressComOnlyFields() {
-        if (!AccountHelper.isSignedInWordPressDotCom()) {
+        if (!mAccountStore.hasAccessToken()) {
             mPreferenceScreen.removePreference(mUsernamePreference);
             mPreferenceScreen.removePreference(mEmailPreference);
             mPreferenceScreen.removePreference(mPrimarySitePreference);

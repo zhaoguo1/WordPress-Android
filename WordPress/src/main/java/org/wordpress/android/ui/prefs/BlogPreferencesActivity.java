@@ -64,6 +64,7 @@ public class BlogPreferencesActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((WordPress) getApplication()).component().inject(this);
 
         Integer id = getIntent().getIntExtra(ARG_LOCAL_BLOG_ID, -1);
         blog = WordPress.getBlog(id);
