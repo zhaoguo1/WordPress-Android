@@ -7,13 +7,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.widget.ImageView;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
@@ -31,10 +27,6 @@ import org.wordpress.passcodelock.AppLockManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
-import java.net.URL;
-
-import static org.wordpress.mediapicker.MediaUtils.fadeInImage;
 
 public class WordPressMediaUtils {
     public interface LaunchCameraCallback {
@@ -228,53 +220,6 @@ public class WordPressMediaUtils {
         String state = cursor.getString(cursor.getColumnIndex("uploadState"));
         cursor.close();
         return state == null || !state.equals("uploading");
-    }
-
-    public static class BackgroundDownloadWebImage extends AsyncTask<Uri, String, Bitmap> {
-        WeakReference<ImageView> mReference;
-
-        public BackgroundDownloadWebImage(ImageView resultStore) {
-            mReference = new WeakReference<>(resultStore);
-        }
-
-        @Override
-        protected Bitmap doInBackground(Uri... params) {
-            try {
-                String uri = params[0].toString();
-                Bitmap bitmap = WordPress.getBitmapCache().getBitmap(uri);
-
-                if (bitmap == null) {
-                    URL url = new URL(uri);
-                    bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                    WordPress.getBitmapCache().put(uri, bitmap);
-                }
-
-                return bitmap;
-            }
-            catch(IOException notFoundException) {
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            ImageView imageView = mReference.get();
-
-            if (imageView != null) {
-                if (imageView.getTag() == this) {
-                    imageView.setImageBitmap(result);
-                    fadeInImage(imageView, result);
-                }
-            }
-        }
-    }
-
-    public static Cursor getWordPressMediaImages(String blogId) {
-        return WordPress.wpDB.getMediaImagesForBlog(blogId);
-    }
-
-    public static Cursor getWordPressMediaVideos(String blogId) {
-        return WordPress.wpDB.getMediaFilesForBlog(blogId);
     }
 
     /**
