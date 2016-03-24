@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -667,6 +668,7 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
 
         menu.add(0, ADD_GALLERY_MENU_POSITION, 0, getResources().getText(R.string.media_add_new_media_gallery));
         menu.add(0, SELECT_LIBRARY_MENU_POSITION, 0, getResources().getText(R.string.select_from_media_library));
+        menu.add(0, 6, 0, getResources().getText(R.string.select_from_new_picker));
     }
 
     @Override
@@ -690,9 +692,22 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
             case SELECT_LIBRARY_MENU_POSITION:
                 startMediaGalleryAddActivity();
                 return true;
+            case 6:
+                launchMultiSelectIntent();
+                return true;
             default:
                 return false;
         }
+    }
+
+    private void launchMultiSelectIntent() {
+        Intent intent = new Intent();
+        intent.setType("image/*, video/*");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        }
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Media Multi-selector"), 1);
     }
 
     private void launchPictureLibrary() {
