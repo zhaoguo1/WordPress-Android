@@ -61,6 +61,19 @@
         android:largeHeap="true"
         android:theme="@style/WordPress"
         tools:replace="allowBackup, icon">
+
+        <provider
+            android:name=".util.WPDocumentsProvider"
+            android:authorities="org.wordpress.android.WPDocumentsProvider"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS"
+            android:enabled="@bool/api19Supported">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
+
         <activity
             android:name=".ui.WPLaunchActivity"
             android:noHistory="true"

@@ -735,7 +735,7 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
     }
 
     private void trackEditorCreatedPost(String action, Intent intent) {
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Map<String, Object> properties = new HashMap<>();
         // Post created from the post list (new post button).
         String normalizedSourceName = "post-list";
         if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
