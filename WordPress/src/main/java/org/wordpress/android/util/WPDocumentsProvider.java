@@ -6,8 +6,10 @@ import org.wordpress.android.WordPressDB;
 import org.wordpress.android.models.AccountHelper;
 
 import android.annotation.TargetApi;
+import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -16,8 +18,12 @@ import android.provider.DocumentsContract;
 import android.provider.DocumentsProvider;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.provider.DocumentsContract.Root;
 import static android.provider.DocumentsContract.Document;
@@ -33,6 +39,14 @@ public class WPDocumentsProvider extends DocumentsProvider {
     public static final String ROOT_DOC_ID = "root:";
     public static final long ROOT_AVAILABLE_BYTES = 0L;
     public static final String ROOT_MIME_TYPES = "image/*";
+
+    // Root Document information
+    public static final String ROOT_DOC_MIME_TYPE = Document.MIME_TYPE_DIR;
+    public static final String ROOT_DOC_TITLE = "Whole Library";
+    public static final String ROOT_DOC_SUMMARY = "All your images and videos";
+    public static final int ROOT_DOC_FLAGS = 0;
+    public static final int ROOT_DOC_ICON = R.mipmap.app_icon;
+    public static final long ROOT_DOC_SIZE = 0L;
 
     private static final String[] DEFAULT_ROOT_COLUMNS = {
             Root.COLUMN_ROOT_ID,
@@ -54,6 +68,8 @@ public class WPDocumentsProvider extends DocumentsProvider {
             Document.COLUMN_FLAGS,
             Document.COLUMN_SIZE
     };
+
+    private final Map<Integer, String> mDocumentIdToThumbnail = new HashMap<>();
 
     @Override
     public boolean onCreate() {
@@ -85,8 +101,8 @@ public class WPDocumentsProvider extends DocumentsProvider {
         if (columns == null) columns = DEFAULT_DOC_COLUMNS;
         MatrixCursor result = new MatrixCursor(columns);
 
-        Cursor cursor = WordPress.wpDB.getMediaImagesForBlog(WordPress.getCurrentRemoteBlogId());
-        if (cursor == null || cursor.getCount() < 1 || !cursor.moveToFirst()) {
+        Cursor cursor = WordPress.wpDB.getMediaImagesForBlog(String.valueOf(WordPress.getCurrentBlog().getLocalTableBlogId()));
+        if (!cursor.moveToFirst()) {
             // TODO: query WordPress.com media library
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 Bundle loading = new Bundle();
@@ -118,25 +134,33 @@ public class WPDocumentsProvider extends DocumentsProvider {
         int titleColumn = cursor.getColumnIndex(WordPressDB.COLUMN_NAME_TITLE);
         int summaryColumn = cursor.getColumnIndex(WordPressDB.COLUMN_NAME_DESCRIPTION);
         int mediaId = cursor.getInt(mediaIdColumn);
+
         String fileUrl = cursor.getString(fileUrlColumn);
         String filePath = cursor.getString(filePathColumn);
         String thumbnailUrl = cursor.getString(thumbnailColumn);
 
         if (verifyLocalImage(mediaId, fileUrl, filePath)) {
+            if (!TextUtils.isEmpty(thumbnailUrl)) {
+                mDocumentIdToThumbnail.put(mediaId, thumbnailUrl);
+            }
+
             MatrixCursor.RowBuilder row = rowParent.newRow();
+            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                    MimeTypeMap.getFileExtensionFromUrl(fileUrl));
+
             row.add(Document.COLUMN_DOCUMENT_ID, mediaId);
-            row.add(Document.COLUMN_MIME_TYPE, "image/*");
+            row.add(Document.COLUMN_MIME_TYPE, mimeType);
             row.add(Document.COLUMN_DISPLAY_NAME, cursor.getString(titleColumn));
             row.add(Document.COLUMN_SUMMARY, cursor.getString(summaryColumn));
             row.add(Document.COLUMN_LAST_MODIFIED, null);
-            row.add(Document.COLUMN_ICON, null);
+            row.add(Document.COLUMN_ICON, R.drawable.media_image_placeholder);
             row.add(Document.COLUMN_FLAGS, Document.FLAG_SUPPORTS_THUMBNAIL);
             row.add(Document.COLUMN_SIZE, null);
         }
     }
 
     private boolean verifyLocalImage(int id, String url, String path) {
-        return id >= 0 && !TextUtils.isEmpty(url) && !TextUtils.isEmpty(path);
+        return id >= 0 && !(TextUtils.isEmpty(url) && TextUtils.isEmpty(path));
     }
 
     private void addRootRow(MatrixCursor cursor) {
@@ -154,12 +178,12 @@ public class WPDocumentsProvider extends DocumentsProvider {
     private void addRootDocumentRow(MatrixCursor cursor) {
         MatrixCursor.RowBuilder builder = cursor.newRow();
         builder.add(Document.COLUMN_DOCUMENT_ID, ROOT_DOC_ID);
-        builder.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
-        builder.add(Document.COLUMN_DISPLAY_NAME, ROOT_TITLE);
-        builder.add(Document.COLUMN_SUMMARY, ROOT_SUMMARY);
+        builder.add(Document.COLUMN_MIME_TYPE, ROOT_DOC_MIME_TYPE);
+        builder.add(Document.COLUMN_DISPLAY_NAME, ROOT_DOC_TITLE);
+        builder.add(Document.COLUMN_SUMMARY, ROOT_DOC_SUMMARY);
         builder.add(Document.COLUMN_LAST_MODIFIED, null);
-        builder.add(Document.COLUMN_ICON, ROOT_ICON);
-        builder.add(Document.COLUMN_FLAGS, ROOT_FLAGS);
-        builder.add(Document.COLUMN_SIZE, 0);
+        builder.add(Document.COLUMN_ICON, ROOT_DOC_ICON);
+        builder.add(Document.COLUMN_FLAGS, ROOT_DOC_FLAGS);
+        builder.add(Document.COLUMN_SIZE, ROOT_DOC_SIZE);
     }
 }
