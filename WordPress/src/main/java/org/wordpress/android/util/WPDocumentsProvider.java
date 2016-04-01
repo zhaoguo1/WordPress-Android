@@ -22,6 +22,10 @@ import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,7 +73,7 @@ public class WPDocumentsProvider extends DocumentsProvider {
             Document.COLUMN_SIZE
     };
 
-    private final Map<Integer, String> mDocumentIdToThumbnail = new HashMap<>();
+    private final Map<String, String> mDocumentIdToThumbnail = new HashMap<>();
 
     @Override
     public boolean onCreate() {
@@ -126,6 +130,34 @@ public class WPDocumentsProvider extends DocumentsProvider {
         return null;
     }
 
+    @Override
+    public AssetFileDescriptor openDocumentThumbnail(String documentId, Point sizeHint, CancellationSignal signal)
+            throws FileNotFoundException {
+        String thumbnail = mDocumentIdToThumbnail.get(documentId);
+        File dir = new File(getContext().getFilesDir() + "/WordPress/thumbnails");
+        if (!dir.exists() && !dir.mkdirs()) return null;
+        File file = new File(dir, documentId + ".jpg");
+        try {
+            if (!file.exists() && !file.createNewFile()) return null;
+            URL url = new URL(thumbnail.replace("https", "http").replace("?w=150", "?w=" + sizeHint.x));//.substring(0, thumbnail.indexOf("?")));
+            InputStream thumbnailStream = url.openStream();
+            FileOutputStream fileStream = new FileOutputStream(file);
+            int length;
+            byte[] data = new byte[1024];
+            while ((length = thumbnailStream.read(data)) != -1) {
+                fileStream.write(data, 0, length);
+            }
+            fileStream.close();
+            thumbnailStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        final ParcelFileDescriptor pfd =
+                ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+        return new AssetFileDescriptor(pfd, 0, AssetFileDescriptor.UNKNOWN_LENGTH);
+    }
+
     private void addImageRow(@NonNull Cursor cursor, @NonNull MatrixCursor rowParent) {
         int mediaIdColumn = cursor.getColumnIndex(WordPressDB.COLUMN_NAME_MEDIA_ID);
         int fileUrlColumn = cursor.getColumnIndex(WordPressDB.COLUMN_NAME_FILE_URL);
@@ -141,7 +173,7 @@ public class WPDocumentsProvider extends DocumentsProvider {
 
         if (verifyLocalImage(mediaId, fileUrl, filePath)) {
             if (!TextUtils.isEmpty(thumbnailUrl)) {
-                mDocumentIdToThumbnail.put(mediaId, thumbnailUrl);
+                mDocumentIdToThumbnail.put(String.valueOf(mediaId), thumbnailUrl);
             }
 
             MatrixCursor.RowBuilder row = rowParent.newRow();
