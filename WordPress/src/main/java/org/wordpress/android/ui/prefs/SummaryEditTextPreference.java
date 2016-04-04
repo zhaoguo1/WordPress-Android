@@ -35,7 +35,7 @@ import org.wordpress.android.util.WPPrefUtils;
  *  - app:longClickHint : sets the string to be shown in a Toast when preference is long clicked
  */
 
-public class SummaryEditTextPreference extends EditTextPreference implements PreferenceHint {
+public class SummaryEditTextPreference extends EditTextPreference {
     private int mLines;
     private int mMaxLines;
     private String mHint;
@@ -173,20 +173,5 @@ public class SummaryEditTextPreference extends EditTextPreference implements Pre
         if (positiveResult) {
             callChangeListener(getEditText().getText());
         }
-    }
-
-    @Override
-    public boolean hasHint() {
-        return !TextUtils.isEmpty(mHint);
-    }
-
-    @Override
-    public String getHint() {
-        return mHint;
-    }
-
-    @Override
-    public void setHint(String hint) {
-        mHint = hint;
     }
 }
