@@ -82,6 +82,7 @@
     <string name="unknown">Unknown</string>
     <string name="off">Off</string>
     <string name="could_not_load_page">Could not load page</string>
+    <string name="camera">Camera</string>
 
     <string name="button_skip">Skip</string>
     <string name="button_next">Next</string>
@@ -91,6 +92,9 @@
     <string name="today">Today</string>
     <string name="yesterday">Yesterday</string>
     <string name="days_ago">%d days ago</string>
+
+    <!-- Media -->
+    <string name="provider_capture_root_title" translatable="false">@string/camera</string>
 
     <!-- Media Gallery Action Bar -->
     <string name="media_add_popup_title">Add to media library</string>

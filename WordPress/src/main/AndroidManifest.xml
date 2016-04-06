@@ -62,15 +62,33 @@
         android:theme="@style/WordPress"
         tools:replace="allowBackup, icon">
 
+        <!-- For use on API 19+ -->
         <provider
-            android:name=".util.WPDocumentsProvider"
+            android:name=".provider.WPDocumentsProvider"
             android:authorities="org.wordpress.android.WPDocumentsProvider"
             android:exported="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS"
-            android:enabled="@bool/api19Supported">
+            android:enabled="@bool/useWPDocumentsProvider">
             <intent-filter>
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
+
+        <!-- Legacy API < 19-->
+        <provider
+            android:name=".provider.WPContentProvider"
+            android:authorities="org.wordpress.android.WPContentProvider"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS"
+            android:enabled="@bool/useWPContentProvider">
+            <intent-filter>
+                <action android:name="android.content.action.GET_CONTENT" />
+                <category android:name="android.intent.category.OPENABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/*" />
             </intent-filter>
         </provider>
 

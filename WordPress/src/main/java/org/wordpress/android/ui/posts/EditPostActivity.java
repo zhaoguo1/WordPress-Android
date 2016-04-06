@@ -33,7 +33,6 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.CharacterStyle;
 import android.text.style.SuggestionSpan;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -44,7 +43,6 @@ import android.webkit.URLUtil;
 import android.widget.Toast;
 
 import org.wordpress.android.BuildConfig;
-import org.wordpress.android.Constants;
 import org.wordpress.android.JavaScriptException;
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
@@ -64,6 +62,7 @@ import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.MediaUploadState;
 import org.wordpress.android.models.Post;
 import org.wordpress.android.models.PostStatus;
+import org.wordpress.android.provider.ProviderConstants;
 import org.wordpress.android.ui.ActivityId;
 import org.wordpress.android.ui.RequestCodes;
 import org.wordpress.android.ui.media.MediaGalleryActivity;
@@ -84,7 +83,6 @@ import org.wordpress.android.util.AppLog.T;
 import org.wordpress.android.util.AutolinkUtils;
 import org.wordpress.android.util.CrashlyticsUtils;
 import org.wordpress.android.util.CrashlyticsUtils.ExceptionType;
-import org.wordpress.android.util.DeviceUtils;
 import org.wordpress.android.util.ImageUtils;
 import org.wordpress.android.util.MediaUtils;
 import org.wordpress.android.util.NetworkUtils;
@@ -92,6 +90,7 @@ import org.wordpress.android.util.PermissionUtils;
 import org.wordpress.android.util.StringUtils;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.ToastUtils.Duration;
+import org.wordpress.android.provider.WPDocumentsProvider;
 import org.wordpress.android.util.WPHtml;
 import org.wordpress.android.util.WPUrlUtils;
 import org.wordpress.android.util.helpers.MediaFile;
@@ -126,14 +125,6 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
     public static final String STATE_KEY_ORIGINAL_POST = "stateKeyOriginalPost";
     public static final String STATE_KEY_EDITOR_FRAGMENT = "editorFragment";
 
-    // Context menu positioning
-    private static final int SELECT_PHOTO_MENU_POSITION = 0;
-    private static final int CAPTURE_PHOTO_MENU_POSITION = 1;
-    private static final int SELECT_VIDEO_MENU_POSITION = 2;
-    private static final int CAPTURE_VIDEO_MENU_POSITION = 3;
-    private static final int ADD_GALLERY_MENU_POSITION = 4;
-    private static final int SELECT_LIBRARY_MENU_POSITION = 5;
-
     public static final int MEDIA_PERMISSION_REQUEST_CODE = 1;
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 2;
 
@@ -150,7 +141,6 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
     private Map<Long, List<String>> mPendingGalleryUploads = new HashMap<>();
 
     // -1=no response yet, 0=unavailable, 1=available
-    private int mBlogMediaStatus = -1;
     private boolean mMediaUploadServiceStarted;
     private List<String> mPendingVideoPressInfoRequests;
 
@@ -173,7 +163,6 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
     private Post mOriginalPost;
     private TagSuggestionAdapter mTagSuggestionAdapter;
     private SuggestionServiceConnectionManager mSuggestionServiceConnectionManager;
-    private int remoteBlogId;
 
     private EditorFragmentAbstract mEditorFragment;
     private EditPostSettingsFragment mEditPostSettingsFragment;
@@ -393,7 +382,7 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
         if (mTags != null) {
             mTags.setTokenizer(new SuggestionAutoCompleteText.CommaTokenizer());
 
-            remoteBlogId = -1;
+            int remoteBlogId = -1;
             String blogID = WordPress.getCurrentRemoteBlogId();
             if (blogID != null) {
                 try {
@@ -541,7 +530,7 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
                             WordPress.getBlog(mPost.getLocalTableBlogId())
                     );
                 } else {
-                    Map<String, Object> properties = new HashMap<String, Object>();
+                    Map<String, Object> properties = new HashMap<>();
                     properties.put("word_count", AnalyticsUtils.getWordCount(mPost.getContent()));
                     AnalyticsUtils.trackWithBlogDetails(
                             AnalyticsTracker.Stat.EDITOR_SCHEDULED_POST,
@@ -646,78 +635,30 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
         return true;
     }
 
-    @Override
-    public void openContextMenu(View view) {
-        if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_PERMISSION_REQUEST_CODE)) {
-            super.openContextMenu(view);
-        } else {
-            mMenuView = view;
-        }
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        menu.add(0, SELECT_PHOTO_MENU_POSITION, 0, getResources().getText(R.string.select_photo));
-        if (DeviceUtils.getInstance().hasCamera(this)) {
-            menu.add(0, CAPTURE_PHOTO_MENU_POSITION, 0, getResources().getText(R.string.media_add_popup_capture_photo));
-        }
-        menu.add(0, SELECT_VIDEO_MENU_POSITION, 0, getResources().getText(R.string.select_video));
-        if (DeviceUtils.getInstance().hasCamera(this)) {
-            menu.add(0, CAPTURE_VIDEO_MENU_POSITION, 0, getResources().getText(R.string.media_add_popup_capture_video));
-        }
-
-        menu.add(0, ADD_GALLERY_MENU_POSITION, 0, getResources().getText(R.string.media_add_new_media_gallery));
-        menu.add(0, SELECT_LIBRARY_MENU_POSITION, 0, getResources().getText(R.string.select_from_media_library));
-        menu.add(0, 6, 0, getResources().getText(R.string.select_from_new_picker));
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case SELECT_PHOTO_MENU_POSITION:
-                launchPictureLibrary();
-                return true;
-            case CAPTURE_PHOTO_MENU_POSITION:
-                launchCamera();
-                return true;
-            case SELECT_VIDEO_MENU_POSITION:
-                launchVideoLibrary();
-                return true;
-            case CAPTURE_VIDEO_MENU_POSITION:
-                launchVideoCamera();
-                return true;
-            case ADD_GALLERY_MENU_POSITION:
-                startMediaGalleryActivity(null);
-                return true;
-            case SELECT_LIBRARY_MENU_POSITION:
-                startMediaGalleryAddActivity();
-                return true;
-            case 6:
-                launchMultiSelectIntent();
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    private void launchMultiSelectIntent() {
-        Intent intent = new Intent();
-        intent.setType("image/*, video/*");
+    private void launchMediaSelectIntent() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType(ProviderConstants.MIME_TYPE_IMAGE);// + "|" + WPDocumentsProvider.MIME_TYPE_VIDEO);
+        // allow multi-select on supported API's (18+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{
+        startActivityForResult(Intent.createChooser(intent, "Media Multi-selector"), RequestCodes.PICK_MEDIA);
+                return;
+//                        WPDocumentsProvider.MIME_TYPE_IMAGE, WPDocumentsProvider.MIME_TYPE_VIDEO});
+            }
         }
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Media Multi-selector"), 1);
+        startActivityForResult(intent, RequestCodes.PICK_MEDIA);
     }
 
-    private void launchPictureLibrary() {
-        WordPressMediaUtils.launchPictureLibrary(this);
-        AppLockManager.getInstance().setExtendedTimeout();
-    }
-
-    private void launchVideoLibrary() {
-        WordPressMediaUtils.launchVideoLibrary(this);
-        AppLockManager.getInstance().setExtendedTimeout();
+    private void launchCamera() {
+        WordPressMediaUtils.launchCamera(this, new WordPressMediaUtils.LaunchCameraCallback() {
+            @Override
+            public void onMediaCapturePathReady(String mediaCapturePath) {
+                mMediaCapturePath = mediaCapturePath;
+                AppLockManager.getInstance().setExtendedTimeout();
+            }
+        });
     }
 
     private void launchVideoCamera() {
@@ -923,10 +864,6 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
         }
     }
 
-    public boolean isEditingPostContent() {
-        return (mViewPager.getCurrentItem() == PAGE_CONTENT);
-    }
-
     // Moved from EditPostContentFragment
     public static final String NEW_MEDIA_GALLERY = "NEW_MEDIA_GALLERY";
     public static final String NEW_MEDIA_GALLERY_EXTRA_IDS = "NEW_MEDIA_GALLERY_EXTRA_IDS";
@@ -1104,26 +1041,10 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
         } else if (NEW_MEDIA_POST.equals(action)) {
             prepareMediaPost();
         } else if (quickMediaType >= 0) {
-            // User selected 'Quick Photo' in the menu drawer
-            if (quickMediaType == Constants.QUICK_POST_PHOTO_CAMERA) {
-                launchCamera();
-            } else if (quickMediaType == Constants.QUICK_POST_PHOTO_LIBRARY) {
-                WordPressMediaUtils.launchPictureLibrary(this);
-            }
             if (post != null) {
                 post.setQuickPostType(Post.QUICK_MEDIA_TYPE_PHOTO);
             }
         }
-    }
-
-    private void launchCamera() {
-        WordPressMediaUtils.launchCamera(this, new WordPressMediaUtils.LaunchCameraCallback() {
-            @Override
-            public void onMediaCapturePathReady(String mediaCapturePath) {
-                mMediaCapturePath = mediaCapturePath;
-                AppLockManager.getInstance().setExtendedTimeout();
-            }
-        });
     }
 
     protected void setPostContentFromShareAction() {
@@ -1157,7 +1078,7 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
             } else {
                 // For a single media share, we only allow images and video types
                 if (type != null && (type.startsWith("image") || type.startsWith("video"))) {
-                    sharedUris = new ArrayList<Uri>();
+                    sharedUris = new ArrayList<>();
                     sharedUris.add((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM));
                 } else {
                     return;
@@ -1400,7 +1321,7 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
                     }
                 });
 
-        List<Object> apiArgs = new ArrayList<Object>();
+        List<Object> apiArgs = new ArrayList<>();
         apiArgs.add(currentBlog);
         task.execute(apiArgs);
     }
@@ -1498,6 +1419,15 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
         if (data != null || ((requestCode == RequestCodes.TAKE_PHOTO ||
                 requestCode == RequestCodes.TAKE_VIDEO))) {
             switch (requestCode) {
+                case RequestCodes.PICK_MEDIA:
+                    String uri = data.getDataString();
+                    if (resultCode != RESULT_OK || TextUtils.isEmpty(uri)) return;
+                    if (uri.endsWith(WPDocumentsProvider.IMAGE_CAPTURE_ID)) {
+                        launchCamera();
+                    } else if (uri.endsWith(WPDocumentsProvider.VIDEO_CAPTURE_ID)) {
+                        launchVideoCamera();
+                    }
+                    break;
                 case MediaGalleryActivity.REQUEST_CODE:
                     if (resultCode == Activity.RESULT_OK) {
                         handleMediaGalleryResult(data);
@@ -1522,9 +1452,7 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
                             }
                             this.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://"
                                     + Environment.getExternalStorageDirectory())));
-                        } catch (RuntimeException e) {
-                            AppLog.e(T.POSTS, e);
-                        } catch (OutOfMemoryError e) {
+                        } catch (RuntimeException | OutOfMemoryError e) {
                             AppLog.e(T.POSTS, e);
                         }
                     } else if (TextUtils.isEmpty(mEditorFragment.getContent())) {
@@ -1553,12 +1481,6 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
                     break;
             }
         }
-    }
-
-    private void startMediaGalleryAddActivity() {
-        Intent intent = new Intent(this, MediaGalleryPickerActivity.class);
-        intent.putExtra(MediaGalleryPickerActivity.PARAM_SELECT_ONE_ITEM, true);
-        startActivityForResult(intent, MediaGalleryPickerActivity.REQUEST_CODE);
     }
 
     private void handleMediaGalleryPickerResult(Intent data) {
@@ -1685,13 +1607,11 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
 
     private void refreshBlogMedia() {
         if (NetworkUtils.isNetworkAvailable(this)) {
-            List<Object> apiArgs = new ArrayList<Object>();
+            List<Object> apiArgs = new ArrayList<>();
             apiArgs.add(WordPress.getCurrentBlog());
             ApiHelper.SyncMediaLibraryTask.Callback callback = new ApiHelper.SyncMediaLibraryTask.Callback() {
                 @Override
                 public void onSuccess(int count) {
-                    mBlogMediaStatus = 1;
-
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -1714,7 +1634,6 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
 
                 @Override
                 public void onFailure(final ApiHelper.ErrorType errorType, String errorMessage, Throwable throwable) {
-                    mBlogMediaStatus = 0;
                     ToastUtils.showToast(EditPostActivity.this, R.string.error_refresh_media, ToastUtils.Duration.SHORT);
                 }
             };
@@ -1722,7 +1641,6 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
                     MediaGridFragment.Filter.ALL, callback);
             getMediaTask.execute(apiArgs);
         } else {
-            mBlogMediaStatus = 0;
             ToastUtils.showToast(this, R.string.error_refresh_media, ToastUtils.Duration.SHORT);
         }
     }
@@ -1818,7 +1736,9 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
 
     @Override
     public void onAddMediaClicked() {
-        // no op
+        if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_PERMISSION_REQUEST_CODE)) {
+            launchMediaSelectIntent();
+        }
     }
 
     @Override

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <bool name="api19Supported">false</bool>
+    <bool name="useWPDocumentsProvider">false</bool>
+    <bool name="useWPContentProvider">true</bool>
 </resources>
