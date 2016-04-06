@@ -27,7 +27,7 @@ import org.wordpress.android.models.Comment;
 import org.wordpress.android.models.CommentList;
 import org.wordpress.android.models.CommentStatus;
 import org.wordpress.android.models.FeatureSet;
-import org.wordpress.android.networking.gravatar.ServiceGenerator;
+import org.wordpress.android.networking.xmlrpc.XMLRPCServiceGenerator;
 import org.wordpress.android.ui.media.MediaGridFragment.Filter;
 import org.wordpress.android.ui.stats.StatsUtils;
 import org.wordpress.android.ui.stats.StatsWidgetProvider;
@@ -439,8 +439,8 @@ public class ApiHelper {
 
         MethodCall xmlCall = new MethodCall(Method.GET_COMMENTS, commentParams);
 
-        XMLRPCClientRetrofit clientRetrofit = ServiceGenerator.createService(XMLRPCClientRetrofit.class, blog
-                .getHomeURL(), AccountHelper.getDefaultAccount().getAccessToken(), true);
+        XMLRPCClientRetrofit clientRetrofit = XMLRPCServiceGenerator.createService(XMLRPCClientRetrofit.class, blog
+                .getHomeURL(), AccountHelper.getDefaultAccount().getAccessToken());
 
         MethodResponse response = clientRetrofit.call(xmlCall).execute().body();
 

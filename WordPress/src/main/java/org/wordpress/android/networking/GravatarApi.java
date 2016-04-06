@@ -19,8 +19,6 @@ import okhttp3.Response;
 public class GravatarApi {
     public static final String API_BASE_URL = "https://api.gravatar.com/v1/";
 
-    public static final String API_BASE_URL = "https://api.gravatar.com/v1/";
-
     public interface GravatarUploadListener {
         void onSuccess();
         void onError();

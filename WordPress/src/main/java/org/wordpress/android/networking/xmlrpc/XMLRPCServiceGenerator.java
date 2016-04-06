@@ -1,4 +1,4 @@
-package org.wordpress.android.networking.gravatar;
+package org.wordpress.android.networking.xmlrpc;
 
 import java.io.IOException;
 
@@ -8,25 +8,20 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
-public class ServiceGenerator {
+public class XMLRPCServiceGenerator {
 
     private static HttpLoggingInterceptor logging = new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor
             .Level.BODY);
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder().addInterceptor(logging);
 
-    public static <S> S createService(Class<S> serviceClass, String baseUrl, final String token, boolean withXML) {
+    public static <S> S createService(Class<S> serviceClass, String baseUrl, final String token) {
         Retrofit.Builder builder = new Retrofit.Builder()
                 .baseUrl(baseUrl);
 
-        if (withXML) {
-            builder.addConverterFactory(SimpleXmlConverterFactory.create());
-        } else {
-            builder.addConverterFactory(GsonConverterFactory.create());
-        }
+        builder.addConverterFactory(SimpleXmlConverterFactory.create());
 
         if (token != null) {
             httpClient.addInterceptor(new Interceptor() {
