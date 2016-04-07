@@ -93,8 +93,23 @@
     <string name="yesterday">Yesterday</string>
     <string name="days_ago">%d days ago</string>
 
+    <!--       -->
     <!-- Media -->
-    <string name="provider_capture_root_title" translatable="false">@string/camera</string>
+    <!--       -->
+    <!-- General -->
+    <string name="media_library">Media library</string>
+
+    <!-- WPDocumentsRoot -->
+    <string name="wpdocprovider_root_title" translatable="false">@string/app_name</string>
+    <string name="wpdocprovider_root_doc_title" translatable="false">@string/app_name</string>
+    <string name="wpdocprovider_all_doc_title" translatable="false">@string/all</string>
+    <string name="wpdocprovider_image_doc_title" translatable="false">@string/images</string>
+    <string name="wpdocprovider_video_doc_title" translatable="false">@string/video</string>
+    <string name="wpdocprovider_root_summary" translatable="false">@string/media_library</string>
+    <string name="wpdocprovider_root_doc_summary" translatable="false"></string>
+    <string name="wpdocprovider_all_doc_summary">All WordPress media</string>
+    <string name="wpdocprovider_image_doc_summary">WordPress images</string>
+    <string name="wpdocprovider_video_doc_summary">WordPress videos</string>
 
     <!-- Media Gallery Action Bar -->
     <string name="media_add_popup_title">Add to media library</string>
@@ -389,7 +404,7 @@
     <string name="select_a_blog">Select a WordPress site</string>
     <string name="share_action_title">Add to …</string>
     <string name="share_action_post">New post</string>
-    <string name="share_action_media">Media library</string>
+    <string name="share_action_media">@string/media_library</string>
     <string name="share_action">Share</string>
     <string name="cant_share_no_visible_blog">You can\'t share to WordPress without a visible blog</string>
     <string name="no_account">No WordPress account found, add an account and try again</string>

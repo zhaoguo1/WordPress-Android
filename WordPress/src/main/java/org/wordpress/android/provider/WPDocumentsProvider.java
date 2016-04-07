@@ -4,9 +4,12 @@ import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
 import org.wordpress.android.WordPressDB;
 import org.wordpress.android.models.AccountHelper;
-import org.wordpress.android.util.DeviceUtils;
+import org.wordpress.android.ui.media.MediaGridFragment;
+import org.xmlrpc.android.ApiHelper;
 
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -27,79 +30,37 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static org.wordpress.android.provider.ProviderConstants.*;
-
-import static android.provider.DocumentsContract.Root;
 import static android.provider.DocumentsContract.Document;
+import static org.wordpress.android.provider.WPDocumentsRoot.*;
 
 /**
- * {@link DocumentsProvider} that allows WordPress media library items to be chosen
+ * {@link DocumentsProvider} that allows WordPress media library items to be chosen from the system
+ * file picker (launched via {@link android.content.Intent#ACTION_GET_CONTENT}).
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
 public class WPDocumentsProvider extends DocumentsProvider {
-    /** @see DocumentsContract.Root#COLUMN_MIME_TYPES */
-    public static final String SUPPORTED_MIME_TYPES = MIME_TYPE_IMAGE + "\n" + MIME_TYPE_VIDEO;
-
-    public static final String IMAGE_CAPTURE_ID = "wpImages";
-    public static final String VIDEO_CAPTURE_ID = "wpVideo";
-
-    private static final String CAPTURE_ROOT_ID = "wpCaptureRoot";
-    private static final String WP_ROOT_ID = "wpRoot";
-
-    private static final String[] ALL_ROOT_COLUMNS = {
-            Root.COLUMN_ROOT_ID,
-            Root.COLUMN_FLAGS,
-            Root.COLUMN_ICON,
-            Root.COLUMN_TITLE,
-            Root.COLUMN_SUMMARY,
-            Root.COLUMN_DOCUMENT_ID,
-            Root.COLUMN_AVAILABLE_BYTES,
-            Root.COLUMN_MIME_TYPES
-    };
-    private static final String[] ALL_DOC_COLUMNS = {
-            Document.COLUMN_DOCUMENT_ID,
-            Document.COLUMN_MIME_TYPE,
-            Document.COLUMN_DISPLAY_NAME,
-            Document.COLUMN_SUMMARY,
-            Document.COLUMN_LAST_MODIFIED,
-            Document.COLUMN_ICON,
-            Document.COLUMN_FLAGS,
-            Document.COLUMN_SIZE
-    };
-
-    //
-    // Root and Root Document information for Capture and WordPress library roots
-    //
-    private static final Object[] CAPTURE_ROOT = { CAPTURE_ROOT_ID, 0,
-            R.drawable.media_image_placeholder, "Camera", "Capture media", "caproot:", 0L, SUPPORTED_MIME_TYPES };
-    private static final Object[] WP_ROOT = { WP_ROOT_ID, 0, R.mipmap.app_icon,
-            "WordPress", "Media Library", "wproot:", 0L, SUPPORTED_MIME_TYPES};
-    private static final Object[] CAPTURE_ROOT_DOC = { CAPTURE_ROOT[5], Document.MIME_TYPE_DIR, "CapRoot",
-            "Capture new media", null, R.drawable.media_image_placeholder, 0, 0L };
-    private static final Object[] WP_ROOT_DOC = { WP_ROOT[5], Document.MIME_TYPE_DIR, "WPRoot",
-            "WordPress media", null, R.mipmap.app_icon, 0, 0L };
-
-    //
-    // Document information for Capture documents and WordPress library filter documents
-    //
-    private static final Object[] CAPTURE_IMAGE_DOC = { IMAGE_CAPTURE_ID, MIME_TYPE_IMAGE, "Photo",
-            "Take a picture", null, R.drawable.ic_action_camera, 0, 0L };
-    private static final Object[] CAPTURE_VIDEO_DOC = { VIDEO_CAPTURE_ID, MIME_TYPE_VIDEO, "Video",
-            "Record a video", null, R.drawable.ic_action_video, 0, 0L };
-    private static final Object[] WP_ALL_DIR_DOC = { "wpAllMedia", Document.MIME_TYPE_DIR, "All",
-            "All WordPress media", null, R.drawable.media_image_placeholder, 0, 0L };
-    private static final Object[] WP_IMAGE_DIR_DOC = { "wpImages", Document.MIME_TYPE_DIR, "Images",
-            "WordPress images", null, R.drawable.media_image_placeholder, 0, 0L };
-    private static final Object[] WP_VIDEO_DIR_DOC = { "wpVideo", Document.MIME_TYPE_DIR, "Video",
-            "WordPress videos", null, R.drawable.media_image_placeholder, 0, 0L };
+    private static final String PROVIDER_PREFERENCES = "wp_documents_provider";
+    private static final String LAST_SYNC_KEY = "last_pdated";
+    private static final long MIN_SYNC_WAIT = 600L;
 
     private final Map<String, String> mDocumentIdToThumbnail = new HashMap<>();
 
+    private WPDocumentsRoot mRoot;
+    private long mLastSync;
+    private ApiHelper.SyncMediaLibraryTask.Callback mSyncMediaCallback;
+
     @Override
     public boolean onCreate() {
+        if (getContext() == null || !AccountHelper.isSignedInWordPressDotCom()) return false;
+        mSyncMediaCallback = null;
+        mLastSync = getLastSyncTimestamp(getContext());
+        mRoot = new WPDocumentsRoot(getContext());
+        refreshAllMedia(false);
         return true;
     }
 
@@ -107,7 +68,9 @@ public class WPDocumentsProvider extends DocumentsProvider {
     public Cursor queryRoots(String[] columns)
             throws FileNotFoundException {
         if (columns == null) columns = ALL_ROOT_COLUMNS;
-        return addRoots(new MatrixCursor(columns));
+        MatrixCursor roots = new MatrixCursor(columns);
+        addRow(roots.newRow(), ALL_ROOT_COLUMNS, mRoot.getRoot());
+        return roots;
     }
 
     @Override
@@ -115,12 +78,37 @@ public class WPDocumentsProvider extends DocumentsProvider {
             throws FileNotFoundException {
         if (TextUtils.isEmpty(docId)) throw new FileNotFoundException();
         if (columns == null) columns = ALL_DOC_COLUMNS;
+
         MatrixCursor result = new MatrixCursor(columns);
-        if (docId.equals(CAPTURE_ROOT[5])) {
-            addRowData(result.newRow(), ALL_DOC_COLUMNS, CAPTURE_ROOT_DOC);
-        } else if (docId.equals(WP_ROOT[5])) {
-            addRowData(result.newRow(), ALL_DOC_COLUMNS, WP_ROOT_DOC);
+        String blogId = String.valueOf(WordPress.getCurrentBlog().getLocalTableBlogId());
+
+        if (mRoot.isKnownDocId(docId)) {
+            if (mRoot.isRootDocId(docId)) {
+                // Add root directories
+                addRow(result.newRow(), ALL_DOC_COLUMNS, mRoot.getDoc(docId));
+            } else if (mRoot.isAllDocId(docId)) {
+                if (WordPress.wpDB.getMediaCountAll(blogId) == 0) {
+                    refreshAllMedia(true);
+                } else {
+                    addAllWordPressMedia(result);
+                }
+            } else if (mRoot.isImageDocId(docId)) {
+                if (WordPress.wpDB.getMediaCountImages(blogId) == 0) {
+                    refreshAllMedia(true);
+                } else {
+                    addWordPressImages(result);
+                }
+            } else if (mRoot.isVideoDocId(docId)) {
+                if (WordPress.wpDB.getMediaCountAll(blogId) == 0) {
+                    refreshAllMedia(true);
+                } else {
+                    addWordPressVideos(result);
+                }
+            }
+        } else {
+            // TODO: actual content queried!
         }
+
         return result;
     }
 
@@ -130,13 +118,20 @@ public class WPDocumentsProvider extends DocumentsProvider {
         if (columns == null) columns = ALL_DOC_COLUMNS;
 
         MatrixCursor result = new MatrixCursor(columns);
-        if (parentId.equals(CAPTURE_ROOT_DOC[0])) {
-            addRowData(result.newRow(), ALL_DOC_COLUMNS, CAPTURE_IMAGE_DOC);
-            addRowData(result.newRow(), ALL_DOC_COLUMNS, CAPTURE_VIDEO_DOC);
-        } else if (parentId.equals(WP_ROOT_DOC[0])) {
-            addRowData(result.newRow(), ALL_DOC_COLUMNS, WP_ALL_DIR_DOC);
-            addRowData(result.newRow(), ALL_DOC_COLUMNS, WP_IMAGE_DIR_DOC);
-            addRowData(result.newRow(), ALL_DOC_COLUMNS, WP_VIDEO_DIR_DOC);
+        if (mRoot.isRootDocId(parentId)) {
+            addRow(result.newRow(), ALL_DOC_COLUMNS, mRoot.getRootDoc());
+        } else if (mRoot.isAllDocId(parentId)) {
+            addRow(result.newRow(), ALL_DOC_COLUMNS, mRoot.getRootDoc());
+        } else if (mRoot.isImageDocId(parentId)) {
+            addRow(result.newRow(), ALL_DOC_COLUMNS, mRoot.getRootDoc());
+        } else if (mRoot.isVideoDocId(parentId)) {
+            addRow(result.newRow(), ALL_DOC_COLUMNS, mRoot.getRootDoc());
+        }
+
+        if (parentId.equals(WP_ROOT_DOC[0])) {
+            addRow(result.newRow(), ALL_DOC_COLUMNS, WP_ALL_DIR_DOC);
+            addRow(result.newRow(), ALL_DOC_COLUMNS, WP_IMAGE_DIR_DOC);
+            addRow(result.newRow(), ALL_DOC_COLUMNS, WP_VIDEO_DIR_DOC);
         } else if (parentId.equals(WP_ALL_DIR_DOC[0])) {
             addAllWordPressMedia(result);
         } else if (parentId.equals(WP_IMAGE_DIR_DOC[0])) {
@@ -183,17 +178,47 @@ public class WPDocumentsProvider extends DocumentsProvider {
         return new AssetFileDescriptor(pfd, 0, AssetFileDescriptor.UNKNOWN_LENGTH);
     }
 
-    private MatrixCursor addRoots(@NonNull MatrixCursor cursor) {
-        if (getContext() == null) return cursor;
-        // add items to capture new images/video if device is capable
-        if (DeviceUtils.getInstance().hasCamera(getContext())) {
-            addRowData(cursor.newRow(), ALL_ROOT_COLUMNS, CAPTURE_ROOT);
-        }
-        // add WordPress media if user is signed into a .com account
-        if (AccountHelper.isSignedInWordPressDotCom()) {
-            addRowData(cursor.newRow(), ALL_ROOT_COLUMNS, WP_ROOT);
-        }
-        return cursor;
+    private long getLastSyncTimestamp(@NonNull Context context) {
+        SharedPreferences prefs =
+                context.getSharedPreferences(PROVIDER_PREFERENCES, Context.MODE_PRIVATE);
+        return prefs.getLong(LAST_SYNC_KEY, -1);
+    }
+
+    private void setLastSyncTimestamp(@NonNull Context context, long timestamp) {
+        SharedPreferences prefs =
+                context.getSharedPreferences(PROVIDER_PREFERENCES, Context.MODE_PRIVATE);
+        prefs.edit().putLong(LAST_SYNC_KEY, timestamp).apply();
+    }
+
+    private void refreshAllMedia(boolean force) {
+        if (mSyncMediaCallback != null || getContext() == null) return;
+
+        long curTime = System.currentTimeMillis();
+        if (!force && (curTime - mLastSync) < MIN_SYNC_WAIT) return;
+
+        setLastSyncTimestamp(getContext(), curTime);
+        mSyncMediaCallback = new ApiHelper.SyncMediaLibraryTask.Callback() {
+            @Override
+            public void onSuccess(int count) {
+                String blogId = String.valueOf(WordPress.getCurrentBlog().getLocalTableBlogId());
+                if (WordPress.wpDB.getMediaCountAll(blogId) == 0 && count == 0) {
+                    // There is no media at all
+                }
+            }
+
+            @Override
+            public void onFailure(ApiHelper.ErrorType errorType, String errorMessage, Throwable throwable) {
+                if (errorType != ApiHelper.ErrorType.NO_ERROR) {
+                    String message = errorType == ApiHelper.ErrorType.NO_UPLOAD_FILES_CAP
+                            ? getString(R.string.media_error_no_permission)
+                            : getString(R.string.error_refresh_media);
+                }
+            }
+        };
+        List<Object> apiArgs = new ArrayList<>();
+        apiArgs.add(WordPress.getCurrentBlog());
+        ApiHelper.SyncMediaLibraryTask getMediaTask = new ApiHelper.SyncMediaLibraryTask(0, MediaGridFragment.Filter.ALL, mSyncMediaCallback);
+        getMediaTask.execute(apiArgs);
     }
 
     private void addImageRow(@NonNull Cursor cursor, @NonNull MatrixCursor rowParent) {
@@ -219,7 +244,7 @@ public class WPDocumentsProvider extends DocumentsProvider {
             Object[] imageData = { mediaId, mimeType, cursor.getString(titleColumn),
                     cursor.getString(summaryColumn), null, R.drawable.media_image_placeholder,
                     Document.FLAG_SUPPORTS_THUMBNAIL, null };
-            addRowData(rowParent.newRow(), ALL_DOC_COLUMNS, imageData);
+            addRow(rowParent.newRow(), ALL_DOC_COLUMNS, imageData);
         }
     }
 
@@ -227,7 +252,7 @@ public class WPDocumentsProvider extends DocumentsProvider {
         return id >= 0 && !(TextUtils.isEmpty(url) && TextUtils.isEmpty(path));
     }
 
-    private void addRowData(MatrixCursor.RowBuilder row, String[] columns, Object[] data) {
+    private void addRow(MatrixCursor.RowBuilder row, String[] columns, Object[] data) {
         for (int i = 0; i < columns.length; ++i) {
             row.add(columns[i], data[i]);
         }
