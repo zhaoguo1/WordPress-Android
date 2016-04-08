@@ -18,6 +18,8 @@ dependencies:
 
 test:
   pre:
+    - echo y | android update sdk --no-ui
+    - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.3"
     - ./gradlew -PdisablePreDex assembleVanillaRelease
     - emulator -avd circleci-android22 -no-audio -no-window:
         background: true
