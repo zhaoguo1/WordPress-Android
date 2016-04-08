@@ -10,8 +10,8 @@ dependencies:
   pre:
     # Setup gradle.properties with e2eflowtesting OAUTH token
     - cp WordPress/gradle.properties-example WordPress/gradle.properties
-    - sed -i '' "s/^wp.oauth.app_id.*$/wp.oauth.app_id = $OAUTH_APP_ID/" WordPress/gradle.properties
-    - sed -i '' "s/^wp.oauth.app_secret.*$/wp.oauth.app_secret = $OAUTH_TOKEN/" WordPress/gradle.properties
+    - sed -i "s/^wp.oauth.app_id.*$/wp.oauth.app_id = $OAUTH_APP_ID/" WordPress/gradle.properties
+    - sed -i "s/^wp.oauth.app_secret.*$/wp.oauth.app_secret = $OAUTH_TOKEN/" WordPress/gradle.properties
     # Install custom Slack/XUnit/Spec reporter
     - npm pack WordPress/src/androidTest/e2eTests/lib/reporter
     - npm install ./spec-xunit-slack-reporter-0.0.1.tgz
