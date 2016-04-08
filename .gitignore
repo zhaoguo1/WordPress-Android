@@ -61,3 +61,6 @@ extlibs/
 
 # Node modules (for e2e tests)
 node_modules/
+
+# e2e Test Screenshots
+*screenshots/*

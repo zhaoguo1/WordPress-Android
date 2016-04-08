@@ -23,7 +23,7 @@ test:
         background: true
         parallel: true
     - circle-android wait-for-boot
-    - ./node_modules/.bin/appium
+    - ./node_modules/.bin/appium:
         background: true
         parallel: true
   override:
