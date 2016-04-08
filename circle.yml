@@ -15,11 +15,11 @@ dependencies:
     # Install custom Slack/XUnit/Spec reporter
     - npm pack WordPress/src/androidTest/e2eTests/lib/reporter
     - npm install ./spec-xunit-slack-reporter-0.0.1.tgz
+    - echo y | android update sdk --no-ui
+    - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.3"
 
 test:
   pre:
-    - echo y | android update sdk --no-ui
-    - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.3"
     - ./gradlew -PdisablePreDex assembleVanillaRelease
     - emulator -avd circleci-android22 -no-audio -no-window:
         background: true
