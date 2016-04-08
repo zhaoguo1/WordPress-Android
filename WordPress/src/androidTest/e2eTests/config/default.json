@@ -1,0 +1,9 @@
+{
+  "explicitWaitMS": 10000,
+  "mochaTimeoutMS": 120000,
+  "mochaVisDiffTimeoutMS": 240000,
+  "startAppTimeoutMS": 120000,
+  "afterHookTimeoutMS": 20000,
+  "saveAllScreenshots": false,
+  "neverSaveScreenshots": false
+}

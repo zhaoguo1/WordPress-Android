@@ -55,3 +55,9 @@ WordPress/src/androidTest/monkeys/*.png
 buck-cache/
 buck-out/
 extlibs/
+
+# vi Swap Files
+.*.swp
+
+# Node modules (for e2e tests)
+node_modules/
