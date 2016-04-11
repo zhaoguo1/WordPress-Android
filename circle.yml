@@ -20,7 +20,7 @@ dependencies:
 
 test:
   pre:
-    - ./gradlew -PdisablePreDex assembleVanillaRelease
+    - ./gradlew -PdisablePreDex assembleVanillaDebug
     - emulator -avd circleci-android22 -no-audio -no-window:
         background: true
         parallel: true
