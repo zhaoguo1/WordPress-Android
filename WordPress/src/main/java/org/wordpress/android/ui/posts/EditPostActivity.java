@@ -1422,11 +1422,6 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
                 case RequestCodes.PICK_MEDIA:
                     String uri = data.getDataString();
                     if (resultCode != RESULT_OK || TextUtils.isEmpty(uri)) return;
-                    if (uri.endsWith(WPDocumentsProvider.IMAGE_CAPTURE_ID)) {
-                        launchCamera();
-                    } else if (uri.endsWith(WPDocumentsProvider.VIDEO_CAPTURE_ID)) {
-                        launchVideoCamera();
-                    }
                     break;
                 case MediaGalleryActivity.REQUEST_CODE:
                     if (resultCode == Activity.RESULT_OK) {

@@ -119,24 +119,14 @@ public class WPDocumentsProvider extends DocumentsProvider {
 
         MatrixCursor result = new MatrixCursor(columns);
         if (mRoot.isRootDocId(parentId)) {
-            addRow(result.newRow(), ALL_DOC_COLUMNS, mRoot.getRootDoc());
+            addRow(result.newRow(), ALL_DOC_COLUMNS, mRoot.getAllDoc());
+            addRow(result.newRow(), ALL_DOC_COLUMNS, mRoot.getImageDoc());
+            addRow(result.newRow(), ALL_DOC_COLUMNS, mRoot.getVideoDoc());
         } else if (mRoot.isAllDocId(parentId)) {
-            addRow(result.newRow(), ALL_DOC_COLUMNS, mRoot.getRootDoc());
-        } else if (mRoot.isImageDocId(parentId)) {
-            addRow(result.newRow(), ALL_DOC_COLUMNS, mRoot.getRootDoc());
-        } else if (mRoot.isVideoDocId(parentId)) {
-            addRow(result.newRow(), ALL_DOC_COLUMNS, mRoot.getRootDoc());
-        }
-
-        if (parentId.equals(WP_ROOT_DOC[0])) {
-            addRow(result.newRow(), ALL_DOC_COLUMNS, WP_ALL_DIR_DOC);
-            addRow(result.newRow(), ALL_DOC_COLUMNS, WP_IMAGE_DIR_DOC);
-            addRow(result.newRow(), ALL_DOC_COLUMNS, WP_VIDEO_DIR_DOC);
-        } else if (parentId.equals(WP_ALL_DIR_DOC[0])) {
             addAllWordPressMedia(result);
-        } else if (parentId.equals(WP_IMAGE_DIR_DOC[0])) {
+        } else if (mRoot.isImageDocId(parentId)) {
             addWordPressImages(result);
-        } else if (parentId.equals(WP_VIDEO_DIR_DOC[0])) {
+        } else if (mRoot.isVideoDocId(parentId)) {
             addWordPressVideos(result);
         }
 
@@ -209,9 +199,9 @@ public class WPDocumentsProvider extends DocumentsProvider {
             @Override
             public void onFailure(ApiHelper.ErrorType errorType, String errorMessage, Throwable throwable) {
                 if (errorType != ApiHelper.ErrorType.NO_ERROR) {
-                    String message = errorType == ApiHelper.ErrorType.NO_UPLOAD_FILES_CAP
-                            ? getString(R.string.media_error_no_permission)
-                            : getString(R.string.error_refresh_media);
+//                    String message = errorType == ApiHelper.ErrorType.NO_UPLOAD_FILES_CAP
+//                            ? getString(R.string.media_error_no_permission)
+//                            : getString(R.string.error_refresh_media);
                 }
             }
         };
