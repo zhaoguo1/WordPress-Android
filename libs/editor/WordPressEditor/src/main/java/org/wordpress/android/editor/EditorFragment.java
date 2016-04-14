@@ -464,9 +464,6 @@ public class EditorFragment extends EditorFragmentAbstract implements View.OnCli
                 ToastUtils.showToast(getActivity(), R.string.alert_insert_image_html_mode, ToastUtils.Duration.LONG);
             } else {
                 mEditorFragmentListener.onAddMediaClicked();
-                if (isAdded()) {
-                    getActivity().openContextMenu(mTagToggleButtonMap.get(TAG_FORMAT_BAR_BUTTON_MEDIA));
-                }
             }
         } else if (id == R.id.format_bar_button_link) {
             if (!((ToggleButton) v).isChecked()) {
