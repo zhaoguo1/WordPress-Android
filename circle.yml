@@ -21,13 +21,7 @@ dependencies:
 test:
   pre:
     - ./gradlew -PdisablePreDex assembleVanillaDebug
-    - emulator -avd circleci-android22 -no-audio -no-window:
-        background: true
-        parallel: true
-    - circle-android wait-for-boot
-    - ./node_modules/.bin/appium:
-        background: true
-        parallel: true
+    - curl -u wordpress-android:$SAUCE_TOKEN -X POST -H "Content-Type: application/octet-stream" https://saucelabs.com/rest/v1/storage/wordpress-android/WordPress-vanilla-debug.apk?overwrite=true --data-binary @WordPress/build/outputs/apk/WordPress-vanilla-debug.apk
   override:
     - >
       export TESTARGS="-R -p -l"

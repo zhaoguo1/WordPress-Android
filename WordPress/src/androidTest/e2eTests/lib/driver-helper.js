@@ -3,7 +3,6 @@ import wd from 'wd';
 import config from 'config';
 
 const explicitWaitMS = config.get( 'explicitWaitMS' );
-const mochaTimeOut = config.get( 'mochaTimeoutMS' );
 
 export function clickWhenClickable( driver, selector ) {
 	var self = this;
@@ -107,31 +106,25 @@ export function eyesScreenshot( driver, eyes, pageName, selector ) {
  */
 export function scrollToFindElement( driver, selector, { maxSwipes = 2 } = {} ) {
 	var wdDriver = global.__WDDRIVER__;
-	var interval;
 	var d = webdriver.promise.defer();
-	const intervalMS = 1000;
 
-	var executeSearch = function() {
-		interval = setInterval( function() {
-			driver.findElement( selector ).then( function success( el ) {
-				clearInterval( interval );
-				d.fulfill( el );
-			}, function failure() {
-				if ( --maxSwipes <= 0 ) {
-					clearInterval( interval );
-					d.reject( -1 );
-				} else { // Scroll down the height of the screen minus a 100px buffer
-	//TODO: Extract the getWindowSize() outside so we only need to call it once, not on every interval
-					driver.wait( wdDriver.getWindowSize().then( function( screenSize ) {
-						let touchAction = new wd.TouchAction( wdDriver );
-						return touchAction.press( { x: screenSize.width / 2, y: screenSize.height - 100 } )
-							.moveTo( { x: 0, y: -1 * ( screenSize.height - 100 ) } )
-							.release()
-							.perform();
-					} ), mochaTimeOut, 'Timed out getting screen size and scrolling' );
-				}
-			} );
-		}, intervalMS );
+	var executeSearch = function( swipeNum ) {
+		driver.findElement( selector ).then( function success( el ) {
+			d.fulfill( el );
+		}, function failure() {
+			if ( swipeNum <= 0 ) {
+				d.reject( -1 );
+			} else {
+				let touchAction = new wd.TouchAction( wdDriver );
+				touchAction.press( { x: .5, y: .95 } )
+					.moveTo( { x: .5, y: .1 } )
+					.release()
+					.perform().then( function() {
+						// If at first you don't succeed, try try again
+						executeSearch( swipeNum - 1 );
+					} );
+			}
+		} );
 	};
 
 	// In landscape orientation we assume the keyboard is closed, or handled elsewhere
@@ -141,9 +134,9 @@ export function scrollToFindElement( driver, selector, { maxSwipes = 2 } = {} ) 
 		executeSearch();
 	} else {
 		wdDriver.hideKeyboard().then( function success() {
-			executeSearch();
+			executeSearch( maxSwipes );
 		}, function failure() {
-			executeSearch();
+			executeSearch( maxSwipes );
 		} );
 	}
 

@@ -4,6 +4,9 @@ import test from 'selenium-webdriver/testing';
 import config from 'config';
 import * as driverManager from '../lib/driver-manager.js';
 
+import * as driverHelper from '../lib/driver-helper.js';
+import webdriver from 'selenium-webdriver';
+
 import LoginFlow from '../lib/flows/login-flow.js';
 import LoginPage from '../lib/pages/login-page.js';
 import MainPage from '../lib/pages/main-page.js';
@@ -25,7 +28,6 @@ test.before( 'Start App', function() {
 
 test.describe( 'Authentication (' + process.env.ORIENTATION + '):', function() {
 	this.timeout( mochaTimeOut );
-
 	test.describe( 'Logging In and Out (.com):', function() {
 		test.describe( 'Can Log In', function() {
 			test.it( 'Can log in', function() {

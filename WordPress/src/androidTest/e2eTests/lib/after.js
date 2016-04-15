@@ -8,9 +8,11 @@ import * as mediaHelper from './media-helper';
 import * as driverManager from './driver-manager';
 
 const afterHookTimeoutMS = config.get( 'afterHookTimeoutMS' );
+var allPassed = true;
 
 test.afterEach( function() {
 	this.timeout( afterHookTimeoutMS );
+	allPassed = allPassed && this.currentTest.state === 'passed';
 
 	const driver = global.__APP__;
 	const longTestName = this.currentTest.fullTitle();
@@ -26,7 +28,7 @@ test.afterEach( function() {
 				return null;
 			}
 
-			driver.getCurrentUrl().then( ( url ) => console.log( `FAILED: Taking screenshot of: '${url}'` ) );
+			console.log( `FAILED: Taking screenshot` );
 
 			return driver.takeScreenshot().then( ( data ) => {
 				let screenshotPath = mediaHelper.writeScreenshot( data, prefix );
@@ -52,7 +54,7 @@ test.afterEach( function() {
 		}
 	}
 	if ( config.get( 'saveAllScreenshots' ) === true ) {
-		const prefix = `PASSED-${screenSize}-${shortTestFileName}`;
+		const prefix = `PASSED-${screenSize}-${orientation}-${shortTestFileName}`;
 		try {
 			return driver.takeScreenshot().then( ( data ) => {
 				mediaHelper.writeScreenshot( data, prefix );
@@ -65,11 +67,17 @@ test.afterEach( function() {
 
 test.after( function() {
 	this.timeout( afterHookTimeoutMS );
+	const driver = global.__APP__;
+	const wdDriver = global.__WDDRIVER__;
 
-	// Force orientation back to Portrait to prevent issues re-using the emulator for later tests
-	return global.__WDDRIVER__.setOrientation( 'PORTRAIT' ).then( function() {
+	if ( process.env.SAUCE ) {
+		return wdDriver.sauceJobStatus( allPassed );
+	}
+
+	// For non-SauceLabs runs, force orientation back to Portrait to prevent issues re-using the emulator for later tests
+	return wdDriver.setOrientation( 'PORTRAIT' ).then( function() {
 		if ( config.util.getEnv( 'NODE_ENV' ) !== 'development' ) {
-			return driverManager.quitApp( global.__APP__ );
+			return driverManager.quitApp( driver );
 		}
 	} );
 } );

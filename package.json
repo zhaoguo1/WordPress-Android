@@ -14,7 +14,7 @@
     "fs-extra": "0.22.1",
     "mocha": "2.4.5",
     "node-slack-upload": "1.0.4",
-    "wd": "^0.3.11",
+    "wd": "^0.4.0",
     "wd-bridge": "^0.0.2",
     "selenium-webdriver": "2.47.0",
     "lodash": "^3.10.1"

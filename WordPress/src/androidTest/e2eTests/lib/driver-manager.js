@@ -5,7 +5,7 @@ import webdriver from 'selenium-webdriver';
 var wdBridge = require( 'wd-bridge' )( webdriver, wd );
 
 //const webDriverImplicitTimeOutMS = 60000;
-import deviceConfig from '../lib/helpers/devices';
+import deviceConfig from '../lib/helpers/capabilities';
 
 let driver, wdDriver, originalScreenSize;
 
@@ -18,17 +18,26 @@ export function startApp() {
 
 	let caps = new webdriver.Capabilities();
 
-	let device = deviceConfig[ process.env.DEVICE || 'android22' ];
+	let device = deviceConfig[ process.env.DEVICE ];
 	_.each( device, function( val, key ) {
 		caps.set( key, val );
 	} );
 
-//	caps.set( 'app', '../WordPress/build/outputs/apk/WordPress-wasabi-debug.apk' );
-	caps.set( 'app', './WordPress/build/outputs/apk/WordPress-vanilla-debug.apk' );
-
-	let builder = new webdriver.Builder()
-		.usingServer( 'http://localhost:4723/wd/hub' )
-		.withCapabilities( caps );
+	let builder;
+	if ( process.env.SAUCE ) {
+		caps.set( 'username', 'wordpress-android' );
+		caps.set( 'accessKey', process.env.SAUCE_TOKEN );
+		caps.set( 'name', `WordPress Android - ${process.env.ORIENTATION} - #${process.env.CIRCLE_BUILD_NUM}` );
+		caps.set( 'tags', ['sample'] );
+		builder = new webdriver.Builder()
+			.usingServer( 'http://ondemand.saucelabs.com:80/wd/hub' )
+			.withCapabilities( caps );
+	} else {
+		caps.set( 'app', './WordPress/build/outputs/apk/WordPress-wasabi-debug.apk' );
+		builder = new webdriver.Builder()
+			.usingServer( 'http://localhost:4723/wd/hub' )
+			.withCapabilities( caps );
+	}
 
 	global.__APP__ = driver = builder.build();
 	return wdBridge.initFromSeleniumWebdriver( builder, driver )
