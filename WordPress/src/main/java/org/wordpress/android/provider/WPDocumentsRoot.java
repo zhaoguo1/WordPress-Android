@@ -12,8 +12,8 @@ import org.wordpress.android.R;
 
 import static android.provider.DocumentsContract.*;
 
-import static org.wordpress.android.provider.ProviderConstants.MIME_TYPE_IMAGE;
-import static org.wordpress.android.provider.ProviderConstants.MIME_TYPE_VIDEO;
+import static org.wordpress.android.provider.ProviderConstants.MIME_TYPE_ANY_IMAGE;
+import static org.wordpress.android.provider.ProviderConstants.MIME_TYPE_ANY_VIDEO;
 
 /**
  * The WordPress Documents Root acts as a local directory root that can be queried by the OS. This
@@ -69,7 +69,7 @@ public class WPDocumentsRoot {
     };
 
     /** @see DocumentsContract.Root#COLUMN_MIME_TYPES */
-    public static final String SUPPORTED_MIME_TYPES = MIME_TYPE_IMAGE + "\n" + MIME_TYPE_VIDEO;
+    public static final String SUPPORTED_MIME_TYPES = MIME_TYPE_ANY_IMAGE + "\n" + MIME_TYPE_ANY_VIDEO;
 
     private static final String WP_ROOT_ID = "wpRoot";
     private static final String WP_ROOT_DOC_ID = "wpRootDocument";
@@ -100,20 +100,21 @@ public class WPDocumentsRoot {
         String imageDocSummary = res.getString(R.string.wpdocprovider_image_doc_summary);
         String videoDocSummary = res.getString(R.string.wpdocprovider_video_doc_summary);
 
-        mRoot = new Object[] { WP_ROOT_ID, 0, WP_ROOT_ICON, rootTitle, rootSummary,
-                                   WP_ROOT_DOC_ID, 0L, SUPPORTED_MIME_TYPES };
-        mRootDoc = new Object[] { WP_ROOT_DOC_ID, Document.MIME_TYPE_DIR, rootTitle,
-                                      rootDocSummary, null, WP_ROOT_ICON, 0, 0L };
-        mAllDoc = new Object[] { WP_ALL_DOC_ID, Document.MIME_TYPE_DIR, allDocTitle,
-                                      allDocSummary, null, WP_ALL_ICON, 0, 0L };
-        mImageDoc = new Object[] { WP_IMAGE_DOC_ID, Document.MIME_TYPE_DIR, imageDocTitle,
-                                      imageDocSummary, null, WP_IMAGE_ICON, 0, 0L };
-        mVideoAllDoc = new Object[] { WP_VIDEO_DOC_ID, Document.MIME_TYPE_DIR, videoDocTitle,
-                                      videoDocSummary, null, WP_VIDEO_ICON, 0, 0L };
-    }
-
-    public boolean isRootId(@NonNull String docId) {
-        return docId.equals(WP_ROOT_ID);
+        mRoot = new Object[] {
+                WP_ROOT_ID, 0, WP_ROOT_ICON, rootTitle, rootSummary,
+                WP_ROOT_DOC_ID, 0L, SUPPORTED_MIME_TYPES };
+        mRootDoc = new Object[] {
+                WP_ROOT_DOC_ID, Document.MIME_TYPE_DIR, rootTitle,
+                rootDocSummary, null, WP_ROOT_ICON, 0, 0L };
+        mAllDoc = new Object[] {
+                WP_ALL_DOC_ID, Document.MIME_TYPE_DIR, allDocTitle,
+                allDocSummary, null, WP_ALL_ICON, 0, 0L };
+        mImageDoc = new Object[] {
+                WP_IMAGE_DOC_ID, Document.MIME_TYPE_DIR, imageDocTitle,
+                imageDocSummary, null, WP_IMAGE_ICON, 0, 0L };
+        mVideoAllDoc = new Object[] {
+                WP_VIDEO_DOC_ID, Document.MIME_TYPE_DIR, videoDocTitle,
+                videoDocSummary, null, WP_VIDEO_ICON, 0, 0L };
     }
 
     public boolean isRootDocId(@NonNull String docId) {

@@ -2,7 +2,6 @@ package org.wordpress.android.provider;
 
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
-import org.wordpress.android.WordPressDB;
 import org.wordpress.android.models.AccountHelper;
 import org.wordpress.android.ui.media.MediaGridFragment;
 import org.xmlrpc.android.ApiHelper;
@@ -22,7 +21,6 @@ import android.provider.DocumentsContract;
 import android.provider.DocumentsProvider;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,8 +33,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static android.provider.DocumentsContract.Document;
+import static org.wordpress.android.WordPressDB.*;
 import static org.wordpress.android.provider.WPDocumentsRoot.*;
+import static org.wordpress.android.provider.ProviderConstants.*;
+
+import static android.webkit.MimeTypeMap.*;
+import static android.provider.DocumentsContract.Document;
 
 /**
  * {@link DocumentsProvider} that allows WordPress media library items to be chosen from the system
@@ -46,6 +48,8 @@ import static org.wordpress.android.provider.WPDocumentsRoot.*;
 public class WPDocumentsProvider extends DocumentsProvider {
     private static final String PROVIDER_PREFERENCES = "wp_documents_provider";
     private static final String LAST_SYNC_KEY = "last_pdated";
+    private static final String THUMBNAIL_DIR = "/WordPress/thumbnails";
+    private static final String JPG_EXTENSION = ".jpg";
     private static final long MIN_SYNC_WAIT = 600L;
 
     private final Map<String, String> mDocumentIdToThumbnail = new HashMap<>();
@@ -67,7 +71,9 @@ public class WPDocumentsProvider extends DocumentsProvider {
     @Override
     public Cursor queryRoots(String[] columns)
             throws FileNotFoundException {
+        if (getContext() == null) return null;
         if (columns == null) columns = ALL_ROOT_COLUMNS;
+        if (mRoot == null) mRoot = new WPDocumentsRoot(getContext());
         MatrixCursor roots = new MatrixCursor(columns);
         addRow(roots.newRow(), ALL_ROOT_COLUMNS, mRoot.getRoot());
         return roots;
@@ -144,9 +150,10 @@ public class WPDocumentsProvider extends DocumentsProvider {
             throws FileNotFoundException {
         if (getContext() == null) return null;
         String thumbnail = mDocumentIdToThumbnail.get(docId);
-        File dir = new File(getContext().getFilesDir() + "/WordPress/thumbnails");
+        File dir = new File(getContext().getFilesDir() + THUMBNAIL_DIR);
         if (!dir.exists() && !dir.mkdirs()) return null;
-        File file = new File(dir, docId + ".jpg");
+
+        File file = new File(dir, docId + JPG_EXTENSION);
         try {
             if (!file.exists() && !file.createNewFile()) return null;
             URL url = new URL(thumbnail.replace("https", "http").replace("?w=150", "?w=" + size.x));
@@ -199,9 +206,6 @@ public class WPDocumentsProvider extends DocumentsProvider {
             @Override
             public void onFailure(ApiHelper.ErrorType errorType, String errorMessage, Throwable throwable) {
                 if (errorType != ApiHelper.ErrorType.NO_ERROR) {
-//                    String message = errorType == ApiHelper.ErrorType.NO_UPLOAD_FILES_CAP
-//                            ? getString(R.string.media_error_no_permission)
-//                            : getString(R.string.error_refresh_media);
                 }
             }
         };
@@ -243,6 +247,7 @@ public class WPDocumentsProvider extends DocumentsProvider {
     }
 
     private void addRow(MatrixCursor.RowBuilder row, String[] columns, Object[] data) {
+        if (row == null || columns == null || data == null || columns.length != data.length) return;
         for (int i = 0; i < columns.length; ++i) {
             row.add(columns[i], data[i]);
         }
