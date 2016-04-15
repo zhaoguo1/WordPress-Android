@@ -82,11 +82,11 @@ public class WPDocumentsRoot {
     private static final int WP_IMAGE_ICON = R.drawable.media_image_placeholder;
     private static final int WP_VIDEO_ICON = R.drawable.media_image_placeholder;
 
-    private Object[] mRoot;
-    private Object[] mRootDoc;
-    private Object[] mAllDoc;
-    private Object[] mImageDoc;
-    private Object[] mVideoAllDoc;
+    private final Object[] mRoot;
+    private final Object[] mRootDoc;
+    private final Object[] mAllDoc;
+    private final Object[] mImageDoc;
+    private final Object[] mVideoAllDoc;
 
     public WPDocumentsRoot(@NonNull Context context) {
         Resources res = context.getResources();
