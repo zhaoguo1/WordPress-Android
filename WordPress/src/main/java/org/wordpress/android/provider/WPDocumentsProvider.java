@@ -52,7 +52,10 @@ public class WPDocumentsProvider extends DocumentsProvider {
     private static final String JPG_EXTENSION = ".jpg";
     private static final long MIN_SYNC_WAIT = 600L;
 
-    private final Map<String, String> mDocumentIdToThumbnail = new HashMap<>();
+    private static final String[] MEDIA_COLUMN_NAMES = { COLUMN_NAME_MEDIA_ID,
+                                                         COLUMN_NAME_FILE_URL,
+                                                         COLUMN_NAME_TITLE,
+                                                         COLUMN_NAME_DESCRIPTION };
 
     private WPDocumentsRoot mRoot;
     private long mLastSync;
@@ -149,7 +152,12 @@ public class WPDocumentsProvider extends DocumentsProvider {
     public AssetFileDescriptor openDocumentThumbnail(String docId, Point size, CancellationSignal signal)
             throws FileNotFoundException {
         if (getContext() == null) return null;
-        String thumbnail = mDocumentIdToThumbnail.get(docId);
+        Cursor mediaItem = WordPress.wpDB.getMediaFile(getBlogId(), docId);
+        if (!mediaItem.moveToFirst()) return null;
+        Map<String, Object> data = extractData(mediaItem, new String[] {COLUMN_NAME_THUMBNAIL_URL});
+        if (data == null) return null;
+
+        String thumbnail = String.valueOf(data.get(COLUMN_NAME_THUMBNAIL_URL));
         File dir = new File(getContext().getFilesDir() + THUMBNAIL_DIR);
         if (!dir.exists() && !dir.mkdirs()) return null;
 
@@ -160,9 +168,9 @@ public class WPDocumentsProvider extends DocumentsProvider {
             InputStream thumbnailStream = url.openStream();
             FileOutputStream fileStream = new FileOutputStream(file);
             int length;
-            byte[] data = new byte[1024];
-            while ((length = thumbnailStream.read(data)) != -1) {
-                fileStream.write(data, 0, length);
+            byte[] streamData = new byte[1024];
+            while ((length = thumbnailStream.read(streamData)) != -1) {
+                fileStream.write(streamData, 0, length);
             }
             fileStream.close();
             thumbnailStream.close();
@@ -227,11 +235,6 @@ public class WPDocumentsProvider extends DocumentsProvider {
         String filePath = cursor.getString(filePathColumn);
         String thumbnailUrl = cursor.getString(thumbnailColumn);
 
-        // Store thumbnail URL for future lookup
-        if (!TextUtils.isEmpty(thumbnailUrl)) {
-            mDocumentIdToThumbnail.put(String.valueOf(mediaId), thumbnailUrl);
-        }
-
         if (verifyLocalImage(mediaId, fileUrl, filePath)) {
             String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
                     MimeTypeMap.getFileExtensionFromUrl(fileUrl));
@@ -264,8 +267,6 @@ public class WPDocumentsProvider extends DocumentsProvider {
                 cursor.setExtras(loading);
             }
             return;
-        } else {
-            // TODO: query for changes to WordPress.com media library
         }
 
         do {
