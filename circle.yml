@@ -21,7 +21,7 @@ dependencies:
 test:
   pre:
     - ./gradlew -PdisablePreDex assembleVanillaDebug
-    - curl -u wordpress-android:$SAUCE_TOKEN -X POST -H "Content-Type: application/octet-stream" https://saucelabs.com/rest/v1/storage/wordpress-android/WordPress-vanilla-debug.apk\?overwrite=true --data-binary @WordPress/build/outputs/apk/WordPress-vanilla-debug.apk
+    - ./upload-apk-to-sauce-labs.sh WordPress-vanilla-debug.apk
   override:
     - >
       export TESTARGS="-R -p -l"
