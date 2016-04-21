@@ -1,5 +1,6 @@
 package org.wordpress.android.ui.main;
 
+import com.android.volley.Request;
 import com.github.xizzhu.simpletooltip.ToolTip;
 import com.github.xizzhu.simpletooltip.ToolTipView;
 import com.yalantis.ucrop.UCrop;
@@ -332,7 +333,19 @@ public class MeFragment extends Fragment {
         int avatarSz = getResources().getDimensionPixelSize(R.dimen.avatar_sz_large);
         String avatarUrl = GravatarUtils.fixGravatarUrl(account.getAvatarUrl(), avatarSz);
         AppLog.i(AppLog.T.API, avatarUrl);
-        mAvatarImageView.setImageUrl(avatarUrl, WPNetworkImageView.ImageType.AVATAR, force, imageLoadListener);
+
+        if (force) {
+            // invalidate the specific gravatar entry from the bitmap cache
+            WordPress.getBitmapCache().removeSimilar(avatarUrl);
+
+            // invalidate the specific gravatar entry from the request cache
+            WordPress.requestQueue.getCache().remove(Request.Method.GET + ":" + avatarUrl);
+
+            // invalidate the WPNetworkImageView
+            mAvatarImageView.invalidateImage();
+        }
+
+        mAvatarImageView.setImageUrl(avatarUrl, WPNetworkImageView.ImageType.AVATAR, imageLoadListener);
     }
 
     private void signOutWordPressComWithConfirmation() {
