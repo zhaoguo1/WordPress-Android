@@ -1,5 +1,6 @@
 package org.wordpress.android.ui.main;
 
+import com.android.volley.Cache;
 import com.android.volley.Request;
 import com.github.xizzhu.simpletooltip.ToolTip;
 import com.github.xizzhu.simpletooltip.ToolTipView;
@@ -55,8 +56,14 @@ import org.wordpress.android.util.StringUtils;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.widgets.WPNetworkImageView;
 
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TreeMap;
 
 import de.greenrobot.event.EventBus;
 
@@ -305,7 +312,7 @@ public class MeFragment extends Fragment {
             mNotificationsView.setVisibility(View.VISIBLE);
             mNotificationsDividerView.setVisibility(View.VISIBLE);
 
-            loadAvatar(defaultAccount, false, null);
+            loadAvatar(defaultAccount, null, null);
 
             mUsernameTextView.setText("@" + defaultAccount.getUserName());
             mLoginLogoutTextView.setText(R.string.me_disconnect_from_wordpress_com);
@@ -329,17 +336,25 @@ public class MeFragment extends Fragment {
         }
     }
 
-    private void loadAvatar(Account account, boolean force, WPNetworkImageView.ImageLoadListener imageLoadListener) {
+    private void loadAvatar(Account account, String injectFilePath, WPNetworkImageView.ImageLoadListener imageLoadListener) {
         int avatarSz = getResources().getDimensionPixelSize(R.dimen.avatar_sz_large);
         String avatarUrl = GravatarUtils.fixGravatarUrl(account.getAvatarUrl(), avatarSz);
         AppLog.i(AppLog.T.API, avatarUrl);
 
-        if (force) {
-            // invalidate the specific gravatar entry from the bitmap cache
+        if (injectFilePath != null && !injectFilePath.isEmpty()) {
+            // invalidate the specific gravatar entry from the bitmap cache. It will be updated via the injected
+            // request cache.
             WordPress.getBitmapCache().removeSimilar(avatarUrl);
 
-            // invalidate the specific gravatar entry from the request cache
-            WordPress.requestQueue.getCache().remove(Request.Method.GET + ":" + avatarUrl);
+            try {
+                // fool the network requests cache by injecting the new image. The Gravatar backend (plus CDNs)
+                // can't be trusted to have updated the image quick enough.
+                injectCache(new File(injectFilePath), avatarUrl);
+            } catch (IOException e) {
+                if (imageLoadListener != null) {
+                    imageLoadListener.onError();
+                }
+            }
 
             // invalidate the WPNetworkImageView
             mAvatarImageView.invalidateImage();
@@ -526,7 +541,7 @@ public class MeFragment extends Fragment {
         }
     }
 
-    private void startGravatarUpload(String filePath) {
+    private void startGravatarUpload(final String filePath) {
         File file = new File(filePath);
         if (!file.exists()) {
             Toast.makeText(getActivity(), getString(R.string.error_locating_image), Toast.LENGTH_SHORT).show();
@@ -538,7 +553,7 @@ public class MeFragment extends Fragment {
         GravatarApi.uploadGravatar(file, new GravatarApi.GravatarUploadListener() {
             @Override
             public void onSuccess() {
-                loadAvatar(AccountHelper.getDefaultAccount(), true, new WPNetworkImageView.ImageLoadListener() {
+                loadAvatar(AccountHelper.getDefaultAccount(), filePath, new WPNetworkImageView.ImageLoadListener() {
                     @Override
                     public void onLoaded() {
                         mProgressBar.setVisibility(View.GONE);
@@ -559,6 +574,49 @@ public class MeFragment extends Fragment {
                 Toast.makeText(getActivity(), getString(R.string.error_updating_gravatar), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    // injects a fabricated cache entry to the request cache
+    private void injectCache(File file, String avatarUrl) throws IOException {
+        final SimpleDateFormat sdf = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
+        final long currentTimeMs = System.currentTimeMillis();
+        final Date currentTime = new Date(currentTimeMs);
+        final long fiveMinutesLaterMs = currentTimeMs + 5 * 60 * 1000;
+        final Date fiveMinutesLater = new Date(fiveMinutesLaterMs);
+
+        Cache.Entry entry = new Cache.Entry();
+
+        entry.data = new byte[(int) file.length()];
+        DataInputStream dis = new DataInputStream(new FileInputStream(file));
+        dis.readFully(entry.data);
+        dis.close();
+
+        entry.etag = null;
+        entry.softTtl = fiveMinutesLaterMs;
+        entry.ttl = fiveMinutesLaterMs;
+        entry.serverDate = currentTimeMs;
+        entry.lastModified = currentTimeMs;
+
+        entry.responseHeaders = new TreeMap<>();
+        entry.responseHeaders.put("Accept-Ranges", "bytes");
+        entry.responseHeaders.put("Access-Control-Allow-Origin", "*");
+        entry.responseHeaders.put("Cache-Control", "max-age=300");
+        entry.responseHeaders.put("Content-Disposition", "inline; filename=\"" + AccountHelper.getDefaultAccount()
+                .getAvatarUrl() + ".jpeg\"");
+        entry.responseHeaders.put("Content-Length", String.valueOf(file.length()));
+        entry.responseHeaders.put("Content-Type", "image/jpeg");
+        entry.responseHeaders.put("Date", sdf.format(currentTime));
+        entry.responseHeaders.put("Expires", sdf.format(fiveMinutesLater));
+        entry.responseHeaders.put("Last-Modified", sdf.format(currentTime));
+        entry.responseHeaders.put("Link", "<" + avatarUrl + ">; rel=\"canonical\"");
+        entry.responseHeaders.put("Server", "injected cache");
+        entry.responseHeaders.put("Source-Age", "0");
+        entry.responseHeaders.put("X-Android-Received-Millis", String.valueOf(currentTimeMs));
+        entry.responseHeaders.put("X-Android-Response-Source", "NETWORK 200");
+        entry.responseHeaders.put("X-Android-Selected-Protocol", "http/1.1");
+        entry.responseHeaders.put("X-Android-Sent-Millis", String.valueOf(currentTimeMs));
+
+        WordPress.requestQueue.getCache().put(Request.Method.GET + ":" + avatarUrl, entry);
     }
 
     private class SignOutWordPressComAsync extends AsyncTask<Void, Void, Void> {
