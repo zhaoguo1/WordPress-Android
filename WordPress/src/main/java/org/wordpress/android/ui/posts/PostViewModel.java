@@ -1,23 +1,24 @@
-package org.wordpress.android.ui.viewmodels;
+package org.wordpress.android.ui.posts;
 
 import org.wordpress.android.R;
 import org.wordpress.android.models.PostStatus;
 import org.wordpress.android.models.PostsListPost;
-import org.wordpress.android.ui.posts.PostUtils;
 import org.wordpress.android.util.StringUtils;
 import org.wordpress.android.widgets.PostListButton;
 import org.wordpress.android.widgets.WPNetworkImageView;
 
 import android.content.Context;
+import android.databinding.BaseObservable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.view.View;
 
 /**
- * ViewModel for the PostsListModel to post_cardview.xml
+ * Exposes the data to be used in the {@link PostsListContracts.PostView}.
  */
-public class PostViewModel {
-    private Context mContext;
+public class PostViewModel extends BaseObservable {
+    private final Context mContext;
+
     private PostsListPost mPostsListPost;
 
     public PostViewModel(Context context, PostsListPost postsListPost) {
@@ -185,5 +186,15 @@ public class PostViewModel {
     public int getTrashButtonType() {
         // local drafts say "delete" instead of "trash"
         return mPostsListPost.isLocalDraft() ? PostListButton.BUTTON_DELETE : PostListButton.BUTTON_TRASH;
+    }
+
+    public int getViewButtonType() {
+        // posts with local changes have preview rather than view button
+        return (mPostsListPost.isLocalDraft() || mPostsListPost.hasLocalChanges()) ? PostListButton.BUTTON_PREVIEW :
+                PostListButton.BUTTON_VIEW;
+    }
+
+    public int getViewButtonVisibility() {
+        return View.VISIBLE;
     }
 }

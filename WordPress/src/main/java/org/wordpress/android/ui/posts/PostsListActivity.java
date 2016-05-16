@@ -16,6 +16,8 @@ import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.util.ToastUtils;
 
 public class PostsListActivity extends AppCompatActivity {
+    public static final String TAG_POSTS_LIST_FRAGMENT = "TAG_POSTS_LIST_FRAGMENT";
+
     public static final String EXTRA_VIEW_PAGES = "viewPages";
     public static final String EXTRA_ERROR_MSG = "errorMessage";
     public static final String EXTRA_BLOG_LOCAL_ID = "EXTRA_BLOG_LOCAL_ID";
@@ -41,8 +43,15 @@ public class PostsListActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        FragmentManager fm = getFragmentManager();
-        mPostList = (PostsListFragment) fm.findFragmentById(R.id.postList);
+        if (savedInstanceState == null) {
+            mPostList = PostsListFragment.newInstance(WordPress.getCurrentLocalTableBlogId(), mIsPage);
+            getFragmentManager().beginTransaction()
+                    .add(R.id.postListContainer, mPostList, TAG_POSTS_LIST_FRAGMENT)
+                    .commit();
+        } else {
+            FragmentManager fm = getFragmentManager();
+            mPostList = (PostsListFragment) fm.findFragmentByTag(TAG_POSTS_LIST_FRAGMENT);
+        }
 
         showErrorDialogIfNeeded(getIntent().getExtras());
         showWarningToastIfNeeded(getIntent().getExtras());
