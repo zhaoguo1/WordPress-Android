@@ -9,8 +9,6 @@ import org.wordpress.android.ui.EmptyViewMessageType;
 
 public interface PostsListContracts {
     interface PostsView extends BaseView {
-        void setPostsActionHandler(PostsActionHandler postsActionHandler);
-
         void newPost();
 
         void setPosts(PostsListPostList posts, boolean isFetchingPosts);
@@ -31,7 +29,9 @@ public interface PostsListContracts {
     interface PostsActionHandler {
 
         void onLoadMore();
+
         void requestPosts(boolean loadMore);
+
         void onFabClick();
     }
 
@@ -44,8 +44,6 @@ public interface PostsListContracts {
     }
 
     interface PostView extends BaseView {
-        void setPostActionHandler(PostActionHandler postActionHandler);
-
         void editBlogPostOrPageForResult(long postOrPageId, boolean isPage);
 
         void publishPost(Post post);
@@ -61,10 +59,16 @@ public interface PostsListContracts {
         void withUndo(Undoable undoable);
     }
 
+    interface AdapterView {
+        void animateButtonRows(boolean showRow1);
+    }
+
     interface PostActionHandler {
 
         void onPostSelected();
 
         void onPostButtonClick(android.view.View view);
+
+        void onPostButtonClick(int buttonType);
     }
 }

@@ -22,7 +22,6 @@ import android.widget.TextView;
 
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
-import org.wordpress.android.databinding.PostCardviewBinding;
 import org.wordpress.android.databinding.PostListFragmentBinding;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.Post;
@@ -52,7 +51,6 @@ public class PostsListFragment extends Fragment implements
 
     BasePresenter mPresenter;
     PostsListContracts.PostsActionHandler mPostsActionHandler;
-    PostsListContracts.PostActionHandler mPostActionHandler;
 
     public static final int POSTS_REQUEST_COUNT = 20;
 
@@ -119,25 +117,14 @@ public class PostsListFragment extends Fragment implements
             mFabView.setVisibility(View.GONE);
         }
 
-        postListFragmentBinding.setActionHandler(new PostsPresenter(mLocalBlogId, this, mIsPage));
+        PostsPresenter postsPresenter = new PostsPresenter(mLocalBlogId, this, mIsPage);
+        mPresenter = postsPresenter;
+        mPostsActionHandler = postsPresenter;
+
+        postListFragmentBinding.setActionHandler(postsPresenter);
         postListFragmentBinding.executePendingBindings();
 
         return postListFragmentBinding.getRoot();
-    }
-
-    @Override
-    public void setPresenter(@NonNull BasePresenter presenter) {
-        mPresenter = presenter;
-    }
-
-    @Override
-    public void setPostsActionHandler(@NonNull PostsListContracts.PostsActionHandler postsActionHandler) {
-        mPostsActionHandler = postsActionHandler;
-    }
-
-    @Override
-    public void setPostActionHandler(@NonNull PostsListContracts.PostActionHandler postActionHandler) {
-        mPostActionHandler = postActionHandler;
     }
 
     @Override

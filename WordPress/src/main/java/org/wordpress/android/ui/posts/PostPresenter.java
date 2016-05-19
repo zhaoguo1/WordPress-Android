@@ -12,16 +12,16 @@ import android.view.View;
 public class PostPresenter implements BasePresenter, PostsListContracts.PostActionHandler {
 
     private final PostsListContracts.PostView mPostView;
+    private final PostsListContracts.AdapterView mAdapterView;
     private final PostsListPost mPostsListPost;
     private final boolean mIsPage;
 
-    public PostPresenter(PostsListContracts.PostView postView, PostsListPost postsListPost, boolean isPage) {
+    public PostPresenter(PostsListContracts.PostView postView, PostsListContracts.AdapterView adapterView,
+            PostsListPost postsListPost, boolean isPage) {
         mPostView = postView;
+        mAdapterView = adapterView;
         mPostsListPost = postsListPost;
         mIsPage = isPage;
-
-        mPostView.setPresenter(this);
-        mPostView.setPostActionHandler(this);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class PostPresenter implements BasePresenter, PostsListContracts.PostActi
         onPostButtonClick(buttonType);
     }
 
-    private void onPostButtonClick(int buttonType) {
+    public void onPostButtonClick(int buttonType) {
         Post fullPost = WordPress.wpDB.getPostForLocalTablePostId(mPostsListPost.getPostId());
         if (fullPost == null) {
             mPostView.showToast(R.string.post_not_found);
@@ -64,6 +64,12 @@ public class PostPresenter implements BasePresenter, PostsListContracts.PostActi
                 if (!mPostsListPost.isUploading()) {
 //                    trashPost(mPostsListPost);
                 }
+                break;
+            case PostListButton.BUTTON_MORE:
+                mAdapterView.animateButtonRows(false);
+                break;
+            case PostListButton.BUTTON_BACK:
+                mAdapterView.animateButtonRows(true);
                 break;
         }
     }

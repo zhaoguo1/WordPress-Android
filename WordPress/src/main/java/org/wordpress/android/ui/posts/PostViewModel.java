@@ -3,6 +3,7 @@ package org.wordpress.android.ui.posts;
 import org.wordpress.android.R;
 import org.wordpress.android.models.PostStatus;
 import org.wordpress.android.models.PostsListPost;
+import org.wordpress.android.util.DisplayUtils;
 import org.wordpress.android.util.StringUtils;
 import org.wordpress.android.widgets.PostListButton;
 import org.wordpress.android.widgets.WPNetworkImageView;
@@ -21,9 +22,18 @@ public class PostViewModel extends BaseObservable {
 
     private PostsListPost mPostsListPost;
 
-    public PostViewModel(Context context, PostsListPost postsListPost) {
+    private final boolean mIsStatsSupported;
+    private final boolean mAlwaysShowAllButtons;
+
+    public PostViewModel(Context context, boolean isStatsSupported, PostsListPost postsListPost) {
         mContext = context;
+        mIsStatsSupported = isStatsSupported;
         mPostsListPost = postsListPost;
+
+        int displayWidth = DisplayUtils.getDisplayPixelWidth(context);
+
+        // on larger displays we can always show all buttons
+        mAlwaysShowAllButtons = (displayWidth >= 3080);
     }
 
     public String getTitle() {
@@ -195,6 +205,43 @@ public class PostViewModel extends BaseObservable {
     }
 
     public int getViewButtonVisibility() {
+        // edit / view are always visible
         return View.VISIBLE;
+    }
+
+    public int getEditButtonVisibility() {
+        // edit / view are always visible
+        return View.VISIBLE;
+    }
+
+    // if we have enough room to show all buttons, hide the back/more buttons and show stats/trash
+
+    public int getMoreButtonVisibility() {
+        return hasEnoughRoom() ? View.GONE : View.VISIBLE;
+    }
+
+    public int getBackButtonVisibility() {
+        return View.GONE;
+    }
+
+    public int getTrashButtonVisibility() {
+        return hasEnoughRoom() ? View.VISIBLE : View.GONE;
+    }
+
+    public int getStatsButtonVisibility() {
+        return (canShowStatsForPost(mPostsListPost) && hasEnoughRoom()) ? View.VISIBLE : View.GONE;
+    }
+
+    public boolean canShowStatsForPost(PostsListPost post) {
+        return mIsStatsSupported
+                && post.getStatusEnum() == PostStatus.PUBLISHED
+                && !post.isLocalDraft();
+    }
+
+    private boolean hasEnoughRoom() {
+        boolean canShowStatsButton = canShowStatsForPost(mPostsListPost);
+        int numVisibleButtons = (canShowStatsButton ? 4 : 3);
+
+        return mAlwaysShowAllButtons || numVisibleButtons <= 3;
     }
 }

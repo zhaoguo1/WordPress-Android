@@ -56,9 +56,6 @@ public class PostsPresenter implements BasePresenter, PostsListContracts.PostsAc
         mPhotonWidth = displayWidth - (contentSpacing * 2);
         mPhotonHeight = mPostsView.getContext().getResources().getDimensionPixelSize(R.dimen
                 .reader_featured_image_height);
-
-        mPostsView.setPresenter(this);
-        mPostsView.setPostsActionHandler(this);
     }
 
     @Override

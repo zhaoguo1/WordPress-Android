@@ -107,7 +107,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:onClick="@{(view) -> actionHandler.onPostButtonClick(view)}"
-                        wp:wpPostButtonType="edit" />
+                        wp:wpPostButtonType="edit"
+                        android:visibility="@{postViewModel.editButtonVisibility}" />
 
                     <org.wordpress.android.widgets.PostListButton
                         android:id="@+id/btn_view"
@@ -126,7 +127,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:onClick="@{(view) -> actionHandler.onPostButtonClick(view)}"
-                        wp:wpPostButtonType="more" />
+                        wp:wpPostButtonType="more"
+                        android:visibility="@{postViewModel.moreButtonVisibility}" />
 
                     <org.wordpress.android.widgets.PostListButton
                         android:id="@+id/btn_stats"
@@ -135,9 +137,9 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:onClick="@{(view) -> actionHandler.onPostButtonClick(view)}"
-                        android:visibility="gone"
                         tools:visibility="visible"
-                        wp:wpPostButtonType="stats" />
+                        wp:wpPostButtonType="stats"
+                        android:visibility="@{postViewModel.statsButtonVisibility}" />
 
                     <org.wordpress.android.widgets.PostListButton
                         android:id="@+id/btn_trash"
@@ -146,9 +148,9 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:onClick="@{(view) -> actionHandler.onPostButtonClick(view)}"
-                        android:visibility="gone"
                         tools:visibility="visible"
-                        wp:wpPostButtonType="@{postViewModel.trashButtonType}" />
+                        wp:wpPostButtonType="@{postViewModel.trashButtonType}"
+                        android:visibility="@{postViewModel.trashButtonVisibility}" />
 
                     <org.wordpress.android.widgets.PostListButton
                         android:id="@+id/btn_back"
@@ -157,7 +159,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:onClick="@{(view) -> actionHandler.onPostButtonClick(view)}"
-                        wp:wpPostButtonType="back" />
+                        wp:wpPostButtonType="back"
+                        android:visibility="@{postViewModel.backButtonVisibility}" />
 
                 </LinearLayout>
             </FrameLayout>

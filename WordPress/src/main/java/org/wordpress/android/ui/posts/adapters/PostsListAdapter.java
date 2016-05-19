@@ -32,7 +32,6 @@ import org.wordpress.android.ui.posts.PostPresenter;
 import org.wordpress.android.ui.posts.PostViewModel;
 import org.wordpress.android.util.DateTimeUtils;
 import org.wordpress.android.util.DisplayUtils;
-import org.wordpress.android.widgets.PostListButton;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -42,11 +41,7 @@ import java.util.Date;
  */
 public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    public interface OnPostButtonClickListener {
-        void onPostButtonClicked(int buttonId, PostsListPost post);
-    }
-
-    private PostsListContracts.PostView mPostsListPostView;
+    private PostsListContracts.PostView mPostView;
     private OnLoadMoreListener mOnLoadMoreListener;
 
     private final int mLocalTableBlogId;
@@ -69,8 +64,8 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEW_TYPE_ENDLIST_INDICATOR = 1;
 
     public PostsListAdapter(Context context, @NonNull Blog blog, boolean isPage, PostsListContracts.PostView
-            postsListPostView) {
-        mPostsListPostView = postsListPostView;
+            postView) {
+        mPostView = postView;
         mIsPage = isPage;
         mLayoutInflater = LayoutInflater.from(context);
 
@@ -143,12 +138,6 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    private boolean canShowStatsForPost(PostsListPost post) {
-        return mIsStatsSupported
-                && post.getStatusEnum() == PostStatus.PUBLISHED
-                && !post.isLocalDraft();
-    }
-
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         // nothing to do if this is the static endlist indicator
@@ -160,13 +149,20 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         Context context = holder.itemView.getContext();
 
         if (holder instanceof PostViewHolder) {
-            PostViewHolder postHolder = (PostViewHolder) holder;
+            final PostCardviewBinding binding = ((PostViewHolder) holder).getBinding();
 
-            postHolder.getBinding().setActionHandler(new PostPresenter(mPostsListPostView, post, mIsPage));
-            postHolder.getBinding().setPostViewModel(new PostViewModel(context, post));
-            postHolder.getBinding().executePendingBindings();
+            final PostViewModel postViewModel = new PostViewModel(context, mIsStatsSupported, post);
 
-            configurePostButtons(postHolder, post);
+            PostsListContracts.PostActionHandler postActionHandler = new PostPresenter(mPostView, new PostsListContracts.AdapterView() {
+                @Override
+                public void animateButtonRows(boolean showRow1) {
+                    PostsListAdapter.this.animateButtonRows(binding, showRow1, postViewModel.canShowStatsForPost(post));
+                }
+            }, post, mIsPage);
+
+            binding.setActionHandler(postActionHandler);
+            binding.setPostViewModel(postViewModel);
+            binding.executePendingBindings();
         } else if (holder instanceof PageViewHolder) {
             PageViewHolder pageHolder = (PageViewHolder) holder;
             if (post.hasTitle()) {
@@ -323,68 +319,19 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    private void configurePostButtons(final PostViewHolder holder,
-                                      final PostsListPost post) {
-        boolean canShowStatsButton = canShowStatsForPost(post);
-        int numVisibleButtons = (canShowStatsButton ? 4 : 3);
-
-        // edit / view are always visible
-        holder.getBinding().btnEdit.setVisibility(View.VISIBLE);
-
-        // if we have enough room to show all buttons, hide the back/more buttons and show stats/trash
-        if (mAlwaysShowAllButtons || numVisibleButtons <= 3) {
-            holder.getBinding().btnMore.setVisibility(View.GONE);
-            holder.getBinding().btnBack.setVisibility(View.GONE);
-            holder.getBinding().btnTrash.setVisibility(View.VISIBLE);
-            holder.getBinding().btnStats.setVisibility(canShowStatsButton ? View.VISIBLE : View.GONE);
-        } else {
-            holder.getBinding().btnMore.setVisibility(View.VISIBLE);
-            holder.getBinding().btnBack.setVisibility(View.GONE);
-            holder.getBinding().btnTrash.setVisibility(View.GONE);
-            holder.getBinding().btnStats.setVisibility(View.GONE);
-        }
-
-        View.OnClickListener btnClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // handle back/more here, pass other actions to activity/fragment
-                int buttonType = ((PostListButton) view).getButtonType();
-                switch (buttonType) {
-                    case PostListButton.BUTTON_MORE:
-                        animateButtonRows(holder, post, false);
-                        break;
-                    case PostListButton.BUTTON_BACK:
-                        animateButtonRows(holder, post, true);
-                        break;
-                    default:
-//                        if (mOnPostButtonClickListener != null) {
-//                            mOnPostButtonClickListener.onPostButtonClicked(buttonType, post);
-//                        }
-                        break;
-                }
-            }
-        };
-        holder.getBinding().btnEdit.setOnClickListener(btnClickListener);
-//        holder.getBinding().btnView.setOnClickListener(btnClickListener);
-        holder.getBinding().btnStats.setOnClickListener(btnClickListener);
-        holder.getBinding().btnTrash.setOnClickListener(btnClickListener);
-        holder.getBinding().btnMore.setOnClickListener(btnClickListener);
-        holder.getBinding().btnBack.setOnClickListener(btnClickListener);
-    }
-
     /*
      * buttons may appear in two rows depending on display size and number of visible
      * buttons - these rows are toggled through the "more" and "back" buttons - this
      * routine is used to animate the new row in and the old row out
      */
-    private void animateButtonRows(final PostViewHolder holder,
-                                   final PostsListPost post,
-                                   final boolean showRow1) {
+    private void animateButtonRows(final PostCardviewBinding binding,
+                                   final boolean showRow1,
+                                   final boolean canShowStats) {
         // first animate out the button row, then show/hide the appropriate buttons,
         // then animate the row layout back in
         PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 0f);
         PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 0f);
-        ObjectAnimator animOut = ObjectAnimator.ofPropertyValuesHolder(holder.getBinding().layoutButtons, scaleX, scaleY);
+        ObjectAnimator animOut = ObjectAnimator.ofPropertyValuesHolder(binding.layoutButtons, scaleX, scaleY);
         animOut.setDuration(ROW_ANIM_DURATION);
         animOut.setInterpolator(new AccelerateInterpolator());
 
@@ -392,17 +339,17 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             @Override
             public void onAnimationEnd(Animator animation) {
                 // row 1
-                holder.getBinding().btnEdit.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
-                holder.getBinding().btnView.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
-                holder.getBinding().btnMore.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
+                binding.btnEdit.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
+                binding.btnView.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
+                binding.btnMore.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
                 // row 2
-                holder.getBinding().btnStats.setVisibility(!showRow1 && canShowStatsForPost(post) ? View.VISIBLE : View.GONE);
-                holder.getBinding().btnTrash.setVisibility(!showRow1 ? View.VISIBLE : View.GONE);
-                holder.getBinding().btnBack.setVisibility(!showRow1 ? View.VISIBLE : View.GONE);
+                binding.btnStats.setVisibility(!showRow1 && canShowStats ? View.VISIBLE : View.GONE);
+                binding.btnTrash.setVisibility(!showRow1 ? View.VISIBLE : View.GONE);
+                binding.btnBack.setVisibility(!showRow1 ? View.VISIBLE : View.GONE);
 
                 PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f, 1f);
                 PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f, 1f);
-                ObjectAnimator animIn = ObjectAnimator.ofPropertyValuesHolder(holder.getBinding().layoutButtons, scaleX, scaleY);
+                ObjectAnimator animIn = ObjectAnimator.ofPropertyValuesHolder(binding.layoutButtons, scaleX, scaleY);
                 animIn.setDuration(ROW_ANIM_DURATION);
                 animIn.setInterpolator(new DecelerateInterpolator());
                 animIn.start();
