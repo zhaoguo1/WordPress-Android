@@ -33,7 +33,7 @@ public class PostViewModel extends BaseObservable {
         int displayWidth = DisplayUtils.getDisplayPixelWidth(context);
 
         // on larger displays we can always show all buttons
-        mAlwaysShowAllButtons = (displayWidth >= 3080);
+        mAlwaysShowAllButtons = (displayWidth >= 1080);
     }
 
     public String getTitle() {
