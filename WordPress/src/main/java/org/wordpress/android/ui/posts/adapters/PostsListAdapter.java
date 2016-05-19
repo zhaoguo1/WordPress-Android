@@ -21,11 +21,13 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 
 import org.wordpress.android.R;
+import org.wordpress.android.databinding.EndlistIndicatorBinding;
 import org.wordpress.android.databinding.PostCardviewBinding;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.PostStatus;
 import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.models.PostsListPostList;
+import org.wordpress.android.ui.posts.EndlistIndicatorViewModel;
 import org.wordpress.android.ui.posts.PostsListContracts;
 import org.wordpress.android.ui.posts.PostsListFragment;
 import org.wordpress.android.ui.posts.PostPresenter;
@@ -47,7 +49,6 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private final int mLocalTableBlogId;
     private final int mPhotonWidth;
     private final int mPhotonHeight;
-    private final int mEndlistIndicatorHeight;
 
     private final boolean mIsPage;
     private final boolean mIsPrivateBlog;
@@ -77,9 +78,6 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         int contentSpacing = context.getResources().getDimensionPixelSize(R.dimen.content_margin);
         mPhotonWidth = displayWidth - (contentSpacing * 2);
         mPhotonHeight = context.getResources().getDimensionPixelSize(R.dimen.reader_featured_image_height);
-
-        // endlist indicator height is hard-coded here so that its horz line is in the middle of the fab
-        mEndlistIndicatorHeight = DisplayUtils.dpToPx(context, mIsPage ? 82 : 74);
 
         // on larger displays we can always show all buttons
         mAlwaysShowAllButtons = (displayWidth >= 1080);
@@ -125,9 +123,9 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_ENDLIST_INDICATOR) {
-            View view = mLayoutInflater.inflate(R.layout.endlist_indicator, parent, false);
-            view.getLayoutParams().height = mEndlistIndicatorHeight;
-            return new EndListViewHolder(view);
+            EndlistIndicatorBinding endlistIndicatorBinding = DataBindingUtil.inflate(LayoutInflater.from(parent
+                    .getContext()), R.layout.endlist_indicator, parent, false);
+            return new EndListViewHolder(endlistIndicatorBinding);
         } else if (mIsPage) {
             View view = mLayoutInflater.inflate(R.layout.page_item, parent, false);
             return new PageViewHolder(view);
@@ -140,13 +138,19 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        Context context = holder.itemView.getContext();
+
         // nothing to do if this is the static endlist indicator
         if (getItemViewType(position) == VIEW_TYPE_ENDLIST_INDICATOR) {
+            final EndlistIndicatorViewModel endlistIndicatorViewModel = new EndlistIndicatorViewModel(context, mIsPage);
+
+            final EndlistIndicatorBinding binding = ((EndListViewHolder) holder).getBinding();
+            binding.setEndlistIndicatorViewModel(endlistIndicatorViewModel);
+            binding.executePendingBindings();
             return;
         }
 
         final PostsListPost post = mPosts.get(position);
-        Context context = holder.itemView.getContext();
 
         if (holder instanceof PostViewHolder) {
             final PostCardviewBinding binding = ((PostViewHolder) holder).getBinding();
@@ -416,8 +420,16 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     class EndListViewHolder extends RecyclerView.ViewHolder {
-        public EndListViewHolder(View view) {
-            super(view);
+        private EndlistIndicatorBinding binding;
+
+        public EndListViewHolder(EndlistIndicatorBinding endlistIndicatorBinding) {
+            super(endlistIndicatorBinding.endlistIndicator);
+
+            binding = endlistIndicatorBinding;
+        }
+
+        EndlistIndicatorBinding getBinding() {
+            return binding;
         }
     }
 
