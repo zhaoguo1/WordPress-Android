@@ -47,15 +47,13 @@ import android.text.style.TextAppearanceSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 
-import org.ccil.cowan.tagsoup.HTMLSchema;
-import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
 import org.wordpress.android.models.Blog;
-import org.wordpress.android.util.helpers.MediaFile;
-import org.wordpress.android.util.helpers.MediaGallery;
 import org.wordpress.android.models.Post;
 import org.wordpress.android.util.AppLog.T;
+import org.wordpress.android.util.helpers.MediaFile;
+import org.wordpress.android.util.helpers.MediaGallery;
 import org.wordpress.android.util.helpers.MediaGalleryImageSpan;
 import org.wordpress.android.util.helpers.WPImageSpan;
 import org.wordpress.android.util.helpers.WPUnderlineSpan;
@@ -65,6 +63,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -122,14 +121,6 @@ public class WPHtml {
     }
 
     /**
-     * Lazy initialization holder for HTML parser. This class will a) be
-     * preloaded by the zygote, or b) not loaded until absolutely necessary.
-     */
-    private static class HtmlParser {
-        private static final HTMLSchema schema = new HTMLSchema();
-    }
-
-    /**
      * Returns displayable styled text from the provided HTML string. Any
      * &lt;img&gt; tags in the HTML will use the specified ImageGetter to
      * request a representation of the image (use null if you don't want this)
@@ -142,20 +133,20 @@ public class WPHtml {
      */
     public static Spanned fromHtml(String source, ImageGetter imageGetter,
             TagHandler tagHandler, Context ctx, Post post, int maxImageWidth) {
-        Parser parser = new Parser();
         try {
-            parser.setProperty(Parser.schemaProperty, HtmlParser.schema);
+            XMLReader parser = XMLReaderFactory.createXMLReader("org.ccil.cowan.tagsoup.Parser");
+            HtmlToSpannedConverter converter = new HtmlToSpannedConverter(source,
+                    imageGetter, tagHandler, parser, ctx, post, maxImageWidth);
+            return converter.convert();
         } catch (org.xml.sax.SAXNotRecognizedException e) {
             // Should not happen.
             throw new RuntimeException(e);
         } catch (org.xml.sax.SAXNotSupportedException e) {
             // Should not happen.
             throw new RuntimeException(e);
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
         }
-
-        HtmlToSpannedConverter converter = new HtmlToSpannedConverter(source,
-                imageGetter, tagHandler, parser, ctx, post, maxImageWidth);
-        return converter.convert();
     }
 
     /**
@@ -533,7 +524,7 @@ class HtmlToSpannedConverter implements ContentHandler {
 
     public HtmlToSpannedConverter(String source,
             WPHtml.ImageGetter imageGetter, WPHtml.TagHandler tagHandler,
-            Parser parser, Context context, Post p, int maxImageWidth) {
+            XMLReader parser, Context context, Post p, int maxImageWidth) {
         mSource = source;
         mSpannableStringBuilder = new SpannableStringBuilder();
         mImageGetter = imageGetter;

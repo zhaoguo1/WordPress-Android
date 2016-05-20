@@ -86,7 +86,7 @@ dependencies {
         exclude group:'com.android.support'
     }
     compile 'com.google.code.gson:gson:2.6.+'
-    compile 'org.ccil.cowan.tagsoup:tagsoup:1.2.1'
+
     compile 'com.android.support:support-v13:23.1.1'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:cardview-v7:23.1.1'
