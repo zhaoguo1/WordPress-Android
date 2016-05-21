@@ -44,6 +44,7 @@ import org.wordpress.android.widgets.RecyclerItemDecoration;
 public class PostsListFragment extends Fragment implements
         PostsListAdapter.OnLoadMoreListener,
         PostsListContracts.PostsView,
+        PostsListContracts.PageView,
         PostsListContracts.PostView {
 
     private static final String ARG_LOCAL_BLOG_ID = "ARG_LOCAL_BLOG_ID";
@@ -198,7 +199,7 @@ public class PostsListFragment extends Fragment implements
 
     public PostsListAdapter getPostListAdapter() {
         if (mPostsListAdapter == null) {
-            mPostsListAdapter = new PostsListAdapter(getActivity(), WordPress.getCurrentBlog(), mIsPage, this);
+            mPostsListAdapter = new PostsListAdapter(getActivity(), WordPress.getCurrentBlog(), mIsPage, this, this);
             mPostsListAdapter.setOnLoadMoreListener(this);
         }
 

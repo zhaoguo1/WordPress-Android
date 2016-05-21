@@ -12,14 +12,14 @@ import android.view.View;
 public class PostPresenter implements BasePresenter, PostsListContracts.PostActionHandler {
 
     private final PostsListContracts.PostView mPostView;
-    private final PostsListContracts.AdapterView mAdapterView;
+    private final PostsListContracts.PostAdapterView mPostAdapterView;
     private final PostsListPost mPostsListPost;
     private final boolean mIsPage;
 
-    public PostPresenter(PostsListContracts.PostView postView, PostsListContracts.AdapterView adapterView,
+    public PostPresenter(PostsListContracts.PostView postView, PostsListContracts.PostAdapterView postAdapterView,
             PostsListPost postsListPost, boolean isPage) {
         mPostView = postView;
-        mAdapterView = adapterView;
+        mPostAdapterView = postAdapterView;
         mPostsListPost = postsListPost;
         mIsPage = isPage;
     }
@@ -66,10 +66,10 @@ public class PostPresenter implements BasePresenter, PostsListContracts.PostActi
                 }
                 break;
             case PostListButton.BUTTON_MORE:
-                mAdapterView.animateButtonRows(false);
+                mPostAdapterView.animateButtonRows(false);
                 break;
             case PostListButton.BUTTON_BACK:
-                mAdapterView.animateButtonRows(true);
+                mPostAdapterView.animateButtonRows(true);
                 break;
         }
     }

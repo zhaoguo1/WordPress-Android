@@ -7,6 +7,8 @@ import org.wordpress.android.models.PostsListPostList;
 import org.wordpress.android.ui.BaseView;
 import org.wordpress.android.ui.EmptyViewMessageType;
 
+import android.view.View;
+
 public interface PostsListContracts {
     interface PostsView extends BaseView {
         void newPost();
@@ -59,7 +61,7 @@ public interface PostsListContracts {
         void withUndo(Undoable undoable);
     }
 
-    interface AdapterView {
+    interface PostAdapterView {
         void animateButtonRows(boolean showRow1);
     }
 
@@ -67,8 +69,20 @@ public interface PostsListContracts {
 
         void onPostSelected();
 
-        void onPostButtonClick(android.view.View view);
+        void onPostButtonClick(View view);
 
         void onPostButtonClick(int buttonType);
+    }
+
+    interface PageView extends PostView {
+    }
+
+    interface PageAdapterView {
+        void showPagePopupMenu(View view);
+    }
+
+    interface PageActionHandler {
+        void onMoreButtonClick(View view);
+        void onPageButtonClick(int buttonType);
     }
 }
