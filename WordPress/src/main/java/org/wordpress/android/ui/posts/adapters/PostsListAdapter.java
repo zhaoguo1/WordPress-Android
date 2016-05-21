@@ -163,8 +163,7 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                     .canShowStatsForPost(post));
                         }
                     },
-                    post,
-                    mIsPage);
+                    post);
 
             binding.setActionHandler(postActionHandler);
             binding.setPostViewModel(postViewModel);

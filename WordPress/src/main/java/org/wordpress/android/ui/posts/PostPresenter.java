@@ -14,14 +14,12 @@ public class PostPresenter implements BasePresenter, PostsListContracts.PostActi
     private final PostsListContracts.PostView mPostView;
     private final PostsListContracts.PostAdapterView mPostAdapterView;
     private final PostsListPost mPostsListPost;
-    private final boolean mIsPage;
 
     public PostPresenter(PostsListContracts.PostView postView, PostsListContracts.PostAdapterView postAdapterView,
-            PostsListPost postsListPost, boolean isPage) {
+            PostsListPost postsListPost) {
         mPostView = postView;
         mPostAdapterView = postAdapterView;
         mPostsListPost = postsListPost;
-        mIsPage = isPage;
     }
 
     @Override
@@ -44,7 +42,7 @@ public class PostPresenter implements BasePresenter, PostsListContracts.PostActi
 
         switch (buttonType) {
             case PostListButton.BUTTON_EDIT:
-                mPostView.editBlogPostOrPageForResult(mPostsListPost.getPostId(), mIsPage);
+                mPostView.editBlogPostOrPageForResult(mPostsListPost.getPostId(), false);
                 break;
             case PostListButton.BUTTON_PUBLISH:
                 mPostView.publishPost(fullPost);
@@ -53,10 +51,10 @@ public class PostPresenter implements BasePresenter, PostsListContracts.PostActi
                 mPostView.browsePostOrPage(WordPress.getCurrentBlog(), fullPost);
                 break;
             case PostListButton.BUTTON_PREVIEW:
-                mPostView.viewPostPreviewForResult(fullPost, mIsPage);
+                mPostView.viewPostPreviewForResult(fullPost, false);
                 break;
             case PostListButton.BUTTON_STATS:
-                mPostView.viewStatsSinglePostDetails(fullPost, mIsPage);
+                mPostView.viewStatsSinglePostDetails(fullPost, false);
                 break;
             case PostListButton.BUTTON_TRASH:
             case PostListButton.BUTTON_DELETE:
