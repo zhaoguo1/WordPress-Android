@@ -28,6 +28,7 @@ import org.wordpress.android.ui.posts.PagePresenter;
 import org.wordpress.android.ui.posts.PageViewModel;
 import org.wordpress.android.ui.posts.PostPresenter;
 import org.wordpress.android.ui.posts.PostViewModel;
+import org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PageActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PageAdapterView;
 import org.wordpress.android.ui.posts.PostsListContracts.PageView;
@@ -36,7 +37,6 @@ import org.wordpress.android.ui.posts.PostsListContracts.PostAdapterView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
 import org.wordpress.android.ui.posts.PostsListFragment;
-import org.wordpress.android.ui.posts.PostsPresenter;
 import org.wordpress.android.util.DisplayUtils;
 
 /**
@@ -47,6 +47,7 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private PostView mPostView;
     private PageView mPageView;
     private OnLoadMoreListener mOnLoadMoreListener;
+    private PagesActionHandler mPagesActionHandler;
     private PostsActionHandler mPostsActionHandler;
 
     private final int mLocalTableBlogId;
@@ -68,9 +69,10 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEW_TYPE_ENDLIST_INDICATOR = 1;
 
     public PostsListAdapter(Context context, @NonNull Blog blog, boolean isPage, PostView postView, PageView
-            pageView, PostsActionHandler postsActionHandler) {
+            pageView, PostsActionHandler postsActionHandler, PagesActionHandler pagesActionHandler) {
         mPostView = postView;
         mPageView = pageView;
+        mPagesActionHandler = pagesActionHandler;
         mPostsActionHandler = postsActionHandler;
         mIsPage = isPage;
         mLayoutInflater = LayoutInflater.from(context);
@@ -184,7 +186,7 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             final PageViewModel pageViewModel = new PageViewModel(context, position, post, position == 0 ? null :
                     mPosts.get(position - 1));
 
-            final PagePresenter pagePresenter = new PagePresenter(mPageView, post);
+            final PagePresenter pagePresenter = new PagePresenter(mPageView, post, mPagesActionHandler);
             pagePresenter.setPageAdapterView(new PageAdapterView() {
                     @Override
                     public void showPagePopupMenu(View view) {

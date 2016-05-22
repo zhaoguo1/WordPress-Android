@@ -76,6 +76,11 @@ public interface PostsListContracts {
         void onPostButtonClick(int buttonType);
     }
 
+    interface PagesActionHandler {
+
+        void onTrashPost(PostsListPost postsListPost);
+    }
+
     interface PageView extends PostView {
     }
 
@@ -85,6 +90,7 @@ public interface PostsListContracts {
 
     interface PageActionHandler {
         void onMoreButtonClick(View view);
+
         void onPageButtonClick(int buttonType);
     }
 }

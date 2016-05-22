@@ -8,6 +8,7 @@ import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.models.PostsListPostList;
 import org.wordpress.android.ui.BasePresenter;
 import org.wordpress.android.ui.EmptyViewMessageType;
+import org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
 import org.wordpress.android.ui.posts.PostsListContracts.Undoable;
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
-public class PostsPresenter implements BasePresenter, PostsActionHandler {
+public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesActionHandler {
 
     private final PostsView mPostsView;
     private final int mLocalTableBlogId;

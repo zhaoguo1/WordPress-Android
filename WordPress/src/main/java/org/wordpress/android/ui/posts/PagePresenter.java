@@ -8,6 +8,7 @@ import org.wordpress.android.ui.BasePresenter;
 import org.wordpress.android.ui.posts.PostsListContracts.PageActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PageAdapterView;
 import org.wordpress.android.ui.posts.PostsListContracts.PageView;
+import org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler;
 import org.wordpress.android.widgets.PostListButton;
 
 import android.view.View;
@@ -18,9 +19,12 @@ public class PagePresenter implements BasePresenter, PageActionHandler {
     private PageAdapterView mPageAdapterView;
     private final PostsListPost mPostsListPost;
 
-    public PagePresenter(PageView pageView, PostsListPost postsListPost) {
+    private final PagesActionHandler mPagesActionHandler;
+
+    public PagePresenter(PageView pageView, PostsListPost postsListPost, PagesActionHandler pagesActionHandler) {
         mPageView = pageView;
         mPostsListPost = postsListPost;
+        mPagesActionHandler = pagesActionHandler;
     }
 
     public void setPageAdapterView(PageAdapterView pageAdapterView) {
@@ -63,7 +67,7 @@ public class PagePresenter implements BasePresenter, PageActionHandler {
             case PostListButton.BUTTON_DELETE:
                 // prevent deleting post while it's being uploaded
                 if (!mPostsListPost.isUploading()) {
-//                    trashPost(mPostsListPost);
+                    mPagesActionHandler.onTrashPost(mPostsListPost);
                 }
                 break;
         }
