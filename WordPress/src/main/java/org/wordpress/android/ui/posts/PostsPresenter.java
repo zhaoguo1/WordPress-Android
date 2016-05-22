@@ -3,10 +3,14 @@ package org.wordpress.android.ui.posts;
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
 import org.wordpress.android.models.Blog;
+import org.wordpress.android.models.Post;
 import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.models.PostsListPostList;
 import org.wordpress.android.ui.BasePresenter;
 import org.wordpress.android.ui.EmptyViewMessageType;
+import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
+import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
+import org.wordpress.android.ui.posts.PostsListContracts.Undoable;
 import org.wordpress.android.ui.posts.services.PostEvents;
 import org.wordpress.android.ui.posts.services.PostMediaService;
 import org.wordpress.android.ui.posts.services.PostUpdateService;
@@ -24,9 +28,9 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
-public class PostsPresenter implements BasePresenter, PostsListContracts.PostsActionHandler {
+public class PostsPresenter implements BasePresenter, PostsActionHandler {
 
-    private final PostsListContracts.PostsView mPostsView;
+    private final PostsView mPostsView;
     private final int mLocalTableBlogId;
     private final boolean mIsPrivateBlog;
     private final boolean mIsPage;
@@ -42,7 +46,7 @@ public class PostsPresenter implements BasePresenter, PostsListContracts.PostsAc
 
     private boolean mCanLoadMorePosts = true;
 
-    public PostsPresenter(int blogLocalId, PostsListContracts.PostsView postsView, boolean isPage) {
+    public PostsPresenter(int blogLocalId, PostsView postsView, boolean isPage) {
         mPostsView = postsView;
         mIsPage = isPage;
 
@@ -245,7 +249,7 @@ public class PostsPresenter implements BasePresenter, PostsListContracts.PostsAc
             if (result) {
                 mPosts.clear();
                 mPosts.addAll(tmpPosts);
-                mPostsView.setPosts(mPosts, mIsFetchingPosts);
+                setPostsList();
 
                 if (mediaIdsToUpdate.size() > 0) {
                     PostMediaService.startService(WordPress.getContext(), mLocalTableBlogId, mediaIdsToUpdate);
@@ -254,5 +258,91 @@ public class PostsPresenter implements BasePresenter, PostsListContracts.PostsAc
 
             mIsLoadingPosts = false;
         }
+    }
+
+    private void setPostsList() {
+        mPostsView.setPosts(mPosts, mIsFetchingPosts);
+
+        updateEmptyView();
+    }
+
+    private void hidePost(PostsListPost postsListPost) {
+        mPostsView.hidePost(postsListPost);
+
+        updateEmptyView();
+    }
+
+    private void updateEmptyView() {
+        if (mPosts.size() == 0 && !mIsFetchingPosts) {
+            if (NetworkUtils.isNetworkAvailable(mPostsView.getContext())) {
+                mPostsView.updateEmptyView(EmptyViewMessageType.NO_CONTENT);
+            } else {
+                mPostsView.updateEmptyView(EmptyViewMessageType.NETWORK_ERROR);
+            }
+        } else if (mPosts.size() > 0) {
+            mPostsView.hideEmptyView();
+        }
+    }
+
+    /*
+     * send the passed post to the trash with undo
+     */
+    @Override
+    public void onTrashPost(final PostsListPost post) {
+        //only check if network is available in case this is not a local draft - local drafts have not yet
+        //been posted to the server so they can be trashed w/o further care
+        if (!post.isLocalDraft() && !NetworkUtils.checkConnection(mPostsView.getContext())) {
+            return;
+        }
+
+        final Post fullPost = WordPress.wpDB.getPostForLocalTablePostId(post.getPostId());
+        if (fullPost == null) {
+            mPostsView.showToast(R.string.post_not_found);
+            return;
+        }
+
+        // remove post from the list and add it to the list of trashed posts
+        hidePost(post);
+        mPosts.remove(post);
+        mTrashedPosts.add(post);
+
+        mPostsView.withUndo(new Undoable() {
+            @Override
+            public String getText() {
+                if (post.isLocalDraft()) {
+                    return mPostsView.getString(R.string.post_deleted);
+                } else {
+                    return mPostsView.getString(R.string.post_trashed);
+                }
+            }
+
+            @Override
+            public void onUndo() {
+                // user undid the trash, so unhide the post and remove it from the list of trashed posts
+                mTrashedPosts.remove(post);
+                loadPosts();
+            }
+
+            @Override
+            public void onDismiss() {
+                // if the post no longer exists in the list of trashed posts it's because the
+                // user undid the trash, so don't perform the deletion
+                if (!mTrashedPosts.contains(post)) {
+                    return;
+                }
+
+                // remove from the list of trashed posts in case onDismissed is called multiple
+                // times - this way the above check prevents us making the call to delete it twice
+                // https://code.google.com/p/android/issues/detail?id=190529
+                mTrashedPosts.remove(post);
+
+                WordPress.wpDB.deletePost(fullPost);
+
+                if (!post.isLocalDraft()) {
+                    new ApiHelper.DeleteSinglePostTask().execute(WordPress.getCurrentBlog(),
+                            fullPost.getRemotePostId(), false);
+                }
+            }
+        });
     }
 }

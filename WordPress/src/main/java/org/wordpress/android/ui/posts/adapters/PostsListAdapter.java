@@ -26,10 +26,17 @@ import org.wordpress.android.models.PostsListPostList;
 import org.wordpress.android.ui.posts.EndlistIndicatorViewModel;
 import org.wordpress.android.ui.posts.PagePresenter;
 import org.wordpress.android.ui.posts.PageViewModel;
-import org.wordpress.android.ui.posts.PostsListContracts;
-import org.wordpress.android.ui.posts.PostsListFragment;
 import org.wordpress.android.ui.posts.PostPresenter;
 import org.wordpress.android.ui.posts.PostViewModel;
+import org.wordpress.android.ui.posts.PostsListContracts.PageActionHandler;
+import org.wordpress.android.ui.posts.PostsListContracts.PageAdapterView;
+import org.wordpress.android.ui.posts.PostsListContracts.PageView;
+import org.wordpress.android.ui.posts.PostsListContracts.PostActionHandler;
+import org.wordpress.android.ui.posts.PostsListContracts.PostAdapterView;
+import org.wordpress.android.ui.posts.PostsListContracts.PostView;
+import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
+import org.wordpress.android.ui.posts.PostsListFragment;
+import org.wordpress.android.ui.posts.PostsPresenter;
 import org.wordpress.android.util.DisplayUtils;
 
 /**
@@ -37,9 +44,10 @@ import org.wordpress.android.util.DisplayUtils;
  */
 public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private PostsListContracts.PostView mPostView;
-    private PostsListContracts.PageView mPageView;
+    private PostView mPostView;
+    private PageView mPageView;
     private OnLoadMoreListener mOnLoadMoreListener;
+    private PostsActionHandler mPostsActionHandler;
 
     private final int mLocalTableBlogId;
     private final int mPhotonWidth;
@@ -59,10 +67,11 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEW_TYPE_POST_OR_PAGE = 0;
     private static final int VIEW_TYPE_ENDLIST_INDICATOR = 1;
 
-    public PostsListAdapter(Context context, @NonNull Blog blog, boolean isPage, PostsListContracts.PostView
-            postView, PostsListContracts.PageView pageView) {
+    public PostsListAdapter(Context context, @NonNull Blog blog, boolean isPage, PostView postView, PageView
+            pageView, PostsActionHandler postsActionHandler) {
         mPostView = postView;
         mPageView = pageView;
+        mPostsActionHandler = postsActionHandler;
         mIsPage = isPage;
         mLayoutInflater = LayoutInflater.from(context);
 
@@ -154,16 +163,17 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             final PostViewModel postViewModel = new PostViewModel(context, mIsStatsSupported, post);
 
-            PostsListContracts.PostActionHandler postActionHandler = new PostPresenter(
+            PostActionHandler postActionHandler = new PostPresenter(
                     mPostView,
-                    new PostsListContracts.PostAdapterView() {
+                    new PostAdapterView() {
                         @Override
                         public void animateButtonRows(boolean showRow1) {
                             PostsListAdapter.this.animateButtonRows(binding, showRow1, postViewModel
                                     .canShowStatsForPost(post));
                         }
                     },
-                    post);
+                    post,
+                    mPostsActionHandler);
 
             binding.setActionHandler(postActionHandler);
             binding.setPostViewModel(postViewModel);
@@ -175,7 +185,7 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     mPosts.get(position - 1));
 
             final PagePresenter pagePresenter = new PagePresenter(mPageView, post);
-            pagePresenter.setPageAdapterView(new PostsListContracts.PageAdapterView() {
+            pagePresenter.setPageAdapterView(new PageAdapterView() {
                     @Override
                     public void showPagePopupMenu(View view) {
                         PostsListAdapter.this.showPagePopupMenu(view, post, pagePresenter);
@@ -196,8 +206,7 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     /*
      * user tapped "..." next to a page, show a popup menu of choices
      */
-    private void showPagePopupMenu(View view, final PostsListPost page, final PostsListContracts.PageActionHandler
-            pageActionHandler) {
+    private void showPagePopupMenu(View view, final PostsListPost page, final PageActionHandler pageActionHandler) {
         Context context = view.getContext();
         final ListPopupWindow listPopup = new ListPopupWindow(context);
         listPopup.setAnchorView(view);

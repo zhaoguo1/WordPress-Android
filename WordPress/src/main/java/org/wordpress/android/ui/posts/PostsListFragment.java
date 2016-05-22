@@ -30,6 +30,11 @@ import org.wordpress.android.models.PostsListPostList;
 import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.BasePresenter;
 import org.wordpress.android.ui.EmptyViewMessageType;
+import org.wordpress.android.ui.posts.PostsListContracts.PageView;
+import org.wordpress.android.ui.posts.PostsListContracts.PostView;
+import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
+import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
+import org.wordpress.android.ui.posts.PostsListContracts.Undoable;
 import org.wordpress.android.ui.posts.adapters.PostsListAdapter;
 import org.wordpress.android.ui.posts.services.PostUploadService;
 import org.wordpress.android.util.AniUtils;
@@ -43,15 +48,15 @@ import org.wordpress.android.widgets.RecyclerItemDecoration;
 
 public class PostsListFragment extends Fragment implements
         PostsListAdapter.OnLoadMoreListener,
-        PostsListContracts.PostsView,
-        PostsListContracts.PageView,
-        PostsListContracts.PostView {
+        PostsView,
+        PageView,
+        PostView {
 
     private static final String ARG_LOCAL_BLOG_ID = "ARG_LOCAL_BLOG_ID";
     private static final String ARG_IS_PAGE = "ARG_IS_PAGE";
 
-    BasePresenter mPresenter;
-    PostsListContracts.PostsActionHandler mPostsActionHandler;
+    PostsPresenter mPostsPresenter;
+    PostsActionHandler mPostsActionHandler;
 
     public static final int POSTS_REQUEST_COUNT = 20;
 
@@ -118,11 +123,10 @@ public class PostsListFragment extends Fragment implements
             mFabView.setVisibility(View.GONE);
         }
 
-        PostsPresenter postsPresenter = new PostsPresenter(mLocalBlogId, this, mIsPage);
-        mPresenter = postsPresenter;
-        mPostsActionHandler = postsPresenter;
+        mPostsPresenter = new PostsPresenter(mLocalBlogId, this, mIsPage);
+        mPostsActionHandler = mPostsPresenter;
 
-        postListFragmentBinding.setActionHandler(postsPresenter);
+        postListFragmentBinding.setActionHandler(mPostsActionHandler);
         postListFragmentBinding.executePendingBindings();
 
         return postListFragmentBinding.getRoot();
@@ -199,7 +203,8 @@ public class PostsListFragment extends Fragment implements
 
     public PostsListAdapter getPostListAdapter() {
         if (mPostsListAdapter == null) {
-            mPostsListAdapter = new PostsListAdapter(getActivity(), WordPress.getCurrentBlog(), mIsPage, this, this);
+            mPostsListAdapter = new PostsListAdapter(getActivity(), WordPress.getCurrentBlog(), mIsPage, this, this,
+                    mPostsPresenter);
             mPostsListAdapter.setOnLoadMoreListener(this);
         }
 
@@ -219,7 +224,7 @@ public class PostsListFragment extends Fragment implements
         // since setRetainInstance(true) is used, we only need to request latest
         // posts the first time this is called (ie: not after device rotation)
         if (bundle == null && NetworkUtils.checkConnection(getActivity())) {
-            mPresenter.init();
+            mPostsPresenter.init();
         }
     }
 
@@ -331,27 +336,17 @@ public class PostsListFragment extends Fragment implements
         }
 
         getPostListAdapter().setPostsList(posts);
-
-        if (posts.size() == 0 && !isFetchingPosts) {
-            if (NetworkUtils.isNetworkAvailable(getActivity())) {
-                updateEmptyView(EmptyViewMessageType.NO_CONTENT);
-            } else {
-                updateEmptyView(EmptyViewMessageType.NETWORK_ERROR);
-            }
-        } else if (posts.size() > 0) {
-            hideEmptyView();
-        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        mPresenter.start();
+        mPostsPresenter.start();
     }
 
     @Override
     public void onStop() {
-        mPresenter.stop();
+        mPostsPresenter.stop();
         super.onStop();
     }
 
@@ -364,7 +359,7 @@ public class PostsListFragment extends Fragment implements
     }
 
     @Override
-    public void withUndo(final PostsListContracts.Undoable undoable) {
+    public void withUndo(final Undoable undoable) {
         if (!isAdded()) {
             return;
         }

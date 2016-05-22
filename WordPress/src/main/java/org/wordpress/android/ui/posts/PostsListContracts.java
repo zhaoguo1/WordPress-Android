@@ -26,6 +26,10 @@ public interface PostsListContracts {
         void updateEmptyView(EmptyViewMessageType emptyViewMessageType);
 
         void hideEmptyView();
+
+        void hidePost(PostsListPost postsListPost);
+
+        void withUndo(Undoable undoable);
     }
 
     interface PostsActionHandler {
@@ -35,6 +39,8 @@ public interface PostsListContracts {
         void requestPosts(boolean loadMore);
 
         void onFabClick();
+
+        void onTrashPost(PostsListPost postsListPost);
     }
 
     interface Undoable {
@@ -55,10 +61,6 @@ public interface PostsListContracts {
         void viewPostPreviewForResult(Post post, boolean isPage);
 
         void viewStatsSinglePostDetails(Post post, boolean isPost);
-
-        void hidePost(PostsListPost postsListPost);
-
-        void withUndo(Undoable undoable);
     }
 
     interface PostAdapterView {

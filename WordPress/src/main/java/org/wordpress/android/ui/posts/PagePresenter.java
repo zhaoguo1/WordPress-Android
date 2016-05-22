@@ -5,22 +5,25 @@ import org.wordpress.android.WordPress;
 import org.wordpress.android.models.Post;
 import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.ui.BasePresenter;
+import org.wordpress.android.ui.posts.PostsListContracts.PageActionHandler;
+import org.wordpress.android.ui.posts.PostsListContracts.PageAdapterView;
+import org.wordpress.android.ui.posts.PostsListContracts.PageView;
 import org.wordpress.android.widgets.PostListButton;
 
 import android.view.View;
 
-public class PagePresenter implements BasePresenter, PostsListContracts.PageActionHandler {
+public class PagePresenter implements BasePresenter, PageActionHandler {
 
-    private final PostsListContracts.PageView mPageView;
-    private PostsListContracts.PageAdapterView mPageAdapterView;
+    private final PageView mPageView;
+    private PageAdapterView mPageAdapterView;
     private final PostsListPost mPostsListPost;
 
-    public PagePresenter(PostsListContracts.PageView pageView, PostsListPost postsListPost) {
+    public PagePresenter(PageView pageView, PostsListPost postsListPost) {
         mPageView = pageView;
         mPostsListPost = postsListPost;
     }
 
-    public void setPageAdapterView(PostsListContracts.PageAdapterView pageAdapterView) {
+    public void setPageAdapterView(PageAdapterView pageAdapterView) {
         mPageAdapterView = pageAdapterView;
     }
 
