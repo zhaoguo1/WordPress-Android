@@ -24,22 +24,28 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     dexOptions {
-        jumboMode = true
+        jumboMode true
+        incremental true
+        javaMaxHeapSize '8g'
     }
 
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    compileSdkVersion 'android-N'
+    buildToolsVersion "24.0.0 rc3"
 
     defaultConfig {
         applicationId "org.wordpress.android"
         versionName "alpha-9"
         versionCode 262
         minSdkVersion 14
-        targetSdkVersion 23
+        targetSdkVersion 'N'
 
         vectorDrawables.useSupportLibrary = true
         buildConfigField "boolean", "VISUAL_EDITOR_AVAILABLE", "false"
         buildConfigField "boolean", "IN_APP_BILLING_AVAILABLE", "false"
+
+        jackOptions {
+            enabled true
+        }
     }
 
     productFlavors {
