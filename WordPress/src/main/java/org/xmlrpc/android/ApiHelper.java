@@ -32,6 +32,7 @@ import org.wordpress.android.ui.stats.StatsWidgetProvider;
 import org.wordpress.android.util.AnalyticsUtils;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.AppLog.T;
+import org.wordpress.android.util.CoreEvents;
 import org.wordpress.android.util.DateTimeUtils;
 import org.wordpress.android.util.MapUtils;
 import org.wordpress.android.util.helpers.MediaFile;
@@ -50,6 +51,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import javax.net.ssl.SSLHandshakeException;
+
+import de.greenrobot.event.EventBus;
 
 public class ApiHelper {
 
@@ -191,7 +194,7 @@ public class ApiHelper {
 
         // Software version
         if (!currentBlog.isDotcomFlag()) {
-            Map<?, ?> sv = (HashMap<?, ?>) blogOptions.get("software_version");
+            Map<?, ?> sv = (Map<?, ?>) blogOptions.get("software_version");
             String wpVersion = MapUtils.getMapStr(sv, "value");
             if (wpVersion.length() > 0) {
                 isModified |= currentBlog.bsetWpVersion(wpVersion);
@@ -199,7 +202,7 @@ public class ApiHelper {
         }
 
         // Featured image support
-        Map<?, ?> featuredImageHash = (HashMap<?, ?>) blogOptions.get("post_thumbnail");
+        Map<?, ?> featuredImageHash = (Map<?, ?>) blogOptions.get("post_thumbnail");
         if (featuredImageHash != null) {
             boolean featuredImageCapable = MapUtils.getMapBool(featuredImageHash, "value");
             isModified |= currentBlog.bsetFeaturedImageCapable(featuredImageCapable);
@@ -208,7 +211,7 @@ public class ApiHelper {
         }
 
         // Blog name
-        Map<?, ?> blogNameHash = (HashMap<?, ?>) blogOptions.get("blog_title");
+        Map<?, ?> blogNameHash = (Map<?, ?>) blogOptions.get("blog_title");
         if (blogNameHash != null) {
             String blogName = MapUtils.getMapStr(blogNameHash, "value");
             if (blogName != null && !blogName.equals(currentBlog.getBlogName())) {
@@ -261,6 +264,7 @@ public class ApiHelper {
                 }
                 if (mBlog.bsetAdmin(isAdmin)) {
                     WordPress.wpDB.saveBlog(mBlog);
+                    EventBus.getDefault().post(new CoreEvents.BlogListChanged());
                 }
             }
         }

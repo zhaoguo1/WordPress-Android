@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.0.0-beta7'
+        classpath 'com.android.tools.build:gradle:2.1.0'
     }
 }
 
@@ -20,7 +20,7 @@ dependencies {
         exclude group: 'commons-logging'
     }
     compile 'com.mcxiaoke.volley:library:1.0.18'
-    compile 'com.android.support:support-v13:23.1.1'
+    compile 'com.android.support:support-v13:23.4.0'
 }
 
 android {
@@ -29,7 +29,7 @@ android {
     publishNonDefault true
 
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
 
     defaultConfig {
         versionName "1.9.0"

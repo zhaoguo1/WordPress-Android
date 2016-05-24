@@ -748,6 +748,10 @@ public class AnalyticsTrackerMixpanel extends Tracker {
                 instructions = AnalyticsTrackerMixpanelInstructionsForStat.
                         mixpanelInstructionsForEventName("Stats - Selected Install Jetpack");
                 break;
+            case STATS_SELECTED_CONNECT_JETPACK:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Stats - Selected Connect Jetpack");
+                break;
             case STATS_WIDGET_ADDED:
                 instructions = AnalyticsTrackerMixpanelInstructionsForStat.
                         mixpanelInstructionsForEventName("Stats - Widget Added");
@@ -778,6 +782,26 @@ public class AnalyticsTrackerMixpanel extends Tracker {
                         mixpanelInstructionsForEventName("Support - Replied to Helpshift");
                 instructions.addSuperPropertyToFlag("support_replied_to_helpshift");
                 break;
+            case LOGIN_MAGIC_LINK_EXITED:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Login - Magic Link exited");
+                break;
+            case LOGIN_MAGIC_LINK_FAILED:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Login - Magic Link failed");
+                break;
+            case LOGIN_MAGIC_LINK_OPENED:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Login - Magic Link opened");
+                break;
+            case LOGIN_MAGIC_LINK_REQUESTED:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Login - Magic Link requested");
+                break;
+            case LOGIN_MAGIC_LINK_SUCCEEDED:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Login - Magic Link succeeded");
+                break;
             case LOGIN_FAILED:
                 instructions = AnalyticsTrackerMixpanelInstructionsForStat.
                         mixpanelInstructionsForEventName("Login - Failed Login");
@@ -785,6 +809,18 @@ public class AnalyticsTrackerMixpanel extends Tracker {
             case LOGIN_FAILED_TO_GUESS_XMLRPC:
                 instructions = AnalyticsTrackerMixpanelInstructionsForStat.
                         mixpanelInstructionsForEventName("Login - Failed To Guess XMLRPC");
+                break;
+            case LOGIN_INSERTED_INVALID_URL:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Login - Inserted Invalid URL");
+                break;
+            case LOGIN_AUTOFILL_CREDENTIALS_FILLED:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Login - Auto Fill Credentials Filled");
+                break;
+            case LOGIN_AUTOFILL_CREDENTIALS_UPDATED:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Login - Auto Fill Credentials Updated");
                 break;
             case PUSH_AUTHENTICATION_APPROVED:
                 instructions = AnalyticsTrackerMixpanelInstructionsForStat.
@@ -818,6 +854,38 @@ public class AnalyticsTrackerMixpanel extends Tracker {
                 instructions = AnalyticsTrackerMixpanelInstructionsForStat.
                         mixpanelInstructionsForEventName("Me Tab - Accessed");
                 instructions.setSuperPropertyAndPeoplePropertyToIncrement("number_of_times_accessed_me_tab");
+                break;
+            case ME_GRAVATAR_TAPPED:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Me - Tapped Gravatar");
+                break;
+            case ME_GRAVATAR_TOOLTIP_TAPPED:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Me - Tapped Gravatar Tooltip");
+                break;
+            case ME_GRAVATAR_PERMISSIONS_DENIED:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Me - Gravatar Permissions Denied");
+                break;
+            case ME_GRAVATAR_PERMISSIONS_ACCEPTED:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Me - Gravatar Permissions Accepted");
+                break;
+            case ME_GRAVATAR_SHOT_NEW:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Me - Gravatar Shot New Photo");
+                break;
+            case ME_GRAVATAR_GALLERY_PICKED:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Me - Gravatar Picked From Gallery");
+                break;
+            case ME_GRAVATAR_CROPPED:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Me - Gravatar Cropped");
+                break;
+            case ME_GRAVATAR_UPLOADED:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.
+                        mixpanelInstructionsForEventName("Me - Gravatar Uploaded");
                 break;
             case MY_SITE_ACCESSED:
                 instructions = AnalyticsTrackerMixpanelInstructionsForStat.
@@ -944,6 +1012,9 @@ public class AnalyticsTrackerMixpanel extends Tracker {
                 break;
             case SITE_SETTINGS_DELETE_SITE_RESPONSE_ERROR:
                 instructions = AnalyticsTrackerMixpanelInstructionsForStat.mixpanelInstructionsForEventName("Settings - Delete Site Response Error");
+                break;
+            case ABTEST_START:
+                instructions = AnalyticsTrackerMixpanelInstructionsForStat.mixpanelInstructionsForEventName("AB Test - Started");
                 break;
             default:
                 instructions = null;

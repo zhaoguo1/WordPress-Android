@@ -63,7 +63,7 @@ public class WPDocumentsProvider extends DocumentsProvider {
 
     @Override
     public boolean onCreate() {
-        if (getContext() == null || !AccountHelper.isSignedInWordPressDotCom()) return false;
+        if (getContext() == null || WordPress.wpDB == null || !AccountHelper.isSignedInWordPressDotCom()) return false;
         mSyncMediaCallback = null;
         mLastSync = getLastSyncTimestamp(getContext());
         mRoot = new WPDocumentsRoot(getContext());
@@ -152,7 +152,7 @@ public class WPDocumentsProvider extends DocumentsProvider {
     public AssetFileDescriptor openDocumentThumbnail(String docId, Point size, CancellationSignal signal)
             throws FileNotFoundException {
         if (getContext() == null) return null;
-        Cursor mediaItem = WordPress.wpDB.getMediaFile(getBlogId(), docId);
+        Cursor mediaItem = WordPress.wpDB.getMediaFile(String.valueOf(WordPress.getCurrentBlog().getRemoteBlogId()), docId);
         if (!mediaItem.moveToFirst()) return null;
         Map<String, Object> data = extractData(mediaItem, new String[] {COLUMN_NAME_THUMBNAIL_URL});
         if (data == null) return null;
@@ -195,6 +195,31 @@ public class WPDocumentsProvider extends DocumentsProvider {
         prefs.edit().putLong(LAST_SYNC_KEY, timestamp).apply();
     }
 
+    private Map<String, Object> extractData(Cursor cursor, @NonNull String[] columns) {
+        if (cursor == null || cursor.isBeforeFirst() || cursor.isAfterLast()) return null;
+
+        Map<String, Object> data = new HashMap<>();
+        for (String column : columns) {
+            int index = cursor.getColumnIndex(column);
+            if (index < 0) continue;
+            switch (cursor.getType(index)) {
+                case Cursor.FIELD_TYPE_STRING:
+                    data.put(column, cursor.getString(index));
+                    break;
+                case Cursor.FIELD_TYPE_INTEGER:
+                    data.put(column, cursor.getInt(index));
+                    break;
+                case Cursor.FIELD_TYPE_FLOAT:
+                    data.put(column, cursor.getFloat(index));
+                    break;
+                default:
+                    break;
+            }
+        }
+        return data;
+    }
+
+
     private void refreshAllMedia(boolean force) {
         if (mSyncMediaCallback != null || getContext() == null) return;
 
@@ -224,20 +249,20 @@ public class WPDocumentsProvider extends DocumentsProvider {
     }
 
     private void addImageRow(@NonNull Cursor cursor, @NonNull MatrixCursor rowParent) {
-        int mediaIdColumn = cursor.getColumnIndex(WordPressDB.COLUMN_NAME_MEDIA_ID);
-        int fileUrlColumn = cursor.getColumnIndex(WordPressDB.COLUMN_NAME_FILE_URL);
-        int filePathColumn = cursor.getColumnIndex(WordPressDB.COLUMN_NAME_FILE_PATH);
-        int thumbnailColumn = cursor.getColumnIndex(WordPressDB.COLUMN_NAME_THUMBNAIL_URL);
-        int titleColumn = cursor.getColumnIndex(WordPressDB.COLUMN_NAME_TITLE);
-        int summaryColumn = cursor.getColumnIndex(WordPressDB.COLUMN_NAME_DESCRIPTION);
+        int mediaIdColumn = cursor.getColumnIndex(COLUMN_NAME_MEDIA_ID);
+        int fileUrlColumn = cursor.getColumnIndex(COLUMN_NAME_FILE_URL);
+        int filePathColumn = cursor.getColumnIndex(COLUMN_NAME_FILE_PATH);
+        int thumbnailColumn = cursor.getColumnIndex(COLUMN_NAME_THUMBNAIL_URL);
+        int titleColumn = cursor.getColumnIndex(COLUMN_NAME_TITLE);
+        int summaryColumn = cursor.getColumnIndex(COLUMN_NAME_DESCRIPTION);
         int mediaId = cursor.getInt(mediaIdColumn);
         String fileUrl = cursor.getString(fileUrlColumn);
         String filePath = cursor.getString(filePathColumn);
         String thumbnailUrl = cursor.getString(thumbnailColumn);
 
         if (verifyLocalImage(mediaId, fileUrl, filePath)) {
-            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                    MimeTypeMap.getFileExtensionFromUrl(fileUrl));
+            String mimeType = getSingleton().getMimeTypeFromExtension(
+                    getFileExtensionFromUrl(fileUrl));
             Object[] imageData = { mediaId, mimeType, cursor.getString(titleColumn),
                     cursor.getString(summaryColumn), null, R.drawable.media_image_placeholder,
                     Document.FLAG_SUPPORTS_THUMBNAIL, null };

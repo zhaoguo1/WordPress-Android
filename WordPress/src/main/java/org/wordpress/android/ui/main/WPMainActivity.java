@@ -1,7 +1,6 @@
 package org.wordpress.android.ui.main;
 
 import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Intent;
@@ -11,13 +10,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
+import com.optimizely.Optimizely;
 import com.simperium.client.Bucket;
 import com.simperium.client.BucketObjectMissingException;
 
+import org.wordpress.android.BuildConfig;
 import org.wordpress.android.GCMMessageService;
 import org.wordpress.android.GCMRegistrationIntentService;
 import org.wordpress.android.R;
@@ -32,13 +34,13 @@ import org.wordpress.android.networking.SelfSignedSSLCertsManager;
 import org.wordpress.android.ui.ActivityId;
 import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.RequestCodes;
+import org.wordpress.android.ui.accounts.login.MagicLinkSignInActivity;
 import org.wordpress.android.ui.notifications.NotificationEvents;
 import org.wordpress.android.ui.notifications.NotificationsListFragment;
 import org.wordpress.android.ui.notifications.utils.NotificationsUtils;
 import org.wordpress.android.ui.notifications.utils.SimperiumUtils;
 import org.wordpress.android.ui.posts.PromoDialog;
 import org.wordpress.android.ui.prefs.AppPrefs;
-import org.wordpress.android.ui.prefs.AccountSettingsFragment;
 import org.wordpress.android.ui.prefs.AppSettingsFragment;
 import org.wordpress.android.ui.prefs.SiteSettingsFragment;
 import org.wordpress.android.ui.reader.ReaderPostListFragment;
@@ -55,17 +57,15 @@ import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ProfilingUtils;
 import org.wordpress.android.util.StringUtils;
 import org.wordpress.android.util.ToastUtils;
+import org.wordpress.android.util.WPOptimizelyEventListener;
 import org.wordpress.android.widgets.WPViewPager;
-
-import java.util.List;
-import java.util.Map;
 
 import de.greenrobot.event.EventBus;
 
 /**
  * Main activity which hosts sites, reader, me and notifications tabs
  */
-public class WPMainActivity extends Activity implements Bucket.Listener<Note> {
+public class WPMainActivity extends AppCompatActivity implements Bucket.Listener<Note> {
 
     private WPViewPager mViewPager;
     private WPMainTabLayout mTabLayout;
@@ -180,6 +180,7 @@ public class WPMainActivity extends Activity implements Bucket.Listener<Note> {
 
         if (savedInstanceState == null) {
             if (AccountHelper.isSignedIn()) {
+                startOptimizely(true);
                 // open note detail if activity called from a push, otherwise return to the tab
                 // that was showing last time
                 boolean openedFromPush = (getIntent() != null && getIntent().getBooleanExtra(ARG_OPENED_FROM_PUSH,
@@ -192,10 +193,21 @@ public class WPMainActivity extends Activity implements Bucket.Listener<Note> {
                     if (mTabAdapter.isValidPosition(position) && position != mViewPager.getCurrentItem()) {
                         mViewPager.setCurrentItem(position);
                     }
+                    checkMagicLinkSignIn();
                 }
             } else {
+                startOptimizely(false);
                 ActivityLauncher.showSignInForResult(this);
             }
+        }
+    }
+
+    private void startOptimizely(boolean isAsync) {
+        if (isAsync) {
+            Optimizely.startOptimizelyAsync(BuildConfig.OPTIMIZELY_TOKEN, getApplication(), new WPOptimizelyEventListener());
+        } else {
+            Optimizely.addOptimizelyEventListener(new WPOptimizelyEventListener());
+            Optimizely.startOptimizelyWithAPIToken(BuildConfig.OPTIMIZELY_TOKEN, getApplication());
         }
     }
 
@@ -316,6 +328,15 @@ public class WPMainActivity extends Activity implements Bucket.Listener<Note> {
         ProfilingUtils.stop();
     }
 
+    private void checkMagicLinkSignIn() {
+        if (getIntent() !=  null) {
+            if (getIntent().getBooleanExtra(MagicLinkSignInActivity.MAGIC_LOGIN, false)) {
+                AnalyticsTracker.track(AnalyticsTracker.Stat.LOGIN_MAGIC_LINK_SUCCEEDED);
+                startWithNewAccount();
+            }
+        }
+    }
+
     private void trackLastVisibleTab(int position, boolean trackAnalytics) {
         if (position ==  WPMainTabAdapter.TAB_MY_SITE) {
             showVisualEditorPromoDialogIfNeeded();
@@ -408,8 +429,7 @@ public class WPMainActivity extends Activity implements Bucket.Listener<Note> {
             case RequestCodes.ADD_ACCOUNT:
                 if (resultCode == RESULT_OK) {
                     // Register for Cloud messaging
-                    startService(new Intent(this, GCMRegistrationIntentService.class));
-                    resetFragments();
+                    startWithNewAccount();
                 } else if (!AccountHelper.isSignedIn()) {
                     // can't do anything if user isn't signed in (either to wp.com or self-hosted)
                     finish();
@@ -444,6 +464,11 @@ public class WPMainActivity extends Activity implements Bucket.Listener<Note> {
                 }
                 break;
         }
+    }
+
+    private void startWithNewAccount() {
+        startService(new Intent(this, GCMRegistrationIntentService.class));
+        resetFragments();
     }
 
     /*

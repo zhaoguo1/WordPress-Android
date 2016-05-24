@@ -19,6 +19,7 @@ import org.wordpress.android.WordPress;
 import org.wordpress.android.ui.RequestCodes;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.AppLog.T;
+import org.wordpress.android.util.DeviceUtils;
 import org.wordpress.android.util.MediaUtils;
 import org.wordpress.android.util.PhotonUtils;
 import org.wordpress.android.util.helpers.Version;
@@ -32,24 +33,6 @@ import static org.wordpress.android.WordPressDB.*;
 public class WordPressMediaUtils {
     public interface LaunchCameraCallback {
         void onMediaCapturePathReady(String mediaCapturePath);
-    }
-
-    public static int getPlaceholder(String url) {
-        if (MediaUtils.isValidImage(url)) {
-            return R.drawable.media_image_placeholder;
-        } else if (MediaUtils.isDocument(url)) {
-            return R.drawable.media_document;
-        } else if (MediaUtils.isPowerpoint(url)) {
-            return R.drawable.media_powerpoint;
-        } else if (MediaUtils.isSpreadsheet(url)) {
-            return R.drawable.media_spreadsheet;
-        } else if (MediaUtils.isVideo(url)) {
-            return org.wordpress.android.editor.R.drawable.media_movieclip;
-        } else if (MediaUtils.isAudio(url)) {
-            return R.drawable.media_audio;
-        } else {
-            return 0;
-        }
     }
 
     /**
@@ -87,6 +70,12 @@ public class WordPressMediaUtils {
         return posterUrl;
     }
 
+    public static Intent prepareVideoLibraryIntent(Context context) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("video/*");
+        return Intent.createChooser(intent, context.getString(R.string.pick_video));
+    }
+
     /**
      * Loads the given network image URL into the {@link NetworkImageView}, using the default
      * {@link ImageLoader} (via {@link WordPress#imageLoader}.
@@ -122,15 +111,21 @@ public class WordPressMediaUtils {
 
     public static void launchPictureLibrary(Activity activity) {
         AppLockManager.getInstance().setExtendedTimeout();
-        activity.startActivityForResult(preparePictureLibraryIntent(activity),
+        activity.startActivityForResult(preparePictureLibraryIntent(activity.getString(R.string.pick_photo)),
                 RequestCodes.PICTURE_LIBRARY);
     }
 
     public static void launchPictureLibrary(Fragment fragment) {
         if (!fragment.isAdded()) return;
         AppLockManager.getInstance().setExtendedTimeout();
-        fragment.startActivityForResult(preparePictureLibraryIntent(fragment.getActivity()),
-                RequestCodes.PICTURE_LIBRARY);
+        fragment.startActivityForResult(preparePictureLibraryIntent(fragment.getActivity()
+                .getString(R.string.pick_photo)), RequestCodes.PICTURE_LIBRARY);
+    }
+
+    private static Intent preparePictureLibraryIntent(String title) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        return Intent.createChooser(intent, title);
     }
 
     public static void launchVideoLibrary(Fragment fragment) {
@@ -138,6 +133,12 @@ public class WordPressMediaUtils {
         AppLockManager.getInstance().setExtendedTimeout();
         fragment.startActivityForResult(prepareVideoLibraryIntent(fragment.getActivity()),
                 RequestCodes.VIDEO_LIBRARY);
+    }
+
+    private static Intent prepareGalleryIntent(String title) {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        return Intent.createChooser(intent, title);
     }
 
     public static void launchCamera(Activity activity, LaunchCameraCallback callback) {
@@ -190,13 +191,6 @@ public class WordPressMediaUtils {
         return intent;
     }
 
-    private static Intent prepareVideoLibraryIntent(Context context) {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("video/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        return Intent.createChooser(intent, context.getString(R.string.pick_video));
-    }
-
     private static Intent prepareVideoCameraIntent() {
         return new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
     }
@@ -215,6 +209,45 @@ public class WordPressMediaUtils {
             return null;
         } else {
             return getLaunchCameraIntent(callback);
+        }
+    }
+    public static void launchPictureLibraryOrCapture(Fragment fragment, LaunchCameraCallback callback) {
+        if (!fragment.isAdded()) {
+            return;
+        }
+        AppLockManager.getInstance().setExtendedTimeout();
+        fragment.startActivityForResult(makePickOrCaptureIntent(fragment.getActivity(), callback),
+                RequestCodes.PICTURE_LIBRARY_OR_CAPTURE);
+    }
+
+    private static Intent makePickOrCaptureIntent(Context context, LaunchCameraCallback callback) {
+        Intent pickPhotoIntent = prepareGalleryIntent(context.getString(R.string.capture_or_pick_photo));
+
+        if (DeviceUtils.getInstance().hasCamera(context)) {
+            Intent cameraIntent = getLaunchCameraIntent(callback);
+            pickPhotoIntent.putExtra(
+                    Intent.EXTRA_INITIAL_INTENTS,
+                    new Intent[]{ cameraIntent });
+        }
+
+        return pickPhotoIntent;
+    }
+
+    public static int getPlaceholder(String url) {
+        if (MediaUtils.isValidImage(url)) {
+            return R.drawable.media_image_placeholder;
+        } else if (MediaUtils.isDocument(url)) {
+            return R.drawable.media_document;
+        } else if (MediaUtils.isPowerpoint(url)) {
+            return R.drawable.media_powerpoint;
+        } else if (MediaUtils.isSpreadsheet(url)) {
+            return R.drawable.media_spreadsheet;
+        } else if (MediaUtils.isVideo(url)) {
+            return org.wordpress.android.editor.R.drawable.media_movieclip;
+        } else if (MediaUtils.isAudio(url)) {
+            return R.drawable.media_audio;
+        } else {
+            return 0;
         }
     }
 
