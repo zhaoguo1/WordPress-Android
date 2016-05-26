@@ -11,6 +11,10 @@ import android.view.View;
 
 public interface PostsListContracts {
     interface PostsView extends BaseView {
+        void hideFab();
+
+        void slideFabIn();
+
         void newPost();
 
         void setPosts(PostsListPostList posts, boolean isFetchingPosts);

@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -61,9 +60,10 @@ public class PostsListFragment extends Fragment implements
 
     public static final int POSTS_REQUEST_COUNT = 20;
 
+    PostListFragmentBinding mViewBinding;
+
     private SwipeToRefreshHelper mSwipeToRefreshHelper;
     private PostsListAdapter mPostsListAdapter;
-    private View mFabView;
 
     private RecyclerView mRecyclerView;
     private View mEmptyView;
@@ -98,16 +98,14 @@ public class PostsListFragment extends Fragment implements
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        PostListFragmentBinding postListFragmentBinding = DataBindingUtil.inflate(inflater,
-                R.layout.post_list_fragment, container, false);
+        mViewBinding = DataBindingUtil.inflate(inflater, R.layout.post_list_fragment, container, false);
 
-        mRecyclerView = postListFragmentBinding.recyclerView;
-        mProgressLoadMore = postListFragmentBinding.progress;
-        mFabView = postListFragmentBinding.fabButton;
+        mRecyclerView = mViewBinding.recyclerView;
+        mProgressLoadMore = mViewBinding.progress;
 
-        mEmptyView = postListFragmentBinding.emptyView;
-        mEmptyViewTitle = postListFragmentBinding.titleEmpty;
-        mEmptyViewImage = postListFragmentBinding.imageEmpty;
+        mEmptyView = mViewBinding.emptyView;
+        mEmptyViewTitle = mViewBinding.titleEmpty;
+        mEmptyViewImage = mViewBinding.imageEmpty;
 
         Context context = getActivity();
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -116,22 +114,33 @@ public class PostsListFragment extends Fragment implements
         int spacingHorizontal = context.getResources().getDimensionPixelSize(R.dimen.content_margin);
         mRecyclerView.addItemDecoration(new RecyclerItemDecoration(spacingHorizontal, spacingVertical));
 
-        // hide the fab so we can animate it in - note that we only do this on Lollipop and higher
-        // due to a bug in the current implementation which prevents it from being hidden
-        // correctly on pre-L devices (which makes animating it in/out ugly)
-        // https://code.google.com/p/android/issues/detail?id=175331
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mFabView.setVisibility(View.GONE);
-        }
-
         mPostsPresenter = new PostsPresenter(mLocalBlogId, this, mIsPage);
         mPostsActionHandler = mPostsPresenter;
         mPagesActionHandler = mPostsPresenter;
 
-        postListFragmentBinding.setActionHandler(mPostsActionHandler);
-        postListFragmentBinding.executePendingBindings();
+        mViewBinding.setActionHandler(mPostsActionHandler);
+        mViewBinding.executePendingBindings();
 
-        return postListFragmentBinding.getRoot();
+        return mViewBinding.getRoot();
+    }
+
+    @Override
+    public void hideFab() {
+        mViewBinding.fabButton.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void slideFabIn() {
+        // scale in the fab after a brief delay
+        long delayMs = getResources().getInteger(R.integer.fab_animation_delay);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (isAdded()) {
+                    AniUtils.scaleIn(mViewBinding.fabButton, AniUtils.Duration.MEDIUM);
+                }
+            }
+        }, delayMs);
     }
 
     @Override
@@ -246,19 +255,6 @@ public class PostsListFragment extends Fragment implements
 
         if (WordPress.getCurrentBlog() != null && mRecyclerView.getAdapter() == null) {
             mRecyclerView.setAdapter(getPostListAdapter());
-        }
-
-        // scale in the fab after a brief delay if it's not already showing
-        if (mFabView.getVisibility() != View.VISIBLE) {
-            long delayMs = getResources().getInteger(R.integer.fab_animation_delay);
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (isAdded()) {
-                        AniUtils.scaleIn(mFabView, AniUtils.Duration.MEDIUM);
-                    }
-                }
-            }, delayMs);
         }
     }
 
