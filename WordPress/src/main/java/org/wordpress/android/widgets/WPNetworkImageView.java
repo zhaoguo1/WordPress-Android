@@ -69,7 +69,7 @@ public class WPNetworkImageView extends AppCompatImageView {
         super(context, attrs, defStyle);
     }
 
-    @BindingAdapter({"bind:imageUrl", "bind:imageType"})
+    @BindingAdapter({"imageUrl", "imageType"})
     public static void setImageUrl(WPNetworkImageView wpNetworkImageView, String url, ImageType imageType) {
         wpNetworkImageView.setImageUrl(url, imageType);
     }
