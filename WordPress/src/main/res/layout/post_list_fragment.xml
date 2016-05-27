@@ -5,8 +5,8 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <variable name="actionHandler"
-                  type="org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler"/>
+        <variable name="viewModel" type="org.wordpress.android.ui.posts.PostsListViewModel"/>
+        <variable name="actionHandler" type="org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler"/>
     </data>
 
     <RelativeLayout
@@ -75,7 +75,8 @@
                 android:src="@drawable/gridicon_create_light"
                 android:contentDescription="@string/new_post"
                 app:borderWidth="0dp"
-                app:rippleColor="@color/fab_pressed" />
+                app:rippleColor="@color/fab_pressed"
+                android:visibility="@{viewModel.fabVisibility}"/>
 
         </android.support.design.widget.CoordinatorLayout>
 

@@ -11,6 +11,7 @@ import org.wordpress.android.ui.EmptyViewMessageType;
 import org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
+import org.wordpress.android.ui.posts.PostsListContracts.PostsViewModel;
 import org.wordpress.android.ui.posts.PostsListContracts.Undoable;
 import org.wordpress.android.ui.posts.services.PostEvents;
 import org.wordpress.android.ui.posts.services.PostMediaService;
@@ -32,6 +33,7 @@ import de.greenrobot.event.EventBus;
 
 public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesActionHandler {
 
+    private final PostsViewModel mPostsViewModel;
     private final PostsView mPostsView;
     private final int mLocalTableBlogId;
     private final boolean mIsPrivateBlog;
@@ -43,13 +45,13 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     private final PostsListPostList mPosts = new PostsListPostList();
     private final PostsListPostList mTrashedPosts = new PostsListPostList();
 
-    private boolean mFabShown;
     private boolean mIsLoadingPosts;
     private boolean mIsFetchingPosts;
 
     private boolean mCanLoadMorePosts = true;
 
-    public PostsPresenter(int blogLocalId, PostsView postsView, boolean isPage) {
+    public PostsPresenter(int blogLocalId, PostsViewModel postsViewModel, PostsView postsView, boolean isPage) {
+        mPostsViewModel = postsViewModel;
         mPostsView = postsView;
         mIsPage = isPage;
 
@@ -77,10 +79,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
         // correctly on pre-L devices (which makes animating it in/out ugly)
         // https://code.google.com/p/android/issues/detail?id=175331
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mFabShown = false;
-            mPostsView.hideFab();
-        } else {
-            mFabShown = true;
+            mPostsViewModel.hideFab();
         }
 
         requestPosts(false);
@@ -94,10 +93,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
             loadPosts();
         }
 
-        if (!mFabShown) {
-            mFabShown = true;
-            mPostsView.slideFabIn();
-        }
+        mPostsViewModel.slideFabInIfHidden();
     }
 
     @Override

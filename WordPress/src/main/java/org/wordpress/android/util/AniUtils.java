@@ -197,7 +197,7 @@ public class AniUtils {
         }
     }
 
-    public static void scaleIn(final View target, Duration duration) {
+    public static void scaleIn(final View target, Duration duration, AnimatorListenerAdapter animatorListenerAdapter) {
         if (target == null || duration == null) {
             return;
         }
@@ -208,14 +208,7 @@ public class AniUtils {
         ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(target, scaleX, scaleY);
         animator.setDuration(duration.toMillis(target.getContext()));
         animator.setInterpolator(new AccelerateDecelerateInterpolator());
-
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                target.setVisibility(View.VISIBLE);
-            }
-        });
-
+        animator.addListener(animatorListenerAdapter);
         animator.start();
     }
 

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
@@ -36,7 +35,6 @@ import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
 import org.wordpress.android.ui.posts.PostsListContracts.Undoable;
 import org.wordpress.android.ui.posts.adapters.PostsListAdapter;
 import org.wordpress.android.ui.posts.services.PostUploadService;
-import org.wordpress.android.util.AniUtils;
 import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.helpers.SwipeToRefreshHelper;
@@ -114,33 +112,16 @@ public class PostsListFragment extends Fragment implements
         int spacingHorizontal = context.getResources().getDimensionPixelSize(R.dimen.content_margin);
         mRecyclerView.addItemDecoration(new RecyclerItemDecoration(spacingHorizontal, spacingVertical));
 
-        mPostsPresenter = new PostsPresenter(mLocalBlogId, this, mIsPage);
+        PostsListViewModel postsListViewModel = new PostsListViewModel(context, mViewBinding);
+        mPostsPresenter = new PostsPresenter(mLocalBlogId, postsListViewModel, this, mIsPage);
         mPostsActionHandler = mPostsPresenter;
         mPagesActionHandler = mPostsPresenter;
 
+        mViewBinding.setViewModel(postsListViewModel);
         mViewBinding.setActionHandler(mPostsActionHandler);
         mViewBinding.executePendingBindings();
 
         return mViewBinding.getRoot();
-    }
-
-    @Override
-    public void hideFab() {
-        mViewBinding.fabButton.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void slideFabIn() {
-        // scale in the fab after a brief delay
-        long delayMs = getResources().getInteger(R.integer.fab_animation_delay);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (isAdded()) {
-                    AniUtils.scaleIn(mViewBinding.fabButton, AniUtils.Duration.MEDIUM);
-                }
-            }
-        }, delayMs);
     }
 
     @Override
