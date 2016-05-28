@@ -238,10 +238,6 @@ public class PostsListFragment extends Fragment implements
         }
     }
 
-    public boolean isRefreshing() {
-        return mSwipeToRefreshHelper.isRefreshing();
-    }
-
     @Override
     public void setRefreshing(boolean refreshing) {
         mSwipeToRefreshHelper.setRefreshing(refreshing);
