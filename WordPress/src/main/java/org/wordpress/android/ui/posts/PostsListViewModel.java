@@ -4,6 +4,7 @@ import org.wordpress.android.BR;
 import org.wordpress.android.R;
 import org.wordpress.android.databinding.PostListFragmentBinding;
 import org.wordpress.android.util.AniUtils;
+import org.wordpress.android.util.helpers.SwipeToRefreshHelper;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -17,11 +18,17 @@ public class PostsListViewModel extends BaseObservable implements PostsListContr
     private final Context mContext;
     private final PostListFragmentBinding mPostListFragmentBinding;
 
+    private SwipeToRefreshHelper mSwipeToRefreshHelper;
+
     private boolean mFabVisible = true;
 
     public PostsListViewModel(Context context, PostListFragmentBinding postListFragmentBinding) {
         mContext = context;
         mPostListFragmentBinding = postListFragmentBinding;
+    }
+
+    public void setSwipeToRefreshHelper(SwipeToRefreshHelper swipeToRefreshHelper) {
+        mSwipeToRefreshHelper = swipeToRefreshHelper;
     }
 
     @Bindable
@@ -55,5 +62,10 @@ public class PostsListViewModel extends BaseObservable implements PostsListContr
     private void setFabVisibility(boolean visible) {
         mFabVisible = visible;
         notifyPropertyChanged(BR.fabVisibility);
+    }
+
+    @Override
+    public void setRefreshing(boolean refreshing) {
+        mSwipeToRefreshHelper.setRefreshing(refreshing);
     }
 }

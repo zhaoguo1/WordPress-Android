@@ -17,8 +17,6 @@ public interface PostsListContracts {
 
         void mediaUpdated(long mediaId, String mediaUrl);
 
-        void setRefreshing(boolean refreshing);
-
         void showLoadMoreProgress();
 
         void hideLoadMoreProgress();
@@ -36,13 +34,15 @@ public interface PostsListContracts {
         void hideFab();
 
         void slideFabInIfHidden();
+
+        void setRefreshing(boolean refreshing);
     }
 
     interface PostsActionHandler {
 
-        void onLoadMore();
+        void onRefreshRequested();
 
-        void requestPosts(boolean loadMore);
+        void onLoadMore();
 
         void onFabClick();
 

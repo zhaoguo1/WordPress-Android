@@ -39,9 +39,7 @@ import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.helpers.SwipeToRefreshHelper;
 import org.wordpress.android.util.helpers.SwipeToRefreshHelper.RefreshListener;
-import org.wordpress.android.util.widgets.CustomSwipeRefreshLayout;
 import org.wordpress.android.widgets.RecyclerItemDecoration;
-
 
 public class PostsListFragment extends Fragment implements
         PostsListAdapter.OnLoadMoreListener,
@@ -58,7 +56,6 @@ public class PostsListFragment extends Fragment implements
 
     public static final int POSTS_REQUEST_COUNT = 20;
 
-    private SwipeToRefreshHelper mSwipeToRefreshHelper;
     private PostsListAdapter mPostsListAdapter;
 
     private RecyclerView mRecyclerView;
@@ -116,6 +113,16 @@ public class PostsListFragment extends Fragment implements
         mPostsActionHandler = mPostsPresenter;
         mPagesActionHandler = mPostsPresenter;
 
+        postsListViewModel.setSwipeToRefreshHelper(new SwipeToRefreshHelper(
+                inflater.getContext(),
+                viewBinding.ptrLayout,
+                new RefreshListener() {
+                    @Override
+                    public void onRefreshStarted() {
+                        mPostsActionHandler.onRefreshRequested();
+                    }
+                }));
+
         viewBinding.setViewModel(postsListViewModel);
         viewBinding.setActionHandler(mPostsActionHandler);
         viewBinding.executePendingBindings();
@@ -172,26 +179,6 @@ public class PostsListFragment extends Fragment implements
         }
     }
 
-    private void initSwipeToRefreshHelper() {
-        mSwipeToRefreshHelper = new SwipeToRefreshHelper(
-                getActivity(),
-                (CustomSwipeRefreshLayout) getView().findViewById(R.id.ptr_layout),
-                new RefreshListener() {
-                    @Override
-                    public void onRefreshStarted() {
-                        if (!isAdded()) {
-                            return;
-                        }
-                        if (!NetworkUtils.checkConnection(getActivity())) {
-                            setRefreshing(false);
-                            updateEmptyView(EmptyViewMessageType.NETWORK_ERROR);
-                            return;
-                        }
-                        mPostsActionHandler.requestPosts(false);
-                    }
-                });
-    }
-
     public PostsListAdapter getPostListAdapter() {
         if (mPostsListAdapter == null) {
             mPostsListAdapter = new PostsListAdapter(getActivity(), WordPress.getCurrentBlog(), mIsPage, this, this,
@@ -209,8 +196,6 @@ public class PostsListFragment extends Fragment implements
     @Override
     public void onActivityCreated(Bundle bundle) {
         super.onActivityCreated(bundle);
-
-        initSwipeToRefreshHelper();
 
         // since setRetainInstance(true) is used, we only need to request latest
         // posts the first time this is called (ie: not after device rotation)
@@ -236,11 +221,6 @@ public class PostsListFragment extends Fragment implements
         if (WordPress.getCurrentBlog() != null && mRecyclerView.getAdapter() == null) {
             mRecyclerView.setAdapter(getPostListAdapter());
         }
-    }
-
-    @Override
-    public void setRefreshing(boolean refreshing) {
-        mSwipeToRefreshHelper.setRefreshing(refreshing);
     }
 
     @Override
