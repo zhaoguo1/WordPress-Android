@@ -58,8 +58,6 @@ public class PostsListFragment extends Fragment implements
 
     public static final int POSTS_REQUEST_COUNT = 20;
 
-    PostListFragmentBinding mViewBinding;
-
     private SwipeToRefreshHelper mSwipeToRefreshHelper;
     private PostsListAdapter mPostsListAdapter;
 
@@ -96,14 +94,15 @@ public class PostsListFragment extends Fragment implements
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mViewBinding = DataBindingUtil.inflate(inflater, R.layout.post_list_fragment, container, false);
+        PostListFragmentBinding viewBinding = DataBindingUtil.inflate(inflater, R.layout.post_list_fragment,
+                container, false);
 
-        mRecyclerView = mViewBinding.recyclerView;
-        mProgressLoadMore = mViewBinding.progress;
+        mRecyclerView = viewBinding.recyclerView;
+        mProgressLoadMore = viewBinding.progress;
 
-        mEmptyView = mViewBinding.emptyView;
-        mEmptyViewTitle = mViewBinding.titleEmpty;
-        mEmptyViewImage = mViewBinding.imageEmpty;
+        mEmptyView = viewBinding.emptyView;
+        mEmptyViewTitle = viewBinding.titleEmpty;
+        mEmptyViewImage = viewBinding.imageEmpty;
 
         Context context = getActivity();
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -112,16 +111,16 @@ public class PostsListFragment extends Fragment implements
         int spacingHorizontal = context.getResources().getDimensionPixelSize(R.dimen.content_margin);
         mRecyclerView.addItemDecoration(new RecyclerItemDecoration(spacingHorizontal, spacingVertical));
 
-        PostsListViewModel postsListViewModel = new PostsListViewModel(context, mViewBinding);
+        PostsListViewModel postsListViewModel = new PostsListViewModel(context, viewBinding);
         mPostsPresenter = new PostsPresenter(mLocalBlogId, postsListViewModel, this, mIsPage);
         mPostsActionHandler = mPostsPresenter;
         mPagesActionHandler = mPostsPresenter;
 
-        mViewBinding.setViewModel(postsListViewModel);
-        mViewBinding.setActionHandler(mPostsActionHandler);
-        mViewBinding.executePendingBindings();
+        viewBinding.setViewModel(postsListViewModel);
+        viewBinding.setActionHandler(mPostsActionHandler);
+        viewBinding.executePendingBindings();
 
-        return mViewBinding.getRoot();
+        return viewBinding.getRoot();
     }
 
     @Override
