@@ -22,6 +22,7 @@ public class PostsListViewModel extends BaseObservable implements PostsListContr
 
     private boolean mFabVisible = true;
     private boolean mIsRefreshing;
+    private boolean mLoadMoreProgressVisible;
 
     public PostsListViewModel(Context context, PostListFragmentBinding postListFragmentBinding) {
         mContext = context;
@@ -74,5 +75,16 @@ public class PostsListViewModel extends BaseObservable implements PostsListContr
     public void setIsRefreshing(boolean refreshing) {
         mIsRefreshing = refreshing;
         notifyPropertyChanged(BR.isRefreshing);
+    }
+
+    @Bindable
+    public int getLoadMoreProgressVisibility() {
+        return mLoadMoreProgressVisible ? View.VISIBLE : View.GONE;
+    }
+
+    @Override
+    public void setLoadMoreProgressVisibility(boolean visible) {
+        mLoadMoreProgressVisible = visible;
+        notifyPropertyChanged(BR.loadMoreProgressVisibility);
     }
 }

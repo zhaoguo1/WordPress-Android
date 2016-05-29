@@ -60,7 +60,6 @@ public class PostsListFragment extends Fragment implements
 
     private RecyclerView mRecyclerView;
     private View mEmptyView;
-    private ProgressBar mProgressLoadMore;
     private TextView mEmptyViewTitle;
     private ImageView mEmptyViewImage;
 
@@ -95,7 +94,6 @@ public class PostsListFragment extends Fragment implements
                 container, false);
 
         mRecyclerView = viewBinding.recyclerView;
-        mProgressLoadMore = viewBinding.progress;
 
         mEmptyView = viewBinding.emptyView;
         mEmptyViewTitle = viewBinding.titleEmpty;
@@ -220,20 +218,6 @@ public class PostsListFragment extends Fragment implements
 
         if (WordPress.getCurrentBlog() != null && mRecyclerView.getAdapter() == null) {
             mRecyclerView.setAdapter(getPostListAdapter());
-        }
-    }
-
-    @Override
-    public void showLoadMoreProgress() {
-        if (mProgressLoadMore != null) {
-            mProgressLoadMore.setVisibility(View.VISIBLE);
-        }
-    }
-
-    @Override
-    public void hideLoadMoreProgress() {
-        if (mProgressLoadMore != null) {
-            mProgressLoadMore.setVisibility(View.GONE);
         }
     }
 

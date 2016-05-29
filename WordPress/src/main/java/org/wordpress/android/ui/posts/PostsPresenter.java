@@ -140,7 +140,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
         mIsFetchingPosts = false;
         if (event.getBlogId() == WordPress.getCurrentLocalTableBlogId()) {
             mPostsViewModel.setIsRefreshing(false);
-            mPostsView.hideLoadMoreProgress();
+            mPostsViewModel.setLoadMoreProgressVisibility(false);
             if (!event.getFailed()) {
                 mCanLoadMorePosts = event.canLoadMore();
                 loadPosts();
@@ -198,7 +198,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
 
         mIsFetchingPosts = true;
         if (loadMore) {
-            mPostsView.showLoadMoreProgress();
+            mPostsViewModel.setLoadMoreProgressVisibility(true);
         } else {
             mPostsViewModel.setIsRefreshing(true);
         }

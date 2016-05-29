@@ -17,10 +17,6 @@ public interface PostsListContracts {
 
         void mediaUpdated(long mediaId, String mediaUrl);
 
-        void showLoadMoreProgress();
-
-        void hideLoadMoreProgress();
-
         void updateEmptyView(EmptyViewMessageType emptyViewMessageType);
 
         void hideEmptyView();
@@ -36,6 +32,8 @@ public interface PostsListContracts {
         void slideFabInIfHidden();
 
         void setIsRefreshing(boolean refreshing);
+
+        void setLoadMoreProgressVisibility(boolean visible);
     }
 
     interface PostsActionHandler {

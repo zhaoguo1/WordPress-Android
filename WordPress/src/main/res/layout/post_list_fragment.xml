@@ -89,7 +89,7 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="@dimen/margin_large"
-            android:visibility="gone"
+            android:visibility="@{viewModel.loadMoreProgressVisibility}"
             tools:visibility="visible" />
 
     </RelativeLayout>
