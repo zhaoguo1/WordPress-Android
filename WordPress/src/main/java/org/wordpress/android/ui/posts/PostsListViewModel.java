@@ -21,6 +21,7 @@ public class PostsListViewModel extends BaseObservable implements PostsListContr
     private SwipeToRefreshHelper mSwipeToRefreshHelper;
 
     private boolean mFabVisible = true;
+    private boolean mIsRefreshing;
 
     public PostsListViewModel(Context context, PostListFragmentBinding postListFragmentBinding) {
         mContext = context;
@@ -64,8 +65,14 @@ public class PostsListViewModel extends BaseObservable implements PostsListContr
         notifyPropertyChanged(BR.fabVisibility);
     }
 
+    @Bindable
+    public boolean getIsRefreshing() {
+        return mIsRefreshing;
+    }
+
     @Override
-    public void setRefreshing(boolean refreshing) {
-        mSwipeToRefreshHelper.setRefreshing(refreshing);
+    public void setIsRefreshing(boolean refreshing) {
+        mIsRefreshing = refreshing;
+        notifyPropertyChanged(BR.isRefreshing);
     }
 }

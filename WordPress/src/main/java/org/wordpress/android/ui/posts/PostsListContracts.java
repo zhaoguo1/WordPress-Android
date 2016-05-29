@@ -35,7 +35,7 @@ public interface PostsListContracts {
 
         void slideFabInIfHidden();
 
-        void setRefreshing(boolean refreshing);
+        void setIsRefreshing(boolean refreshing);
     }
 
     interface PostsActionHandler {

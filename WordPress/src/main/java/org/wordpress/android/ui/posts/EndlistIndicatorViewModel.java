@@ -21,8 +21,7 @@ public class EndlistIndicatorViewModel extends BaseObservable {
     }
 
     @BindingAdapter("android:layout_height")
-    public static void setLayoutHeight(View view, float height)
-    {
+    public static void setLayoutHeight(View view, float height) {
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
         layoutParams.height = (int)height;
         view.setLayoutParams(layoutParams);

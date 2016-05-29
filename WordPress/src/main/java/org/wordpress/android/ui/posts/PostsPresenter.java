@@ -139,7 +139,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     public void onEventMainThread(PostEvents.RequestPosts event) {
         mIsFetchingPosts = false;
         if (event.getBlogId() == WordPress.getCurrentLocalTableBlogId()) {
-            mPostsViewModel.setRefreshing(false);
+            mPostsViewModel.setIsRefreshing(false);
             mPostsView.hideLoadMoreProgress();
             if (!event.getFailed()) {
                 mCanLoadMorePosts = event.canLoadMore();
@@ -172,7 +172,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     @Override
     public void onRefreshRequested() {
         if (!NetworkUtils.checkConnection(mPostsView.getContext())) {
-            mPostsViewModel.setRefreshing(false);
+            mPostsViewModel.setIsRefreshing(false);
             mPostsView.updateEmptyView(EmptyViewMessageType.NETWORK_ERROR);
             return;
         }
@@ -200,7 +200,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
         if (loadMore) {
             mPostsView.showLoadMoreProgress();
         } else {
-            mPostsViewModel.setRefreshing(true);
+            mPostsViewModel.setIsRefreshing(true);
         }
         PostUpdateService.startServiceForBlog(mPostsView.getContext(), WordPress.getCurrentLocalTableBlogId(),
                 mIsPage, loadMore);

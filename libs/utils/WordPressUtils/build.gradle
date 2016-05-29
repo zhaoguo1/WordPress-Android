@@ -36,6 +36,10 @@ android {
         minSdkVersion 14
         targetSdkVersion 23
     }
+
+    dataBinding {
+        enabled = true
+    }
 }
 
 version android.defaultConfig.versionName

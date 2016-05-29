@@ -53,7 +53,8 @@
             <org.wordpress.android.util.widgets.CustomSwipeRefreshLayout
                 android:id="@+id/ptr_layout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                app:isRefreshing="@{viewModel.isRefreshing}">
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/recycler_view"
