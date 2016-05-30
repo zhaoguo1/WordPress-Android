@@ -7,6 +7,7 @@ import org.wordpress.android.models.PostsListPostList;
 import org.wordpress.android.ui.BaseView;
 import org.wordpress.android.ui.EmptyViewMessageType;
 
+import android.support.annotation.StringRes;
 import android.view.View;
 
 public interface PostsListContracts {
@@ -16,10 +17,6 @@ public interface PostsListContracts {
         void setPosts(PostsListPostList posts, boolean isFetchingPosts);
 
         void mediaUpdated(long mediaId, String mediaUrl);
-
-        void updateEmptyView(EmptyViewMessageType emptyViewMessageType);
-
-        void hideEmptyView();
 
         void hidePost(PostsListPost postsListPost);
 
@@ -34,6 +31,12 @@ public interface PostsListContracts {
         void setIsRefreshing(boolean refreshing);
 
         void setLoadMoreProgressVisibility(boolean visible);
+
+        void setEmptyViewVisibility(boolean visible);
+
+        void setEmptyViewImageVisibility(boolean visible);
+
+        void setEmptyViewTitle(@StringRes int emptyViewTitleResId);
     }
 
     interface PostsActionHandler {

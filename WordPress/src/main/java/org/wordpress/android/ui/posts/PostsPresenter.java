@@ -150,15 +150,21 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
                         .ErrorType.NO_ERROR) {
                     switch (errorType) {
                         case UNAUTHORIZED:
-                            mPostsView.updateEmptyView(EmptyViewMessageType.PERMISSION_ERROR);
+                            updateEmptyView(mIsPage, EmptyViewMessageType.PERMISSION_ERROR,
+                                    isPostListEmpty());
                             break;
                         default:
-                            mPostsView.updateEmptyView(EmptyViewMessageType.GENERIC_ERROR);
+                            updateEmptyView(mIsPage, EmptyViewMessageType.GENERIC_ERROR,
+                                    isPostListEmpty());
                             break;
                     }
                 }
             }
         }
+    }
+
+    private boolean isPostListEmpty() {
+        return mPosts != null && mPosts.size() == 0;
     }
 
     private void loadPosts() {
@@ -173,7 +179,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     public void onRefreshRequested() {
         if (!NetworkUtils.checkConnection(mPostsView.getContext())) {
             mPostsViewModel.setIsRefreshing(false);
-            mPostsView.updateEmptyView(EmptyViewMessageType.NETWORK_ERROR);
+            updateEmptyView(mIsPage, EmptyViewMessageType.NETWORK_ERROR, isPostListEmpty());
             return;
         }
         requestPosts(false);
@@ -192,7 +198,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
         }
 
         if (!NetworkUtils.isNetworkAvailable(mPostsView.getContext())) {
-            mPostsView.updateEmptyView(EmptyViewMessageType.NETWORK_ERROR);
+            updateEmptyView(mIsPage, EmptyViewMessageType.NETWORK_ERROR, isPostListEmpty());
             return;
         }
 
@@ -273,7 +279,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
             if (result) {
                 mPosts.clear();
                 mPosts.addAll(tmpPosts);
-                setPostsList();
+                mPostsView.setPosts(mPosts, mIsFetchingPosts);
 
                 if (mediaIdsToUpdate.size() > 0) {
                     PostMediaService.startService(WordPress.getContext(), mLocalTableBlogId, mediaIdsToUpdate);
@@ -281,13 +287,9 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
             }
 
             mIsLoadingPosts = false;
+
+            updateEmptyView();
         }
-    }
-
-    private void setPostsList() {
-        mPostsView.setPosts(mPosts, mIsFetchingPosts);
-
-        updateEmptyView();
     }
 
     private void hidePost(PostsListPost postsListPost) {
@@ -299,13 +301,41 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     private void updateEmptyView() {
         if (mPosts.size() == 0 && !mIsFetchingPosts) {
             if (NetworkUtils.isNetworkAvailable(mPostsView.getContext())) {
-                mPostsView.updateEmptyView(EmptyViewMessageType.NO_CONTENT);
+                updateEmptyView(mIsPage, EmptyViewMessageType.NO_CONTENT, isPostListEmpty());
             } else {
-                mPostsView.updateEmptyView(EmptyViewMessageType.NETWORK_ERROR);
+                updateEmptyView(mIsPage, EmptyViewMessageType.NETWORK_ERROR, isPostListEmpty());
             }
         } else if (mPosts.size() > 0) {
-            mPostsView.hideEmptyView();
+            mPostsViewModel.setEmptyViewVisibility(false);
         }
+    }
+
+    private void updateEmptyView(boolean isPage, EmptyViewMessageType emptyViewMessageType, boolean isEmpty) {
+        int stringId;
+        switch (emptyViewMessageType) {
+            case LOADING:
+                stringId = isPage ? R.string.pages_fetching : R.string.posts_fetching;
+                break;
+            case NO_CONTENT:
+                stringId = isPage ? R.string.pages_empty_list : R.string.posts_empty_list;
+                break;
+            case NETWORK_ERROR:
+                stringId = R.string.no_network_message;
+                break;
+            case PERMISSION_ERROR:
+                stringId = isPage ? R.string.error_refresh_unauthorized_pages :
+                        R.string.error_refresh_unauthorized_posts;
+                break;
+            case GENERIC_ERROR:
+                stringId = isPage ? R.string.error_refresh_pages : R.string.error_refresh_posts;
+                break;
+            default:
+                return;
+        }
+
+        mPostsViewModel.setEmptyViewTitle(stringId);
+        mPostsViewModel.setEmptyViewImageVisibility(emptyViewMessageType == EmptyViewMessageType.NO_CONTENT);
+        mPostsViewModel.setEmptyViewVisibility(isEmpty);
     }
 
     /*

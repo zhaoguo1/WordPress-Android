@@ -14,9 +14,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
@@ -26,7 +23,6 @@ import org.wordpress.android.models.Post;
 import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.models.PostsListPostList;
 import org.wordpress.android.ui.ActivityLauncher;
-import org.wordpress.android.ui.EmptyViewMessageType;
 import org.wordpress.android.ui.posts.PostsListContracts.PageView;
 import org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
@@ -59,9 +55,6 @@ public class PostsListFragment extends Fragment implements
     private PostsListAdapter mPostsListAdapter;
 
     private RecyclerView mRecyclerView;
-    private View mEmptyView;
-    private TextView mEmptyViewTitle;
-    private ImageView mEmptyViewImage;
 
     private int mLocalBlogId;
     private boolean mIsPage;
@@ -94,10 +87,6 @@ public class PostsListFragment extends Fragment implements
                 container, false);
 
         mRecyclerView = viewBinding.recyclerView;
-
-        mEmptyView = viewBinding.emptyView;
-        mEmptyViewTitle = viewBinding.titleEmpty;
-        mEmptyViewImage = viewBinding.imageEmpty;
 
         Context context = getActivity();
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -187,10 +176,6 @@ public class PostsListFragment extends Fragment implements
         return mPostsListAdapter;
     }
 
-    private boolean isPostAdapterEmpty() {
-        return (mPostsListAdapter != null && mPostsListAdapter.getItemCount() == 0);
-    }
-
     @Override
     public void onActivityCreated(Bundle bundle) {
         super.onActivityCreated(bundle);
@@ -224,46 +209,6 @@ public class PostsListFragment extends Fragment implements
     public void mediaUpdated(long mediaId, String mediaUrl) {
         if (isAdded()) {
             getPostListAdapter().mediaUpdated(mediaId, mediaUrl);
-        }
-    }
-
-    @Override
-    public void updateEmptyView(EmptyViewMessageType emptyViewMessageType) {
-        if (!isAdded() || mEmptyView == null) {
-            return;
-        }
-
-        int stringId;
-        switch (emptyViewMessageType) {
-            case LOADING:
-                stringId = mIsPage ? R.string.pages_fetching : R.string.posts_fetching;
-                break;
-            case NO_CONTENT:
-                stringId = mIsPage ? R.string.pages_empty_list : R.string.posts_empty_list;
-                break;
-            case NETWORK_ERROR:
-                stringId = R.string.no_network_message;
-                break;
-            case PERMISSION_ERROR:
-                stringId = mIsPage ? R.string.error_refresh_unauthorized_pages :
-                        R.string.error_refresh_unauthorized_posts;
-                break;
-            case GENERIC_ERROR:
-                stringId = mIsPage ? R.string.error_refresh_pages : R.string.error_refresh_posts;
-                break;
-            default:
-                return;
-        }
-
-        mEmptyViewTitle.setText(getText(stringId));
-        mEmptyViewImage.setVisibility(emptyViewMessageType == EmptyViewMessageType.NO_CONTENT ? View.VISIBLE : View.GONE);
-        mEmptyView.setVisibility(isPostAdapterEmpty() ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
-    public void hideEmptyView() {
-        if (isAdded() && mEmptyView != null) {
-            mEmptyView.setVisibility(View.GONE);
         }
     }
 

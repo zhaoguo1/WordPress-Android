@@ -22,7 +22,7 @@
             android:background="@color/background_grey"
             android:gravity="center"
             android:orientation="vertical"
-            android:visibility="gone"
+            android:visibility="@{viewModel.emptyViewVisibility}"
             tools:visibility="visible">
 
             <ImageView
@@ -30,7 +30,8 @@
                 android:layout_width="112dp"
                 android:layout_height="86dp"
                 android:layout_marginBottom="@dimen/margin_medium"
-                android:src="@drawable/penandink" />
+                android:src="@drawable/penandink"
+                android:visibility="@{viewModel.emptyViewImageVisibility}" />
 
             <org.wordpress.android.widgets.WPTextView
                 android:id="@+id/title_empty"
@@ -40,7 +41,7 @@
                 android:layout_marginBottom="@dimen/empty_list_title_bottom_margin"
                 android:layout_marginLeft="@dimen/empty_list_title_side_margin"
                 android:layout_marginRight="@dimen/empty_list_title_side_margin"
-                android:text="@string/empty_list_default"
+                android:text="@{viewModel.emptyViewTitle}"
                 app:fixWidowWords="true" />
 
         </LinearLayout>

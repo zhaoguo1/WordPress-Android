@@ -12,6 +12,7 @@ import android.content.Context;
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 import android.os.Handler;
+import android.support.annotation.StringRes;
 import android.view.View;
 
 public class PostsListViewModel extends BaseObservable implements PostsListContracts.PostsViewModel {
@@ -23,6 +24,9 @@ public class PostsListViewModel extends BaseObservable implements PostsListContr
     private boolean mFabVisible = true;
     private boolean mIsRefreshing;
     private boolean mLoadMoreProgressVisible;
+    private boolean mEmptyViewVisible;
+    private boolean mEmptyViewImageVisible = true;
+    private @StringRes int mEmptyViewTitleResId = R.string.empty_list_default;
 
     public PostsListViewModel(Context context, PostListFragmentBinding postListFragmentBinding) {
         mContext = context;
@@ -87,4 +91,38 @@ public class PostsListViewModel extends BaseObservable implements PostsListContr
         mLoadMoreProgressVisible = visible;
         notifyPropertyChanged(BR.loadMoreProgressVisibility);
     }
+
+    @Bindable
+    public int getEmptyViewVisibility() {
+        return mEmptyViewVisible ? View.VISIBLE : View.GONE;
+    }
+
+    @Override
+    public void setEmptyViewVisibility(boolean visible) {
+        mEmptyViewVisible = visible;
+        notifyPropertyChanged(BR.emptyViewVisibility);
+    }
+
+    @Bindable
+    public CharSequence getEmptyViewTitle() {
+        return mContext.getText(mEmptyViewTitleResId);
+    }
+
+    @Override
+    public void setEmptyViewTitle(@StringRes int emptyViewTitleResId) {
+        mEmptyViewTitleResId = emptyViewTitleResId;
+        notifyPropertyChanged(BR.emptyViewTitle);
+    }
+
+    @Bindable
+    public int getEmptyViewImageVisibility() {
+        return mEmptyViewImageVisible ? View.VISIBLE : View.GONE;
+    }
+
+    @Override
+    public void setEmptyViewImageVisibility(boolean visible) {
+        mEmptyViewImageVisible = visible;
+        notifyPropertyChanged(BR.emptyViewImageVisibility);
+    }
 }
+
