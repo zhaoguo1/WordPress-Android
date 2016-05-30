@@ -37,7 +37,6 @@ import org.wordpress.android.ui.posts.PostsListContracts.PostAdapterView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
 import org.wordpress.android.ui.posts.PostsListFragment;
-import org.wordpress.android.util.DisplayUtils;
 
 /**
  * Adapter for Posts/Pages list
@@ -50,14 +49,8 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private PagesActionHandler mPagesActionHandler;
     private PostsActionHandler mPostsActionHandler;
 
-    private final int mLocalTableBlogId;
-    private final int mPhotonWidth;
-    private final int mPhotonHeight;
-
     private final boolean mIsPage;
-    private final boolean mIsPrivateBlog;
     private final boolean mIsStatsSupported;
-    private final boolean mAlwaysShowAllButtons;
 
     private final LayoutInflater mLayoutInflater;
 
@@ -77,17 +70,7 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         mIsPage = isPage;
         mLayoutInflater = LayoutInflater.from(context);
 
-        mLocalTableBlogId = blog.getLocalTableBlogId();
-        mIsPrivateBlog = blog.isPrivate();
         mIsStatsSupported = blog.isDotcomFlag() || blog.isJetpackPowered();
-
-        int displayWidth = DisplayUtils.getDisplayPixelWidth(context);
-        int contentSpacing = context.getResources().getDimensionPixelSize(R.dimen.content_margin);
-        mPhotonWidth = displayWidth - (contentSpacing * 2);
-        mPhotonHeight = context.getResources().getDimensionPixelSize(R.dimen.reader_featured_image_height);
-
-        // on larger displays we can always show all buttons
-        mAlwaysShowAllButtons = (displayWidth >= 1080);
     }
 
     public void setPostsList(PostsListPostList posts) {
