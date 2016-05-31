@@ -1451,4 +1451,5 @@
     <string name="error_refreshing_gravatar">Error reloading your Gravatar</string>
     <string name="error_updating_gravatar">Error updating your Gravatar</string>
     <string name="gravatar_camera_and_media_permission_required">Permissions required in order to select or capture a photo</string>
+    <string name="maybe_later">Maybe later</string>
 </resources>

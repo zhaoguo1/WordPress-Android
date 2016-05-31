@@ -325,6 +325,16 @@
                 android:layout_marginRight="16dp"
                 android:gravity="center"
                 android:text="@string/nux_welcome_create_account" />
+
+            <org.wordpress.android.widgets.WPTextView
+                android:id="@+id/nux_skip_login"
+                style="@style/WordPress.NUXPrimaryButton"
+                android:layout_width="match_parent"
+                android:clickable="true"
+                android:enabled="false"
+                android:gravity="center"
+                android:text="@string/maybe_later" />
+
         </org.wordpress.android.widgets.WPLinearLayoutSizeBound>
     </LinearLayout>
 </ScrollView>
