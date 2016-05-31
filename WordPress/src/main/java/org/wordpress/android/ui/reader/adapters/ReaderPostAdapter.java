@@ -661,7 +661,7 @@ public class ReaderPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if (post.isDiscoverPost()) {
             canShowLikes = false;
         } else if (mIsLoggedOutReader) {
-            canShowLikes = post.numLikes > 0;
+            canShowLikes = true;
         } else {
             canShowLikes = post.canLikePost();
         }
@@ -690,7 +690,7 @@ public class ReaderPostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if (post.isDiscoverPost()) {
             canShowComments = false;
         } else if (mIsLoggedOutReader) {
-            canShowComments = post.numReplies > 0;
+            canShowComments = true;
         } else {
             canShowComments = post.isWP() && !post.isJetpack && (post.isCommentsOpen || post.numReplies > 0);
         }
