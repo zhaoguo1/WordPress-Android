@@ -168,7 +168,7 @@ public class PostsListFragment extends Fragment implements
 
     public PostsListAdapter getPostListAdapter() {
         if (mPostsListAdapter == null) {
-            mPostsListAdapter = new PostsListAdapter(getActivity(), WordPress.getCurrentBlog(), mIsPage, this, this,
+            mPostsListAdapter = new PostsListAdapter(WordPress.getCurrentBlog(), mIsPage, this, this,
                     mPostsActionHandler, mPagesActionHandler);
             mPostsListAdapter.setOnLoadMoreListener(this);
         }

@@ -52,8 +52,6 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private final boolean mIsPage;
     private final boolean mIsStatsSupported;
 
-    private final LayoutInflater mLayoutInflater;
-
     private PostsListPostList mPosts = new PostsListPostList();
 
     private static final long ROW_ANIM_DURATION = 150;
@@ -61,14 +59,13 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEW_TYPE_POST_OR_PAGE = 0;
     private static final int VIEW_TYPE_ENDLIST_INDICATOR = 1;
 
-    public PostsListAdapter(Context context, @NonNull Blog blog, boolean isPage, PostView postView, PageView
+    public PostsListAdapter(@NonNull Blog blog, boolean isPage, PostView postView, PageView
             pageView, PostsActionHandler postsActionHandler, PagesActionHandler pagesActionHandler) {
         mPostView = postView;
         mPageView = pageView;
         mPagesActionHandler = pagesActionHandler;
         mPostsActionHandler = postsActionHandler;
         mIsPage = isPage;
-        mLayoutInflater = LayoutInflater.from(context);
 
         mIsStatsSupported = blog.isDotcomFlag() || blog.isJetpackPowered();
     }
