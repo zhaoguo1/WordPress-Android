@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.DocumentsContract;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -430,6 +431,8 @@ public class WPMainActivity extends AppCompatActivity implements Bucket.Listener
                 if (resultCode == RESULT_OK) {
                     // Register for Cloud messaging
                     startWithNewAccount();
+                    // Notify content resolver so WPDocumentsProvider can re-query roots/children
+                    notifyDocumentsProvider();
                 } else if (!AccountHelper.isSignedIn()) {
                     // can't do anything if user isn't signed in (either to wp.com or self-hosted)
                     finish();
@@ -573,6 +576,11 @@ public class WPMainActivity extends AppCompatActivity implements Bucket.Listener
                 ActivityLauncher.showSitePickerForResult(this, blogId);
             }
         }
+    }
+
+    private void notifyDocumentsProvider() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) return;
+        getContentResolver().notifyChange(DocumentsContract.buildRootsUri(getPackageName()), null);
     }
 
     /*

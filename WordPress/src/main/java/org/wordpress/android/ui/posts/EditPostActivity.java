@@ -90,14 +90,12 @@ import org.wordpress.android.util.PermissionUtils;
 import org.wordpress.android.util.StringUtils;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.ToastUtils.Duration;
-import org.wordpress.android.provider.WPDocumentsProvider;
 import org.wordpress.android.util.WPHtml;
 import org.wordpress.android.util.WPUrlUtils;
 import org.wordpress.android.util.helpers.MediaFile;
 import org.wordpress.android.util.helpers.MediaGallery;
 import org.wordpress.android.util.helpers.MediaGalleryImageSpan;
 import org.wordpress.android.util.helpers.WPImageSpan;
-import org.wordpress.android.widgets.SuggestionAutoCompleteText;
 import org.wordpress.android.widgets.WPViewPager;
 import org.wordpress.passcodelock.AppLockManager;
 import org.xmlrpc.android.ApiHelper;
@@ -643,7 +641,8 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
 
     private void launchMediaSelectIntent() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType(ProviderConstants.MIME_TYPE_IMAGE);// + "|" + WPDocumentsProvider.MIME_TYPE_VIDEO);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType(ProviderConstants.MIME_TYPE_IMAGES);// + "|" + WPDocumentsProvider.MIME_TYPE_VIDEOS);
         // allow multi-select on supported API's (18+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -651,7 +650,7 @@ public class EditPostActivity extends AppCompatActivity implements EditorFragmen
 //                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{
         startActivityForResult(Intent.createChooser(intent, "Media Multi-selector"), RequestCodes.PICK_MEDIA);
                 return;
-//                        WPDocumentsProvider.MIME_TYPE_IMAGE, WPDocumentsProvider.MIME_TYPE_VIDEO});
+//                        WPDocumentsProvider.MIME_TYPE_IMAGES, WPDocumentsProvider.MIME_TYPE_VIDEOS});
             }
         }
         startActivityForResult(intent, RequestCodes.PICK_MEDIA);

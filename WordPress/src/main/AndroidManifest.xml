@@ -75,7 +75,7 @@
             </intent-filter>
         </provider>
 
-        <!-- Legacy API < 19-->
+        <!-- Legacy API < 19 -->
         <provider
             android:name=".provider.WPContentProvider"
             android:authorities="org.wordpress.android.WPContentProvider"

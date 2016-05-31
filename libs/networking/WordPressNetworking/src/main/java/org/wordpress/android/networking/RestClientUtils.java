@@ -292,6 +292,14 @@ public class RestClientUtils {
     }
 
     /**
+     * Fetches WordPress.com library items
+     */
+    public void getAllMedia(String siteId, Listener listener, ErrorListener errorListener) {
+        String path = String.format("sites/%s/media", siteId);
+        get(path, listener, errorListener);
+    }
+
+    /**
      * Make GET request
      */
     public Request<JSONObject> get(String path, Listener listener, ErrorListener errorListener) {

@@ -12,8 +12,8 @@ import org.wordpress.android.R;
 
 import static android.provider.DocumentsContract.*;
 
-import static org.wordpress.android.provider.ProviderConstants.MIME_TYPE_ANY_IMAGE;
-import static org.wordpress.android.provider.ProviderConstants.MIME_TYPE_ANY_VIDEO;
+import static org.wordpress.android.provider.ProviderConstants.MIME_TYPE_IMAGES;
+import static org.wordpress.android.provider.ProviderConstants.MIME_TYPE_VIDEOS;
 
 /**
  * The WordPress Documents Root acts as a local directory root that can be queried by the OS. This
@@ -47,6 +47,7 @@ import static org.wordpress.android.provider.ProviderConstants.MIME_TYPE_ANY_VID
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
 public class WPDocumentsRoot {
+    // DB columns used to provide Root information
     public static final String[] ALL_ROOT_COLUMNS = {
             Root.COLUMN_ROOT_ID,
             Root.COLUMN_FLAGS,
@@ -57,6 +58,7 @@ public class WPDocumentsRoot {
             Root.COLUMN_AVAILABLE_BYTES,
             Root.COLUMN_MIME_TYPES
     };
+    // DB columns used to provide Document information
     public static final String[] ALL_DOC_COLUMNS = {
             Document.COLUMN_DOCUMENT_ID,
             Document.COLUMN_MIME_TYPE,
@@ -69,7 +71,7 @@ public class WPDocumentsRoot {
     };
 
     /** @see DocumentsContract.Root#COLUMN_MIME_TYPES */
-    public static final String SUPPORTED_MIME_TYPES = MIME_TYPE_ANY_IMAGE + "\n" + MIME_TYPE_ANY_VIDEO;
+    public static final String SUPPORTED_MIME_TYPES = MIME_TYPE_IMAGES + "\n" + MIME_TYPE_VIDEOS;
 
     private static final String WP_ROOT_ID = "wpRoot";
     private static final String WP_ROOT_DOC_ID = "wpRootDocument";
@@ -108,13 +110,13 @@ public class WPDocumentsRoot {
                 rootDocSummary, null, WP_ROOT_ICON, 0, 0L };
         mAllDoc = new Object[] {
                 WP_ALL_DOC_ID, Document.MIME_TYPE_DIR, allDocTitle,
-                allDocSummary, null, WP_ALL_ICON, 0, 0L };
+                allDocSummary, null, WP_ALL_ICON, Document.FLAG_DIR_PREFERS_GRID, 0L };
         mImageDoc = new Object[] {
                 WP_IMAGE_DOC_ID, Document.MIME_TYPE_DIR, imageDocTitle,
-                imageDocSummary, null, WP_IMAGE_ICON, 0, 0L };
+                imageDocSummary, null, WP_IMAGE_ICON, Document.FLAG_DIR_PREFERS_GRID, 0L };
         mVideoAllDoc = new Object[] {
                 WP_VIDEO_DOC_ID, Document.MIME_TYPE_DIR, videoDocTitle,
-                videoDocSummary, null, WP_VIDEO_ICON, 0, 0L };
+                videoDocSummary, null, WP_VIDEO_ICON, Document.FLAG_DIR_PREFERS_GRID, 0L };
     }
 
     public boolean isRootDocId(@NonNull String docId) {

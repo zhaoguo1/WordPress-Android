@@ -1,11 +1,14 @@
 package org.wordpress.android.util;
 
+import android.annotation.TargetApi;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
+import android.os.Build;
 
 import org.wordpress.android.util.AppLog.T;
 
@@ -36,6 +39,17 @@ public class SqlUtils {
     public static void closeCursor(Cursor c) {
         if (c != null && !c.isClosed()) {
             c.close();
+        }
+    }
+
+    /**
+     * Convenience method to add a set of data to a row in a {@link MatrixCursor}.
+     */
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public static void addRow(MatrixCursor.RowBuilder row, String[] columns, Object[] data) {
+        if (row == null || columns == null || data == null || columns.length != data.length) return;
+        for (int i = 0; i < columns.length; ++i) {
+            row.add(columns[i], data[i]);
         }
     }
 
