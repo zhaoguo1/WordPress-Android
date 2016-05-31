@@ -431,8 +431,7 @@ public class WPMainActivity extends AppCompatActivity implements Bucket.Listener
                     // Register for Cloud messaging
                     startWithNewAccount();
                 } else if (!AccountHelper.isSignedIn()) {
-                    // can't do anything if user isn't signed in (either to wp.com or self-hosted)
-                    finish();
+                    resetFragments();
                 }
                 break;
             case RequestCodes.REAUTHENTICATE:

@@ -327,11 +327,13 @@
                 android:text="@string/nux_welcome_create_account" />
 
             <org.wordpress.android.widgets.WPTextView
-                android:id="@+id/nux_skip_login"
-                style="@style/WordPress.NUXPrimaryButton"
-                android:layout_width="match_parent"
-                android:clickable="true"
-                android:enabled="false"
+                android:id="@+id/nux_skip_signin"
+                style="@style/WordPress.NUXFlatButton"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/nux_main_button_height"
+                android:layout_gravity="center"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
                 android:gravity="center"
                 android:text="@string/maybe_later" />
 

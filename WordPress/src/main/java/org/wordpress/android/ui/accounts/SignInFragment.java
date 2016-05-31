@@ -126,6 +126,7 @@ public class SignInFragment extends AbstractFragment implements TextWatcher, Con
     protected WPTextView mSignInButton;
     protected WPTextView mCreateAccountButton;
     protected WPTextView mAddSelfHostedButton;
+    protected WPTextView mSkipSignInButton;
     protected WPTextView mProgressTextSignIn;
     protected WPTextView mForgotPassword;
     protected WPTextView mJetpackAuthLabel;
@@ -175,6 +176,8 @@ public class SignInFragment extends AbstractFragment implements TextWatcher, Con
         mCreateAccountButton = (WPTextView) rootView.findViewById(R.id.nux_create_account_button);
         mCreateAccountButton.setOnClickListener(mCreateAccountListener);
         mAddSelfHostedButton = (WPTextView) rootView.findViewById(R.id.nux_add_selfhosted_button);
+        mSkipSignInButton = (WPTextView) rootView.findViewById(R.id.nux_skip_signin);
+        mSkipSignInButton.setOnClickListener(mSkipSignInListener);
         setDotComAddSelfHostedButtonText();
         mAddSelfHostedButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -516,6 +519,17 @@ public class SignInFragment extends AbstractFragment implements TextWatcher, Con
             Activity activity = getActivity();
             if (activity != null) {
                 ActivityLauncher.newAccountForResult(activity);
+            }
+        }
+    };
+
+    private final View.OnClickListener mSkipSignInListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Activity activity = getActivity();
+            if (activity != null) {
+                activity.setResult(Activity.RESULT_OK);
+                activity.finish();
             }
         }
     };
