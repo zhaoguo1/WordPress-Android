@@ -20,4 +20,10 @@ public class ProviderConstants {
     public static boolean isAudioMimeType(String types) {
         return types != null && types.contains(MIME_TYPE_AUDIO);
     }
+
+    public static boolean isExpectedMimeType(String expected, String type) {
+        return (isImageMimeType(expected) && isImageMimeType(type)) ||
+               (isVideoMimeType(expected) && isVideoMimeType(type)) ||
+               (isAudioMimeType(expected) && isAudioMimeType(type));
+    }
 }

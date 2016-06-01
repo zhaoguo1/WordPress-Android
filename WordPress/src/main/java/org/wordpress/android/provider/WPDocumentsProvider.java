@@ -185,6 +185,7 @@ public class WPDocumentsProvider extends DocumentsProvider implements MediaListe
             do {
                 String mimeType = extractMimeType(media);
                 Object[] data = null;
+                if (!isExpectedMimeType(types, mimeType)) continue;
                 if (isImageMimeType(mimeType)) {
                     data = extractMediaData(media, COLUMN_NAME_FILE_URL);
                 } else if (isVideoMimeType(mimeType)) {
