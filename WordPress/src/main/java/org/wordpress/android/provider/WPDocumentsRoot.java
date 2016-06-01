@@ -82,9 +82,9 @@ public class WPDocumentsRoot {
     private static final String WP_VIDEO_DOC_ID = "wpVideoDocument";
 
     private static final int WP_ROOT_ICON = R.mipmap.app_icon;
-    private static final int WP_ALL_ICON = R.drawable.media_image_placeholder;
-    private static final int WP_IMAGE_ICON = R.drawable.media_image_placeholder;
-    private static final int WP_VIDEO_ICON = R.drawable.media_image_placeholder;
+    private static final int WP_ALL_ICON = R.drawable.wpdocprovider_all_dir_icon;
+    private static final int WP_IMAGE_ICON = R.drawable.wpdocprovider_image_dir_icon;
+    private static final int WP_VIDEO_ICON = R.drawable.wpdocprovider_video_dir_icon;
 
     private final Object[] mRoot;
     private final Object[] mRootDoc;
