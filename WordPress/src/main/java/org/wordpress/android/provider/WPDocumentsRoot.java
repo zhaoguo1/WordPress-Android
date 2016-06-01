@@ -10,6 +10,8 @@ import android.text.TextUtils;
 
 import org.wordpress.android.R;
 
+import java.util.Arrays;
+
 import static android.provider.DocumentsContract.*;
 
 import static org.wordpress.android.provider.ProviderConstants.MIME_TYPE_IMAGES;
@@ -170,5 +172,9 @@ public class WPDocumentsRoot {
 
     public Object[] getVideoDoc() {
         return mVideoAllDoc;
+    }
+
+    public void setRootSummary(String rootSummary) {
+        mRoot[Arrays.asList(ALL_ROOT_COLUMNS).indexOf(Root.COLUMN_SUMMARY)] = rootSummary;
     }
 }

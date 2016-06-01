@@ -79,6 +79,8 @@ public class WPDocumentsProvider extends DocumentsProvider implements MediaListe
 
         // only add root if user is signed into WordPress.com, otherwise no media is available
         if (WordPress.wpDB != null && AccountHelper.isSignedInWordPressDotCom()) {
+            String summary = getContext().getString(R.string.wpdocprovider_root_summary_format);
+            mRoot.setRootSummary(String.format(summary, WordPress.currentBlog.getBlogName()));
             mRestInterface = new MediaRestInterface(this);
             if (!mRestInterface.syncMediaLibrary(false)) {
                 // TODO: sync not initiated for some reason

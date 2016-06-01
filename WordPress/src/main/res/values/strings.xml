@@ -106,6 +106,7 @@
     <string name="wpdocprovider_image_doc_title" translatable="false">@string/images</string>
     <string name="wpdocprovider_video_doc_title" translatable="false">@string/video</string>
     <string name="wpdocprovider_root_summary" translatable="false">@string/media_library</string>
+    <string name="wpdocprovider_root_summary_format">%s\'s library</string>
     <string name="wpdocprovider_root_doc_summary" translatable="false"></string>
     <string name="wpdocprovider_all_doc_summary">All WordPress media</string>
     <string name="wpdocprovider_image_doc_summary">WordPress images</string>
