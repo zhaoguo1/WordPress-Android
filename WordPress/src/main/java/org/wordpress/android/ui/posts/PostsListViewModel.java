@@ -3,6 +3,7 @@ package org.wordpress.android.ui.posts;
 import org.wordpress.android.BR;
 import org.wordpress.android.R;
 import org.wordpress.android.databinding.PostListFragmentBinding;
+import org.wordpress.android.ui.posts.PostsListContracts.PostsViewModel;
 import org.wordpress.android.util.AniUtils;
 import org.wordpress.android.util.helpers.SwipeToRefreshHelper;
 
@@ -11,11 +12,12 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
+import android.databinding.ObservableList;
 import android.os.Handler;
 import android.support.annotation.StringRes;
 import android.view.View;
 
-public class PostsListViewModel extends BaseObservable implements PostsListContracts.PostsViewModel {
+public class PostsListViewModel extends BaseObservable implements PostsViewModel {
     private final Context mContext;
     private final PostListFragmentBinding mPostListFragmentBinding;
 
@@ -28,9 +30,13 @@ public class PostsListViewModel extends BaseObservable implements PostsListContr
     private boolean mEmptyViewImageVisible = true;
     private @StringRes int mEmptyViewTitleResId = R.string.empty_list_default;
 
-    public PostsListViewModel(Context context, PostListFragmentBinding postListFragmentBinding) {
+    private boolean mIsPage;
+    private ObservableList<BasePostViewModel> mPostViewModels;
+
+    public PostsListViewModel(Context context, PostListFragmentBinding postListFragmentBinding, boolean isPage) {
         mContext = context;
         mPostListFragmentBinding = postListFragmentBinding;
+        mIsPage = isPage;
     }
 
     public void setSwipeToRefreshHelper(SwipeToRefreshHelper swipeToRefreshHelper) {
@@ -124,5 +130,20 @@ public class PostsListViewModel extends BaseObservable implements PostsListContr
         mEmptyViewImageVisible = visible;
         notifyPropertyChanged(BR.emptyViewImageVisibility);
     }
-}
 
+    @Bindable
+    public boolean getIsPage() {
+        return mIsPage;
+    }
+
+    @Bindable
+    public ObservableList<BasePostViewModel> getPostViewModels() {
+        return mPostViewModels;
+    }
+
+    @Override
+    public void setPosts(ObservableList<BasePostViewModel> postViewModels) {
+        mPostViewModels = postViewModels;
+        notifyPropertyChanged(BR.postViewModels);
+    }
+}

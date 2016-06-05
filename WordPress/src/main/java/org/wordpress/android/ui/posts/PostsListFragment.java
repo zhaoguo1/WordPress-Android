@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,8 +19,6 @@ import org.wordpress.android.WordPress;
 import org.wordpress.android.databinding.PostListFragmentBinding;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.Post;
-import org.wordpress.android.models.PostsListPost;
-import org.wordpress.android.models.PostsListPostList;
 import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.posts.PostsListContracts.PageView;
 import org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler;
@@ -51,8 +48,6 @@ public class PostsListFragment extends Fragment implements
     PagesActionHandler mPagesActionHandler;
 
     public static final int POSTS_REQUEST_COUNT = 20;
-
-    private PostsListAdapter mPostsListAdapter;
 
     private RecyclerView mRecyclerView;
 
@@ -89,14 +84,17 @@ public class PostsListFragment extends Fragment implements
         mRecyclerView = viewBinding.recyclerView;
 
         Context context = getActivity();
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
 
         int spacingVertical = mIsPage ? 0 : context.getResources().getDimensionPixelSize(R.dimen.reader_card_gutters);
         int spacingHorizontal = context.getResources().getDimensionPixelSize(R.dimen.content_margin);
         mRecyclerView.addItemDecoration(new RecyclerItemDecoration(spacingHorizontal, spacingVertical));
 
-        PostsListViewModel postsListViewModel = new PostsListViewModel(context, viewBinding);
-        mPostsPresenter = new PostsPresenter(mLocalBlogId, postsListViewModel, this, mIsPage);
+        final Blog blog = WordPress.getBlog(mLocalBlogId);
+        boolean isStatsSupported = blog.isDotcomFlag() || blog.isJetpackPowered();
+
+        PostsListViewModel postsListViewModel = new PostsListViewModel(context, viewBinding, mIsPage);
+
+        mPostsPresenter = new PostsPresenter(mLocalBlogId, postsListViewModel, this, mIsPage, isStatsSupported);
         mPostsActionHandler = mPostsPresenter;
         mPagesActionHandler = mPostsPresenter;
 
@@ -111,7 +109,11 @@ public class PostsListFragment extends Fragment implements
                 }));
 
         viewBinding.setViewModel(postsListViewModel);
-        viewBinding.setActionHandler(mPostsActionHandler);
+        viewBinding.setPostView(this);
+        viewBinding.setPageView(this);
+        viewBinding.setPostsActionHandler(mPostsPresenter);
+        viewBinding.setPagesActionHandler(mPostsPresenter);
+        viewBinding.setOnLoadMoreListener(this);
         viewBinding.executePendingBindings();
 
         return viewBinding.getRoot();
@@ -155,25 +157,10 @@ public class PostsListFragment extends Fragment implements
     }
 
     @Override
-    public void hidePost(PostsListPost postsListPost) {
-        getPostListAdapter().hidePost(postsListPost);
-    }
-
-    @Override
     public void showToast(@StringRes int stringResId) {
         if (isAdded()) {
             ToastUtils.showToast(getActivity(), stringResId);
         }
-    }
-
-    public PostsListAdapter getPostListAdapter() {
-        if (mPostsListAdapter == null) {
-            mPostsListAdapter = new PostsListAdapter(WordPress.getCurrentBlog(), mIsPage, this, this,
-                    mPostsActionHandler, mPagesActionHandler);
-            mPostsListAdapter.setOnLoadMoreListener(this);
-        }
-
-        return mPostsListAdapter;
     }
 
     @Override
@@ -201,24 +188,9 @@ public class PostsListFragment extends Fragment implements
     public void onResume() {
         super.onResume();
 
-        if (WordPress.getCurrentBlog() != null && mRecyclerView.getAdapter() == null) {
-            mRecyclerView.setAdapter(getPostListAdapter());
-        }
-    }
-
-    public void mediaUpdated(long mediaId, String mediaUrl) {
-        if (isAdded()) {
-            getPostListAdapter().mediaUpdated(mediaId, mediaUrl);
-        }
-    }
-
-    @Override
-    public void setPosts(PostsListPostList posts, boolean isFetchingPosts) {
-        if (!isAdded()) {
-            return;
-        }
-
-        getPostListAdapter().setPostsList(posts);
+//        if (WordPress.getCurrentBlog() != null && mRecyclerView.getAdapter() == null) {
+//            mRecyclerView.setAdapter(getPostListAdapter());
+//        }
     }
 
     @Override

@@ -19,6 +19,7 @@ public class PostsListPost {
     private static final int MAX_EXCERPT_LEN = 150;
 
     private final long postId;
+    private final String remotePostId;
     private final long blogId;
     private long dateCreatedGmt;
     private final long featuredImageId;
@@ -37,6 +38,7 @@ public class PostsListPost {
 
     public PostsListPost(Post post) {
         postId = post.getLocalTablePostId();
+        remotePostId = post.getRemotePostId();
         blogId = post.getLocalTableBlogId();
         featuredImageId = post.getFeaturedImageId();
 
@@ -59,6 +61,9 @@ public class PostsListPost {
 
     public long getPostId() {
         return postId;
+    }
+    public String getRemotePostId() {
+        return remotePostId;
     }
 
     public long getBlogId() {

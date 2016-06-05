@@ -1,6 +1,7 @@
 package org.wordpress.android.ui.posts;
 
-import org.wordpress.android.R;
+import org.wordpress.android.BR;
+import org.wordpress.android.databinding.PostCardviewBinding;
 import org.wordpress.android.models.PostStatus;
 import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.util.DisplayUtils;
@@ -8,27 +9,35 @@ import org.wordpress.android.util.StringUtils;
 import org.wordpress.android.widgets.PostListButton;
 import org.wordpress.android.widgets.WPNetworkImageView;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.content.Context;
-import android.databinding.BaseObservable;
-import android.graphics.drawable.Drawable;
-import android.support.annotation.ColorInt;
+import android.databinding.Bindable;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 /**
  * Exposes the data to be used in the {@link PostsListContracts.PostView}.
  */
-public class PostViewModel extends BaseObservable {
-    private final Context mContext;
+public class PostViewModel extends BasePostViewModel {
+    private static final long ROW_ANIM_DURATION = 150;
 
-    private PostsListPost mPostsListPost;
-
+    private PostCardviewBinding mPostCardviewBinding;
     private final boolean mIsStatsSupported;
-    private final boolean mAlwaysShowAllButtons;
+    private boolean mAlwaysShowAllButtons;
 
-    public PostViewModel(Context context, boolean isStatsSupported, PostsListPost postsListPost) {
-        mContext = context;
+    public PostViewModel(PostsListPost postsListPost, boolean isStatsSupported) {
+        super(postsListPost);
+
         mIsStatsSupported = isStatsSupported;
-        mPostsListPost = postsListPost;
+    }
+
+    @Override
+    public void setContext(Context context) {
+        super.setContext(context);
 
         int displayWidth = DisplayUtils.getDisplayPixelWidth(context);
 
@@ -36,12 +45,8 @@ public class PostViewModel extends BaseObservable {
         mAlwaysShowAllButtons = (displayWidth >= 1080);
     }
 
-    public String getTitle() {
-        if (mPostsListPost.hasTitle()) {
-            return mPostsListPost.getTitle();
-        } else {
-            return "(" + mContext.getResources().getText(R.string.untitled) + ")";
-        }
+    public void setPostCardviewBinding(PostCardviewBinding postCardviewBinding) {
+        mPostCardviewBinding = postCardviewBinding;
     }
 
     public String getExcerpt() {
@@ -56,12 +61,18 @@ public class PostViewModel extends BaseObservable {
         return mPostsListPost.hasExcerpt() ? View.VISIBLE : View.GONE;
     }
 
+    @Bindable
     public String getFeaturedImageUrl() {
         if (mPostsListPost.hasFeaturedImageId() || mPostsListPost.hasFeaturedImageUrl()) {
             return mPostsListPost.getFeaturedImageUrl();
         } else {
             return null;
         }
+    }
+
+    public void setFeaturedImageUrl(String imageUrl) {
+        mPostsListPost.setFeaturedImageUrl(imageUrl);
+        notifyPropertyChanged(BR.featuredImageUrl);
     }
 
     public WPNetworkImageView.ImageType getFeaturedImageType() {
@@ -78,119 +89,6 @@ public class PostViewModel extends BaseObservable {
 
     public String getFormattedDate() {
         return mPostsListPost.getFormattedDate();
-    }
-
-    public int getStatusTextVisibility() {
-        return ((mPostsListPost.getStatusEnum() == PostStatus.PUBLISHED) && !mPostsListPost.isLocalDraft() &&
-                !mPostsListPost.hasLocalChanges()) ? View.GONE : View.VISIBLE;
-    }
-
-    public String getStatusText() {
-        if ((mPostsListPost.getStatusEnum() == PostStatus.PUBLISHED) && !mPostsListPost.isLocalDraft() &&
-                !mPostsListPost.hasLocalChanges()) {
-            return "";
-        }
-
-        int statusTextResId = 0;
-
-        if (mPostsListPost.isUploading()) {
-            statusTextResId = R.string.post_uploading;
-        } else if (mPostsListPost.isLocalDraft()) {
-            statusTextResId = R.string.local_draft;
-        } else if (mPostsListPost.hasLocalChanges()) {
-            statusTextResId = R.string.local_changes;
-        } else {
-            switch (mPostsListPost.getStatusEnum()) {
-                case DRAFT:
-                    statusTextResId = R.string.draft;
-                    break;
-                case PRIVATE:
-                    statusTextResId = R.string.post_private;
-                    break;
-                case PENDING:
-                    statusTextResId = R.string.pending_review;
-                    break;
-                case SCHEDULED:
-                    statusTextResId = R.string.scheduled;
-                    break;
-                case TRASHED:
-                    statusTextResId = R.string.trashed;
-                    break;
-            }
-        }
-
-        return (statusTextResId != 0 ? mContext.getResources().getString(statusTextResId) : "");
-    }
-
-    public @ColorInt int getStatusTextColor() {
-        if ((mPostsListPost.getStatusEnum() == PostStatus.PUBLISHED) && !mPostsListPost.isLocalDraft() &&
-                !mPostsListPost.hasLocalChanges()) {
-            return 0;
-        }
-
-        int statusColorResId = R.color.grey_darken_10;
-
-        if (mPostsListPost.isUploading()) {
-            statusColorResId = R.color.alert_yellow;
-        } else if (mPostsListPost.isLocalDraft()) {
-            statusColorResId = R.color.alert_yellow;
-        } else if (mPostsListPost.hasLocalChanges()) {
-            statusColorResId = R.color.alert_yellow;
-        } else {
-            switch (mPostsListPost.getStatusEnum()) {
-                case DRAFT:
-                    statusColorResId = R.color.alert_yellow;
-                    break;
-                case PRIVATE:
-                    break;
-                case PENDING:
-                    statusColorResId = R.color.alert_yellow;
-                    break;
-                case SCHEDULED:
-                    statusColorResId = R.color.alert_yellow;
-                    break;
-                case TRASHED:
-                    statusColorResId = R.color.alert_red;
-                    break;
-            }
-        }
-
-        return mContext.getResources().getColor(statusColorResId);
-    }
-
-    public Drawable getStatusTextLeftDrawable() {
-        if ((mPostsListPost.getStatusEnum() == PostStatus.PUBLISHED) && !mPostsListPost.isLocalDraft() &&
-                !mPostsListPost.hasLocalChanges()) {
-            return null;
-        }
-
-        int statusIconResId = 0;
-
-        if (mPostsListPost.isUploading()) {
-        } else if (mPostsListPost.isLocalDraft()) {
-            statusIconResId = R.drawable.noticon_scheduled;
-        } else if (mPostsListPost.hasLocalChanges()) {
-            statusIconResId = R.drawable.noticon_scheduled;
-        } else {
-            switch (mPostsListPost.getStatusEnum()) {
-                case DRAFT:
-                    statusIconResId = R.drawable.noticon_scheduled;
-                    break;
-                case PRIVATE:
-                    break;
-                case PENDING:
-                    statusIconResId = R.drawable.noticon_scheduled;
-                    break;
-                case SCHEDULED:
-                    statusIconResId = R.drawable.noticon_scheduled;
-                    break;
-                case TRASHED:
-                    statusIconResId = R.drawable.noticon_trashed;
-                    break;
-            }
-        }
-
-        return (statusIconResId != 0 ? mContext.getResources().getDrawable(statusIconResId) : null);
     }
 
     public int getTrashButtonType() {
@@ -229,19 +127,61 @@ public class PostViewModel extends BaseObservable {
     }
 
     public int getStatsButtonVisibility() {
-        return (canShowStatsForPost(mPostsListPost) && hasEnoughRoom()) ? View.VISIBLE : View.GONE;
+        return (canShowStatsForPost() && hasEnoughRoom()) ? View.VISIBLE : View.GONE;
     }
 
-    public boolean canShowStatsForPost(PostsListPost post) {
+    private boolean canShowStatsForPost() {
         return mIsStatsSupported
-                && post.getStatusEnum() == PostStatus.PUBLISHED
-                && !post.isLocalDraft();
+                && mPostsListPost.getStatusEnum() == PostStatus.PUBLISHED
+                && !mPostsListPost.isLocalDraft();
     }
 
     private boolean hasEnoughRoom() {
-        boolean canShowStatsButton = canShowStatsForPost(mPostsListPost);
+        boolean canShowStatsButton = canShowStatsForPost();
         int numVisibleButtons = (canShowStatsButton ? 4 : 3);
 
         return mAlwaysShowAllButtons || numVisibleButtons <= 3;
     }
+
+    /*
+     * buttons may appear in two rows depending on display size and number of visible
+     * buttons - these rows are toggled through the "more" and "back" buttons - this
+     * routine is used to animate the new row in and the old row out
+     */
+    public void animateButtonRows(final boolean showRow1) {
+        // first animate out the button row, then show/hide the appropriate buttons,
+        // then animate the row layout back in
+        PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 0f);
+        PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 0f);
+        ObjectAnimator animOut = ObjectAnimator.ofPropertyValuesHolder(mPostCardviewBinding.layoutButtons, scaleX,
+                scaleY);
+        animOut.setDuration(ROW_ANIM_DURATION);
+        animOut.setInterpolator(new AccelerateInterpolator());
+
+        animOut.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                // row 1
+                mPostCardviewBinding.btnEdit.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
+                mPostCardviewBinding.btnView.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
+                mPostCardviewBinding.btnMore.setVisibility(showRow1 ? View.VISIBLE : View.GONE);
+                // row 2
+                mPostCardviewBinding.btnStats.setVisibility(!showRow1 && canShowStatsForPost() ? View.VISIBLE : View
+                        .GONE);
+                mPostCardviewBinding.btnTrash.setVisibility(!showRow1 ? View.VISIBLE : View.GONE);
+                mPostCardviewBinding.btnBack.setVisibility(!showRow1 ? View.VISIBLE : View.GONE);
+
+                PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f, 1f);
+                PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f, 1f);
+                ObjectAnimator animIn = ObjectAnimator.ofPropertyValuesHolder(mPostCardviewBinding.layoutButtons,
+                        scaleX, scaleY);
+                animIn.setDuration(ROW_ANIM_DURATION);
+                animIn.setInterpolator(new DecelerateInterpolator());
+                animIn.start();
+            }
+        });
+
+        animOut.start();
+    }
+
 }

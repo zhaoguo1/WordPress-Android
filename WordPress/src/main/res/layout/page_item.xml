@@ -83,7 +83,7 @@
                     android:gravity="center_vertical"
                     android:textColor="@{pageViewModel.statusTextColor}"
                     android:textSize="@dimen/text_sz_small"
-                    android:visibility="@{pageViewModel.statusVisibility}"
+                    android:visibility="@{pageViewModel.statusTextVisibility}"
                     android:drawableLeft="@{pageViewModel.statusTextLeftDrawable}"
                     tools:text="@{pageViewModel.statusText}"
                     tools:visibility="visible" />

@@ -3,22 +3,17 @@ package org.wordpress.android.ui.posts;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.Post;
 import org.wordpress.android.models.PostsListPost;
-import org.wordpress.android.models.PostsListPostList;
 import org.wordpress.android.ui.BaseView;
-import org.wordpress.android.ui.EmptyViewMessageType;
 
+import android.databinding.ObservableList;
 import android.support.annotation.StringRes;
 import android.view.View;
+
+import java.util.List;
 
 public interface PostsListContracts {
     interface PostsView extends BaseView {
         void newPost();
-
-        void setPosts(PostsListPostList posts, boolean isFetchingPosts);
-
-        void mediaUpdated(long mediaId, String mediaUrl);
-
-        void hidePost(PostsListPost postsListPost);
 
         void withUndo(Undoable undoable);
     }
@@ -37,6 +32,8 @@ public interface PostsListContracts {
         void setEmptyViewImageVisibility(boolean visible);
 
         void setEmptyViewTitle(@StringRes int emptyViewTitleResId);
+
+        void setPosts(ObservableList<BasePostViewModel> postViewModels);
     }
 
     interface PostsActionHandler {
@@ -68,10 +65,6 @@ public interface PostsListContracts {
         void viewPostPreviewForResult(Post post, boolean isPage);
 
         void viewStatsSinglePostDetails(Post post, boolean isPost);
-    }
-
-    interface PostAdapterView {
-        void animateButtonRows(boolean showRow1);
     }
 
     interface PostActionHandler {

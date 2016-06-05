@@ -5,7 +5,6 @@ import org.wordpress.android.WordPress;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.Post;
 import org.wordpress.android.models.PostsListPost;
-import org.wordpress.android.models.PostsListPostList;
 import org.wordpress.android.ui.BasePresenter;
 import org.wordpress.android.ui.EmptyViewMessageType;
 import org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler;
@@ -23,11 +22,16 @@ import org.wordpress.android.util.DisplayUtils;
 import org.wordpress.android.util.NetworkUtils;
 import org.xmlrpc.android.ApiHelper;
 
+import android.databinding.ObservableArrayList;
+import android.databinding.ObservableList;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import de.greenrobot.event.EventBus;
 
@@ -38,22 +42,27 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     private final int mLocalTableBlogId;
     private final boolean mIsPrivateBlog;
     private final boolean mIsPage;
+    private final boolean mIsStatsSupported;
 
     private final int mPhotonWidth;
     private final int mPhotonHeight;
 
-    private final PostsListPostList mPosts = new PostsListPostList();
-    private final PostsListPostList mTrashedPosts = new PostsListPostList();
+    private final Map<String, BasePostViewModel> mPosts = new LinkedHashMap<>();
+    private final List<PostsListPost> mTrashedPosts = new ArrayList<>();
+
+    private final ObservableList<BasePostViewModel> mPostViewModels = new ObservableArrayList<>();
 
     private boolean mIsLoadingPosts;
     private boolean mIsFetchingPosts;
 
     private boolean mCanLoadMorePosts = true;
 
-    public PostsPresenter(int blogLocalId, PostsViewModel postsViewModel, PostsView postsView, boolean isPage) {
+    public PostsPresenter(int blogLocalId, PostsViewModel postsViewModel, PostsView postsView, boolean isPage,
+            boolean isStatsSupported) {
         mPostsViewModel = postsViewModel;
         mPostsView = postsView;
         mIsPage = isPage;
+        mIsStatsSupported = isStatsSupported;
 
         mLocalTableBlogId = blogLocalId;
 
@@ -65,6 +74,8 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
         mPhotonWidth = displayWidth - (contentSpacing * 2);
         mPhotonHeight = mPostsView.getContext().getResources().getDimensionPixelSize(R.dimen
                 .reader_featured_image_height);
+
+        postsViewModel.setPosts(mPostViewModels);
     }
 
     @Override
@@ -107,9 +118,23 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
      */
     @SuppressWarnings("unused")
     public void onEventMainThread(PostEvents.PostMediaInfoUpdated event) {
-        if (WordPress.getCurrentBlog() != null) {
-            mPostsView.mediaUpdated(event.getMediaId(), event.getMediaUrl());
+        BasePostViewModel basePostViewModel = indexOfFeaturedMediaId(event.getMediaId());
+
+        if (basePostViewModel != null && basePostViewModel instanceof PostViewModel) {
+            ((PostViewModel) basePostViewModel).setFeaturedImageUrl(event.getMediaUrl());
         }
+    }
+
+    private BasePostViewModel indexOfFeaturedMediaId(long mediaId) {
+        if (mediaId == 0) {
+            return null;
+        }
+        for (BasePostViewModel basePostViewModel : mPostViewModels) {
+            if (basePostViewModel.getPostsListPost().getFeaturedImageId() == mediaId) {
+                return basePostViewModel;
+            }
+        }
+        return null;
     }
 
     /*
@@ -213,7 +238,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     }
 
     private class LoadPostsTask extends AsyncTask<Void, Void, Boolean> {
-        private PostsListPostList tmpPosts;
+        private List<PostsListPost> tmpPosts;
         private final ArrayList<Long> mediaIdsToUpdate = new ArrayList<>();
 
         @Override
@@ -238,7 +263,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
             }
 
             // go no further if existing post list is the same
-            if (mPosts.isSameList(tmpPosts)) {
+            if (isSameList(tmpPosts)) {
                 return false;
             }
 
@@ -277,9 +302,31 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
         @Override
         protected void onPostExecute(Boolean result) {
             if (result) {
+                Map<String, BasePostViewModel> posts = new LinkedHashMap<>();
+                ObservableList<BasePostViewModel> tmpPostViewmodels = new ObservableArrayList<>();
+                for (PostsListPost post : tmpPosts) {
+                    BasePostViewModel existingPostViewModel = mPosts.get(post.getRemotePostId());
+                    if (existingPostViewModel == null) {
+                        existingPostViewModel = new PostViewModel(post, mIsStatsSupported);
+                    }
+
+                    posts.put(post.getRemotePostId(), existingPostViewModel);
+                    tmpPostViewmodels.add(existingPostViewModel);
+                }
+
                 mPosts.clear();
-                mPosts.addAll(tmpPosts);
-                mPostsView.setPosts(mPosts, mIsFetchingPosts);
+                mPosts.putAll(posts);
+
+                mPostViewModels.retainAll(tmpPostViewmodels);
+
+                int i = 0;
+                for (BasePostViewModel basePostViewModel : tmpPostViewmodels) {
+                    if (!mPostViewModels.contains(basePostViewModel)) {
+                        mPostViewModels.add(i, basePostViewModel);
+                    }
+
+                    i++;
+                }
 
                 if (mediaIdsToUpdate.size() > 0) {
                     PostMediaService.startService(WordPress.getContext(), mLocalTableBlogId, mediaIdsToUpdate);
@@ -292,8 +339,39 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
         }
     }
 
+    private boolean isSameList(List<PostsListPost> list2) {
+        if (list2 == null || mPosts.size() != list2.size()) {
+            return false;
+        }
+
+        int i = 0;
+        for (Map.Entry<String, BasePostViewModel> entry : mPosts.entrySet()) {
+            PostsListPost newPost = list2.get(i++);
+            PostsListPost currentPost = entry.getValue().getPostsListPost();
+
+            if (newPost.getPostId() != currentPost.getPostId())
+                return false;
+            if (!newPost.getTitle().equals(currentPost.getTitle()))
+                return false;
+            if (newPost.getDateCreatedGmt() != currentPost.getDateCreatedGmt())
+                return false;
+            if (!newPost.getOriginalStatus().equals(currentPost.getOriginalStatus()))
+                return false;
+            if (newPost.isUploading() != currentPost.isUploading())
+                return false;
+            if (newPost.isLocalDraft() != currentPost.isLocalDraft())
+                return false;
+            if (newPost.hasLocalChanges() != currentPost.hasLocalChanges())
+                return false;
+            if (!newPost.getDescription().equals(currentPost.getDescription()))
+                return false;
+        }
+
+        return true;
+    }
+
     private void hidePost(PostsListPost postsListPost) {
-        mPostsView.hidePost(postsListPost);
+        mPostViewModels.remove(mPosts.get(postsListPost.getRemotePostId()));
 
         updateEmptyView();
     }

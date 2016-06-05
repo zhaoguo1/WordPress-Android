@@ -6,7 +6,6 @@ import org.wordpress.android.models.Post;
 import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.ui.BasePresenter;
 import org.wordpress.android.ui.posts.PostsListContracts.PostActionHandler;
-import org.wordpress.android.ui.posts.PostsListContracts.PostAdapterView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
 import org.wordpress.android.widgets.PostListButton;
@@ -16,15 +15,15 @@ import android.view.View;
 public class PostPresenter implements BasePresenter, PostActionHandler {
 
     private final PostView mPostView;
-    private final PostAdapterView mPostAdapterView;
+    private final PostViewModel mPostViewModel;
     private final PostsListPost mPostsListPost;
 
     private final PostsActionHandler mPostsActionHandler;
 
-    public PostPresenter(PostView postView, PostAdapterView postAdapterView, PostsListPost postsListPost,
+    public PostPresenter(PostView postView, PostViewModel postViewModel, PostsListPost postsListPost,
             PostsActionHandler postsActionHandler) {
         mPostView = postView;
-        mPostAdapterView = postAdapterView;
+        mPostViewModel = postViewModel;
         mPostsListPost = postsListPost;
 
         mPostsActionHandler = postsActionHandler;
@@ -72,10 +71,10 @@ public class PostPresenter implements BasePresenter, PostActionHandler {
                 }
                 break;
             case PostListButton.BUTTON_MORE:
-                mPostAdapterView.animateButtonRows(false);
+                mPostViewModel.animateButtonRows(false);
                 break;
             case PostListButton.BUTTON_BACK:
-                mPostAdapterView.animateButtonRows(true);
+                mPostViewModel.animateButtonRows(true);
                 break;
         }
     }

@@ -5,8 +5,30 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <variable name="viewModel" type="org.wordpress.android.ui.posts.PostsListViewModel"/>
-        <variable name="actionHandler" type="org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler"/>
+
+        <variable
+            name="viewModel"
+            type="org.wordpress.android.ui.posts.PostsListViewModel"/>
+
+        <variable
+            name="postView"
+            type="org.wordpress.android.ui.posts.PostsListContracts.PostView"/>
+
+        <variable
+            name="pageView"
+            type="org.wordpress.android.ui.posts.PostsListContracts.PageView"/>
+
+        <variable
+            name="postsActionHandler"
+            type="org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler"/>
+
+        <variable
+            name="pagesActionHandler"
+            type="org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler"/>
+
+        <variable
+            name="onLoadMoreListener"
+            type="org.wordpress.android.ui.posts.adapters.PostsListAdapter.OnLoadMoreListener"/>
     </data>
 
     <RelativeLayout
@@ -62,7 +84,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:paddingTop="@dimen/margin_medium"
-                    android:scrollbars="vertical" />
+                    android:scrollbars="vertical"
+                    app:isPage="@{viewModel.isPage}"
+                    app:posts="@{viewModel.postViewModels}"
+                    app:postView="@{postView}"
+                    app:pageView="@{pageView}"
+                    app:postsActionHandler="@{postsActionHandler}"
+                    app:pagesActionHandler="@{pagesActionHandler}"
+                    app:onLoadMoreListener="@{onLoadMoreListener}"/>
 
             </org.wordpress.android.util.widgets.CustomSwipeRefreshLayout>
 
@@ -73,7 +102,7 @@
                 android:layout_gravity="end|bottom"
                 android:layout_marginBottom="@dimen/fab_margin"
                 android:layout_marginRight="@dimen/fab_margin"
-                android:onClick="@{() -> actionHandler.onFabClick()}"
+                android:onClick="@{() -> postsActionHandler.onFabClick()}"
                 android:src="@drawable/gridicon_create_light"
                 android:contentDescription="@string/new_post"
                 app:borderWidth="0dp"
