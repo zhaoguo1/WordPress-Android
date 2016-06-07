@@ -92,7 +92,7 @@ public class PostsListFragment extends Fragment implements
         final Blog blog = WordPress.getBlog(mLocalBlogId);
         boolean isStatsSupported = blog.isDotcomFlag() || blog.isJetpackPowered();
 
-        PostsListViewModel postsListViewModel = new PostsListViewModel(context, mIsPage);
+        PostsListViewModel postsListViewModel = new PostsListViewModel(mIsPage);
 
         mPostsPresenter = new PostsPresenter(mLocalBlogId, postsListViewModel, this, mIsPage, isStatsSupported);
         mPostsActionHandler = mPostsPresenter;

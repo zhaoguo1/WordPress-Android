@@ -1,27 +1,21 @@
 package org.wordpress.android.ui.posts;
 
 import org.wordpress.android.BR;
-import org.wordpress.android.R;
-import org.wordpress.android.databinding.PostListFragmentBinding;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsViewModel;
 import org.wordpress.android.util.AniUtils;
 import org.wordpress.android.util.helpers.SwipeToRefreshHelper;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.content.Context;
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 import android.databinding.BindingAdapter;
 import android.databinding.ObservableList;
 import android.os.Handler;
-import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 
 public class PostsListViewModel extends BaseObservable implements PostsViewModel {
-    private final Context mContext;
-
     private SwipeToRefreshHelper mSwipeToRefreshHelper;
 
     private boolean mFabVisible;
@@ -29,13 +23,12 @@ public class PostsListViewModel extends BaseObservable implements PostsViewModel
     private boolean mLoadMoreProgressVisible;
     private boolean mEmptyViewVisible;
     private boolean mEmptyViewImageVisible = true;
-    private @StringRes int mEmptyViewTitleResId = R.string.empty_list_default;
+    private CharSequence mEmptyViewTitle = "";
 
     private boolean mIsPage;
     private ObservableList<BasePostViewModel> mPostViewModels;
 
-    public PostsListViewModel(Context context, boolean isPage) {
-        mContext = context;
+    public PostsListViewModel(boolean isPage) {
         mIsPage = isPage;
     }
 
@@ -126,13 +119,13 @@ public class PostsListViewModel extends BaseObservable implements PostsViewModel
 
     @Bindable
     public CharSequence getEmptyViewTitle() {
-        return mContext.getText(mEmptyViewTitleResId);
+        return mEmptyViewTitle;
     }
 
     @Override
-    public void setEmptyViewTitle(@StringRes int emptyViewTitleResId) {
-        if (emptyViewTitleResId != mEmptyViewTitleResId) {
-            mEmptyViewTitleResId = emptyViewTitleResId;
+    public void setEmptyViewTitle(CharSequence emptyViewTitle) {
+        if (emptyViewTitle != mEmptyViewTitle || (mEmptyViewTitle != null && !mEmptyViewTitle.equals(emptyViewTitle))) {
+            mEmptyViewTitle = emptyViewTitle;
             notifyPropertyChanged(BR.emptyViewTitle);
         }
     }

@@ -31,7 +31,7 @@ public interface PostsListContracts {
 
         void setEmptyViewImageVisibility(boolean visible);
 
-        void setEmptyViewTitle(@StringRes int emptyViewTitleResId);
+        void setEmptyViewTitle(CharSequence emptyViewTitle);
 
         void setPosts(ObservableList<BasePostViewModel> postViewModels);
     }

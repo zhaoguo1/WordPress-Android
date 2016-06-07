@@ -84,6 +84,8 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
 
     @Override
     public void init() {
+        mPostsViewModel.setEmptyViewTitle(mPostsView.getText(R.string.empty_list_default));
+
         requestPosts(false);
     }
 
@@ -402,7 +404,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
                 return;
         }
 
-        mPostsViewModel.setEmptyViewTitle(stringId);
+        mPostsViewModel.setEmptyViewTitle(mPostsView.getText(stringId));
         mPostsViewModel.setEmptyViewImageVisibility(emptyViewMessageType == EmptyViewMessageType.NO_CONTENT);
         mPostsViewModel.setEmptyViewVisibility(isEmpty);
     }
