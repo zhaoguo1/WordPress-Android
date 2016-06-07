@@ -12,18 +12,19 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
+import android.databinding.BindingAdapter;
 import android.databinding.ObservableList;
 import android.os.Handler;
 import android.support.annotation.StringRes;
+import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 
 public class PostsListViewModel extends BaseObservable implements PostsViewModel {
     private final Context mContext;
-    private final PostListFragmentBinding mPostListFragmentBinding;
 
     private SwipeToRefreshHelper mSwipeToRefreshHelper;
 
-    private boolean mFabVisible = true;
+    private boolean mFabVisible;
     private boolean mIsRefreshing;
     private boolean mLoadMoreProgressVisible;
     private boolean mEmptyViewVisible;
@@ -33,9 +34,8 @@ public class PostsListViewModel extends BaseObservable implements PostsViewModel
     private boolean mIsPage;
     private ObservableList<BasePostViewModel> mPostViewModels;
 
-    public PostsListViewModel(Context context, PostListFragmentBinding postListFragmentBinding, boolean isPage) {
+    public PostsListViewModel(Context context, boolean isPage) {
         mContext = context;
-        mPostListFragmentBinding = postListFragmentBinding;
         mIsPage = isPage;
     }
 
@@ -53,27 +53,36 @@ public class PostsListViewModel extends BaseObservable implements PostsViewModel
         setFabVisibility(false);
     }
 
-    @Override
     public void slideFabInIfHidden() {
-        // scale in the fab after a brief delay
-        long delayMs = mContext.getResources().getInteger(R.integer.fab_animation_delay);
+        setFabVisibility(true);
+    }
+
+    @BindingAdapter({"slideInDelayMS", "android:visibility"})
+    public static void visibilityAdapter(final FloatingActionButton fab, long delayMS, int visibility) {
+        if (visibility != View.VISIBLE) {
+            fab.setVisibility(visibility);
+            return;
+        }
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                AniUtils.scaleIn(mPostListFragmentBinding.fabButton, AniUtils.Duration.MEDIUM, new
+                AniUtils.scaleIn(fab, AniUtils.Duration.MEDIUM, new
                         AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        setFabVisibility(true);
-                    }
-                });
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+                                fab.setVisibility(View.VISIBLE);
+                            }
+                        });
             }
-        }, delayMs);
+        }, delayMS);
     }
 
     private void setFabVisibility(boolean visible) {
-        mFabVisible = visible;
-        notifyPropertyChanged(BR.fabVisibility);
+        if (visible != mFabVisible) {
+            mFabVisible = visible;
+            notifyPropertyChanged(BR.fabVisibility);
+        }
     }
 
     @Bindable
@@ -83,8 +92,10 @@ public class PostsListViewModel extends BaseObservable implements PostsViewModel
 
     @Override
     public void setIsRefreshing(boolean refreshing) {
-        mIsRefreshing = refreshing;
-        notifyPropertyChanged(BR.isRefreshing);
+        if (refreshing != mIsRefreshing) {
+            mIsRefreshing = refreshing;
+            notifyPropertyChanged(BR.isRefreshing);
+        }
     }
 
     @Bindable
@@ -94,8 +105,10 @@ public class PostsListViewModel extends BaseObservable implements PostsViewModel
 
     @Override
     public void setLoadMoreProgressVisibility(boolean visible) {
-        mLoadMoreProgressVisible = visible;
-        notifyPropertyChanged(BR.loadMoreProgressVisibility);
+        if (visible != mLoadMoreProgressVisible) {
+            mLoadMoreProgressVisible = visible;
+            notifyPropertyChanged(BR.loadMoreProgressVisibility);
+        }
     }
 
     @Bindable
@@ -105,8 +118,10 @@ public class PostsListViewModel extends BaseObservable implements PostsViewModel
 
     @Override
     public void setEmptyViewVisibility(boolean visible) {
-        mEmptyViewVisible = visible;
-        notifyPropertyChanged(BR.emptyViewVisibility);
+        if (visible != mEmptyViewVisible) {
+            mEmptyViewVisible = visible;
+            notifyPropertyChanged(BR.emptyViewVisibility);
+        }
     }
 
     @Bindable
@@ -116,8 +131,10 @@ public class PostsListViewModel extends BaseObservable implements PostsViewModel
 
     @Override
     public void setEmptyViewTitle(@StringRes int emptyViewTitleResId) {
-        mEmptyViewTitleResId = emptyViewTitleResId;
-        notifyPropertyChanged(BR.emptyViewTitle);
+        if (emptyViewTitleResId != mEmptyViewTitleResId) {
+            mEmptyViewTitleResId = emptyViewTitleResId;
+            notifyPropertyChanged(BR.emptyViewTitle);
+        }
     }
 
     @Bindable
@@ -127,8 +144,10 @@ public class PostsListViewModel extends BaseObservable implements PostsViewModel
 
     @Override
     public void setEmptyViewImageVisibility(boolean visible) {
-        mEmptyViewImageVisible = visible;
-        notifyPropertyChanged(BR.emptyViewImageVisibility);
+        if (visible != mEmptyViewImageVisible) {
+            mEmptyViewImageVisible = visible;
+            notifyPropertyChanged(BR.emptyViewImageVisibility);
+        }
     }
 
     @Bindable

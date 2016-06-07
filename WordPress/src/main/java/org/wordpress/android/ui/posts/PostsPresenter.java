@@ -25,7 +25,6 @@ import org.xmlrpc.android.ApiHelper;
 import android.databinding.ObservableArrayList;
 import android.databinding.ObservableList;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -85,14 +84,6 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
 
     @Override
     public void init() {
-        // hide the fab so we can animate it in - note that we only do this on Lollipop and higher
-        // due to a bug in the current implementation which prevents it from being hidden
-        // correctly on pre-L devices (which makes animating it in/out ugly)
-        // https://code.google.com/p/android/issues/detail?id=175331
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mPostsViewModel.hideFab();
-        }
-
         requestPosts(false);
     }
 

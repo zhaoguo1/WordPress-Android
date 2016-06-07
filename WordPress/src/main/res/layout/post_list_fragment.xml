@@ -107,6 +107,7 @@
                 android:contentDescription="@string/new_post"
                 app:borderWidth="0dp"
                 app:rippleColor="@color/fab_pressed"
+                app:slideInDelayMS="@{@integer/fab_animation_delay}"
                 android:visibility="@{viewModel.fabVisibility}"/>
 
         </android.support.design.widget.CoordinatorLayout>
