@@ -5,35 +5,13 @@ import org.wordpress.android.models.Post;
 import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.ui.BaseView;
 
-import android.databinding.ObservableList;
-import android.support.annotation.StringRes;
 import android.view.View;
-
-import java.util.List;
 
 public interface PostsListContracts {
     interface PostsView extends BaseView {
         void newPost();
 
         void withUndo(Undoable undoable);
-    }
-
-    interface PostsViewModel {
-        void hideFab();
-
-        void slideFabInIfHidden();
-
-        void setIsRefreshing(boolean refreshing);
-
-        void setLoadMoreProgressVisibility(boolean visible);
-
-        void setEmptyViewVisibility(boolean visible);
-
-        void setEmptyViewImageVisibility(boolean visible);
-
-        void setEmptyViewTitle(CharSequence emptyViewTitle);
-
-        void setPosts(ObservableList<BasePostViewModel> postViewModels);
     }
 
     interface PostsActionHandler {

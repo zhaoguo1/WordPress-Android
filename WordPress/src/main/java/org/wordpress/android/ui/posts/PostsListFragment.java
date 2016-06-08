@@ -92,13 +92,13 @@ public class PostsListFragment extends Fragment implements
         final Blog blog = WordPress.getBlog(mLocalBlogId);
         boolean isStatsSupported = blog.isDotcomFlag() || blog.isJetpackPowered();
 
-        PostsListViewModel postsListViewModel = new PostsListViewModel(mIsPage);
+        PostsViewModel postsViewModel = new PostsViewModel(mIsPage);
 
-        mPostsPresenter = new PostsPresenter(mLocalBlogId, postsListViewModel, this, mIsPage, isStatsSupported);
+        mPostsPresenter = new PostsPresenter(mLocalBlogId, postsViewModel, this, mIsPage, isStatsSupported);
         mPostsActionHandler = mPostsPresenter;
         mPagesActionHandler = mPostsPresenter;
 
-        postsListViewModel.setSwipeToRefreshHelper(new SwipeToRefreshHelper(
+        postsViewModel.setSwipeToRefreshHelper(new SwipeToRefreshHelper(
                 inflater.getContext(),
                 viewBinding.ptrLayout,
                 new RefreshListener() {
@@ -108,7 +108,7 @@ public class PostsListFragment extends Fragment implements
                     }
                 }));
 
-        viewBinding.setViewModel(postsListViewModel);
+        viewBinding.setViewModel(postsViewModel);
         viewBinding.setPostView(this);
         viewBinding.setPageView(this);
         viewBinding.setPostsActionHandler(mPostsPresenter);

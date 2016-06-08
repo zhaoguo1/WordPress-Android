@@ -10,7 +10,6 @@ import org.wordpress.android.ui.EmptyViewMessageType;
 import org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
-import org.wordpress.android.ui.posts.PostsListContracts.PostsViewModel;
 import org.wordpress.android.ui.posts.PostsListContracts.Undoable;
 import org.wordpress.android.ui.posts.services.PostEvents;
 import org.wordpress.android.ui.posts.services.PostMediaService;
@@ -26,6 +25,7 @@ import android.databinding.ObservableArrayList;
 import android.databinding.ObservableList;
 import android.os.AsyncTask;
 import android.text.TextUtils;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -49,8 +49,6 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     private final Map<String, BasePostViewModel> mPosts = new LinkedHashMap<>();
     private final List<PostsListPost> mTrashedPosts = new ArrayList<>();
 
-    private final ObservableList<BasePostViewModel> mPostViewModels = new ObservableArrayList<>();
-
     private boolean mIsLoadingPosts;
     private boolean mIsFetchingPosts;
 
@@ -73,8 +71,6 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
         mPhotonWidth = displayWidth - (contentSpacing * 2);
         mPhotonHeight = mPostsView.getContext().getResources().getDimensionPixelSize(R.dimen
                 .reader_featured_image_height);
-
-        postsViewModel.setPosts(mPostViewModels);
     }
 
     @Override
@@ -84,7 +80,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
 
     @Override
     public void init() {
-        mPostsViewModel.setEmptyViewTitle(mPostsView.getText(R.string.empty_list_default));
+        mPostsViewModel.emptyViewTitle.set(mPostsView.getString(R.string.empty_list_default));
 
         requestPosts(false);
     }
@@ -97,7 +93,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
             loadPosts();
         }
 
-        mPostsViewModel.slideFabInIfHidden();
+        mPostsViewModel.fabVisibility.set(View.VISIBLE);
     }
 
     @Override
@@ -122,7 +118,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
         if (mediaId == 0) {
             return null;
         }
-        for (BasePostViewModel basePostViewModel : mPostViewModels) {
+        for (BasePostViewModel basePostViewModel : mPostsViewModel.postViewModels) {
             if (basePostViewModel.getPostsListPost().getFeaturedImageId() == mediaId) {
                 return basePostViewModel;
             }
@@ -157,8 +153,8 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     public void onEventMainThread(PostEvents.RequestPosts event) {
         mIsFetchingPosts = false;
         if (event.getBlogId() == WordPress.getCurrentLocalTableBlogId()) {
-            mPostsViewModel.setIsRefreshing(false);
-            mPostsViewModel.setLoadMoreProgressVisibility(false);
+            mPostsViewModel.isRefreshing.set(false);
+            mPostsViewModel.loadMoreProgressVisibility.set(View.GONE);
             if (!event.getFailed()) {
                 mCanLoadMorePosts = event.canLoadMore();
                 loadPosts();
@@ -196,7 +192,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     @Override
     public void onRefreshRequested() {
         if (!NetworkUtils.checkConnection(mPostsView.getContext())) {
-            mPostsViewModel.setIsRefreshing(false);
+            mPostsViewModel.isRefreshing.set(false);
             updateEmptyView(mIsPage, EmptyViewMessageType.NETWORK_ERROR, isPostListEmpty());
             return;
         }
@@ -222,9 +218,9 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
 
         mIsFetchingPosts = true;
         if (loadMore) {
-            mPostsViewModel.setLoadMoreProgressVisibility(true);
+            mPostsViewModel.loadMoreProgressVisibility.set(View.VISIBLE);
         } else {
-            mPostsViewModel.setIsRefreshing(true);
+            mPostsViewModel.isRefreshing.set(true);
         }
         PostUpdateService.startServiceForBlog(mPostsView.getContext(), WordPress.getCurrentLocalTableBlogId(),
                 mIsPage, loadMore);
@@ -310,12 +306,12 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
                 mPosts.clear();
                 mPosts.putAll(posts);
 
-                mPostViewModels.retainAll(tmpPostViewmodels);
+                mPostsViewModel.postViewModels.retainAll(tmpPostViewmodels);
 
                 int i = 0;
                 for (BasePostViewModel basePostViewModel : tmpPostViewmodels) {
-                    if (!mPostViewModels.contains(basePostViewModel)) {
-                        mPostViewModels.add(i, basePostViewModel);
+                    if (!mPostsViewModel.postViewModels.contains(basePostViewModel)) {
+                        mPostsViewModel.postViewModels.add(i, basePostViewModel);
                     }
 
                     i++;
@@ -364,7 +360,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     }
 
     private void hidePost(PostsListPost postsListPost) {
-        mPostViewModels.remove(mPosts.get(postsListPost.getRemotePostId()));
+        mPostsViewModel.postViewModels.remove(mPosts.get(postsListPost.getRemotePostId()));
 
         updateEmptyView();
     }
@@ -377,7 +373,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
                 updateEmptyView(mIsPage, EmptyViewMessageType.NETWORK_ERROR, isPostListEmpty());
             }
         } else if (mPosts.size() > 0) {
-            mPostsViewModel.setEmptyViewVisibility(false);
+            mPostsViewModel.emptyViewVisibility.set(View.GONE);
         }
     }
 
@@ -404,9 +400,10 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
                 return;
         }
 
-        mPostsViewModel.setEmptyViewTitle(mPostsView.getText(stringId));
-        mPostsViewModel.setEmptyViewImageVisibility(emptyViewMessageType == EmptyViewMessageType.NO_CONTENT);
-        mPostsViewModel.setEmptyViewVisibility(isEmpty);
+        mPostsViewModel.emptyViewTitle.set(mPostsView.getString(stringId));
+        mPostsViewModel.emptyViewImageVisibility
+                .set(emptyViewMessageType == EmptyViewMessageType.NO_CONTENT ? View.VISIBLE : View.GONE);
+        mPostsViewModel.emptyViewVisibility.set(isEmpty ? View.VISIBLE : View.GONE);
     }
 
     /*

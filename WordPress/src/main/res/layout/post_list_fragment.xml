@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="org.wordpress.android.ui.posts.PostsListViewModel"/>
+            type="org.wordpress.android.ui.posts.PostsViewModel"/>
 
         <variable
             name="postView"
