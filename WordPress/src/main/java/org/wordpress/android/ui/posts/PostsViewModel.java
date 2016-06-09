@@ -1,5 +1,6 @@
 package org.wordpress.android.ui.posts;
 
+import org.wordpress.android.R;
 import org.wordpress.android.util.AniUtils;
 import org.wordpress.android.util.helpers.SwipeToRefreshHelper;
 
@@ -23,7 +24,7 @@ public class PostsViewModel {
     public final ObservableInt loadMoreProgressVisibility = new ObservableInt(View.GONE);
     public final ObservableInt emptyViewVisibility = new ObservableInt(View.GONE);
     public final ObservableInt emptyViewImageVisibility = new ObservableInt(View.VISIBLE);
-    public final ObservableField<String> emptyViewTitle = new ObservableField<>("");
+    public final ObservableField<Integer> emptyViewTitle = new ObservableField<>(R.string.empty_list_default);
     public final ObservableList<BasePostViewModel> postViewModels = new ObservableArrayList<>();
     public final ObservableBoolean isPage;
 
