@@ -120,7 +120,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
             return null;
         }
         for (BasePostViewModel basePostViewModel : mPostsViewModel.postViewModels) {
-            if (basePostViewModel.getPostsListPost().getFeaturedImageId() == mediaId) {
+            if (basePostViewModel.getPostPresenter().getPostsListPost().getFeaturedImageId() == mediaId) {
                 return basePostViewModel;
             }
         }
@@ -297,7 +297,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
                 for (PostsListPost post : tmpPosts) {
                     BasePostViewModel existingPostViewModel = mPosts.get(post.getRemotePostId());
                     if (existingPostViewModel == null) {
-                        existingPostViewModel = new PostViewModel(post);
+                        existingPostViewModel = new PostViewModel();
                         PostPresenter postPresenter = new PostPresenter(mPostView, (PostViewModel)
                                 existingPostViewModel, post, mIsStatsSupported, PostsPresenter.this);
                         existingPostViewModel.setPostPresenter(postPresenter);
@@ -342,7 +342,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
         int i = 0;
         for (Map.Entry<String, BasePostViewModel> entry : mPosts.entrySet()) {
             PostsListPost newPost = list2.get(i++);
-            PostsListPost currentPost = entry.getValue().getPostsListPost();
+            PostsListPost currentPost = entry.getValue().getPostPresenter().getPostsListPost();
 
             if (newPost.getPostId() != currentPost.getPostId())
                 return false;

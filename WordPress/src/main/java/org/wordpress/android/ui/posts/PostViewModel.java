@@ -1,6 +1,5 @@
 package org.wordpress.android.ui.posts;
 
-import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.util.ObservableString;
 import org.wordpress.android.widgets.WPNetworkImageView;
 
@@ -49,10 +48,6 @@ public class PostViewModel extends BasePostViewModel {
     // counters used for triggering the animation of the buttons row
     private Integer mDoButtonAnimationCounter = 0;
     private Integer mDoneButtonAnimationCounter = 0;
-
-    public PostViewModel(PostsListPost postsListPost) {
-        super(postsListPost);
-    }
 
     @BindingAdapter({"showRow1", "canShowStatsForPost", "postViewModel"})
     public static void onAnimateButtonRow(final LinearLayout layoutButtons, final boolean showRow1, final boolean

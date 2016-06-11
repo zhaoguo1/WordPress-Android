@@ -21,8 +21,6 @@ public class PageViewModel extends BasePostViewModel {
     private PostsListPost mPostsListPostPrevious;
 
     public PageViewModel(int position, PostsListPost postsListPost, PostsListPost postsListPostPrevious) {
-        super(postsListPost);
-
         mPosition = position;
         mPostsListPost = postsListPost;
         mPostsListPostPrevious = postsListPostPrevious;

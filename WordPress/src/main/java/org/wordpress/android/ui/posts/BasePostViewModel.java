@@ -12,7 +12,6 @@ import android.view.View;
 
 public abstract class BasePostViewModel extends BaseObservable {
     protected Context mContext;
-    private PostsListPost mPostsListPost;
     private PostPresenter mPostPresenter;
 
     public final ObservableString title = new ObservableString();
@@ -27,19 +26,10 @@ public abstract class BasePostViewModel extends BaseObservable {
 
     public void setPostPresenter(PostPresenter postPresenter) {
         mPostPresenter = postPresenter;
-        mPostsListPost = postPresenter.getPostsListPost();
         notifyChange();
-    }
-
-    public BasePostViewModel(PostsListPost postsListPost) {
-        mPostsListPost = postsListPost;
     }
 
     public void setContext(Context context) {
         mContext = context;
-    }
-
-    public PostsListPost getPostsListPost() {
-        return mPostsListPost;
     }
 }
