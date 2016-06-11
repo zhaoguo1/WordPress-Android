@@ -12,7 +12,18 @@ import android.view.View;
 
 public abstract class BasePostViewModel extends BaseObservable {
     protected Context mContext;
-    protected PostsListPost mPostsListPost;
+    private PostsListPost mPostsListPost;
+    private PostPresenter mPostPresenter;
+
+    public PostPresenter getPostPresenter() {
+        return mPostPresenter;
+    }
+
+    public void setPostPresenter(PostPresenter postPresenter) {
+        mPostPresenter = postPresenter;
+        mPostsListPost = postPresenter.getPostsListPost();
+        notifyChange();
+    }
 
     public BasePostViewModel(PostsListPost postsListPost) {
         mPostsListPost = postsListPost;

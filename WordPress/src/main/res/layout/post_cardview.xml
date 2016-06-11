@@ -98,7 +98,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="false"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    wp:showRow1="@{postViewModel.showRow1}"
+                    wp:canShowStatsForPost="@{postViewModel.canShowStatsForPost}"
+                    wp:postViewModel="@{postViewModel}">
 
                     <org.wordpress.android.widgets.PostListButton
                         android:id="@+id/btn_edit"

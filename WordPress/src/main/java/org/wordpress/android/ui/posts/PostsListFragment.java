@@ -94,7 +94,7 @@ public class PostsListFragment extends Fragment implements
 
         PostsViewModel postsViewModel = new PostsViewModel(mIsPage);
 
-        mPostsPresenter = new PostsPresenter(mLocalBlogId, postsViewModel, this, mIsPage, isStatsSupported);
+        mPostsPresenter = new PostsPresenter(mLocalBlogId, postsViewModel, this, this, mIsPage, isStatsSupported);
         mPostsActionHandler = mPostsPresenter;
         mPagesActionHandler = mPostsPresenter;
 

@@ -10,6 +10,7 @@ import org.wordpress.android.ui.EmptyViewMessageType;
 import org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
+import org.wordpress.android.ui.posts.PostsListContracts.PostView;
 import org.wordpress.android.ui.posts.PostsListContracts.Undoable;
 import org.wordpress.android.ui.posts.services.PostEvents;
 import org.wordpress.android.ui.posts.services.PostMediaService;
@@ -38,6 +39,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
 
     private final PostsViewModel mPostsViewModel;
     private final PostsView mPostsView;
+    private final PostView mPostView;
     private final int mLocalTableBlogId;
     private final boolean mIsPrivateBlog;
     private final boolean mIsPage;
@@ -54,10 +56,11 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
 
     private boolean mCanLoadMorePosts = true;
 
-    public PostsPresenter(int blogLocalId, PostsViewModel postsViewModel, PostsView postsView, boolean isPage,
-            boolean isStatsSupported) {
+    public PostsPresenter(int blogLocalId, PostsViewModel postsViewModel, PostsView postsView, PostView postView,
+            boolean isPage, boolean isStatsSupported) {
         mPostsViewModel = postsViewModel;
         mPostsView = postsView;
+        mPostView = postView;
         mIsPage = isPage;
         mIsStatsSupported = isStatsSupported;
 
@@ -108,7 +111,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
         BasePostViewModel basePostViewModel = indexOfFeaturedMediaId(event.getMediaId());
 
         if (basePostViewModel != null && basePostViewModel instanceof PostViewModel) {
-            ((PostViewModel) basePostViewModel).setFeaturedImageUrl(event.getMediaUrl());
+            ((PostViewModel) basePostViewModel).featuredImageUrl.set(event.getMediaUrl());
         }
     }
 
@@ -294,7 +297,12 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
                 for (PostsListPost post : tmpPosts) {
                     BasePostViewModel existingPostViewModel = mPosts.get(post.getRemotePostId());
                     if (existingPostViewModel == null) {
-                        existingPostViewModel = new PostViewModel(post, mIsStatsSupported);
+                        existingPostViewModel = new PostViewModel(post);
+                        PostPresenter postPresenter = new PostPresenter(mPostView, (PostViewModel)
+                                existingPostViewModel, post, mIsStatsSupported, PostsPresenter.this);
+                        existingPostViewModel.setPostPresenter(postPresenter);
+                    } else {
+                        existingPostViewModel.getPostPresenter().setPostsListPost(post);
                     }
 
                     posts.put(post.getRemotePostId(), existingPostViewModel);

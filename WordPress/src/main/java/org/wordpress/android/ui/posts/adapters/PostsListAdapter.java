@@ -35,7 +35,6 @@ import org.wordpress.android.ui.posts.PostsListFragment;
  */
 public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private PostView mPostView;
     private PageView mPageView;
     private OnLoadMoreListener mOnLoadMoreListener;
     private PagesActionHandler mPagesActionHandler;
@@ -48,12 +47,11 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEW_TYPE_POST_OR_PAGE = 0;
     private static final int VIEW_TYPE_ENDLIST_INDICATOR = 1;
 
-    public PostsListAdapter(boolean isPage, ObservableList<BasePostViewModel> postViewModels, PostView postView,
-            PageView pageView, PostsActionHandler postsActionHandler, PagesActionHandler pagesActionHandler,
-            OnLoadMoreListener onLoadMoreListener) {
+    public PostsListAdapter(boolean isPage, ObservableList<BasePostViewModel> postViewModels, PageView pageView,
+            PostsActionHandler postsActionHandler, PagesActionHandler pagesActionHandler, OnLoadMoreListener
+            onLoadMoreListener) {
         mIsPage = isPage;
         mPostViewModels = postViewModels;
-        mPostView = postView;
         mPageView = pageView;
         mPagesActionHandler = pagesActionHandler;
         mPostsActionHandler = postsActionHandler;
@@ -154,15 +152,11 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             final PostViewModel postViewModel = (PostViewModel) mPostViewModels.get(position);
             postViewModel.setContext(context);
-            postViewModel.setPostCardviewBinding(binding);
 
-            PostActionHandler postActionHandler = new PostPresenter(
-                    mPostView,
-                    postViewModel,
-                    postViewModel.getPostsListPost(),
-                    mPostsActionHandler);
+            postViewModel.getPostPresenter().init();
+            postViewModel.getPostPresenter().start();
 
-            binding.setActionHandler(postActionHandler);
+            binding.setActionHandler(postViewModel.getPostPresenter());
             binding.setPostViewModel(postViewModel);
             binding.executePendingBindings();
         } else if (holder instanceof PageViewHolder) {
@@ -267,7 +261,7 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (recyclerView.getAdapter() == null) {
             LinearLayoutManager layoutManager = new LinearLayoutManager(recyclerView.getContext());
             recyclerView.setLayoutManager(layoutManager);
-            recyclerView.setAdapter(new PostsListAdapter(isPage, postViewModels, postView, pageView, postsActionHandler,
+            recyclerView.setAdapter(new PostsListAdapter(isPage, postViewModels, pageView, postsActionHandler,
                     pagesActionHandler, onLoadMoreListener));
         }
     }
