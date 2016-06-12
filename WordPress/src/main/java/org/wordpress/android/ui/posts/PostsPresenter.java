@@ -183,11 +183,11 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     }
 
     private void loadPosts() {
-        if (mIsLoadingPosts) {
-            AppLog.d(AppLog.T.POSTS, "post adapter > already loading posts");
-        } else {
+//        if (mIsLoadingPosts) {
+//            AppLog.d(AppLog.T.POSTS, "post adapter > already loading posts");
+//        } else {
             new LoadPostsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }
+//        }
     }
 
     @Override
@@ -332,8 +332,19 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
                 mPosts.clear();
                 mPosts.putAll(posts);
 
-                mPostsViewModel.postViewModels.retainAll(tmpPostViewmodels);
+                // manually remove viewModels no longer present (Collection methods like 'retainAll' don't properly
+                // fire the needed removal notifications :( )
+                List<BasePostViewModel> toRemove = new ArrayList<>();
+                for (BasePostViewModel vm : mPostsViewModel.postViewModels) {
+                    if (!tmpPostViewmodels.contains(vm)) {
+                        toRemove.add(vm);
+                    }
+                }
+                for (BasePostViewModel vm : toRemove) {
+                    mPostsViewModel.postViewModels.remove(vm);
+                }
 
+                // add any new viewModels into the correct position
                 int i = 0;
                 for (BasePostViewModel basePostViewModel : tmpPostViewmodels) {
                     if (!mPostsViewModel.postViewModels.contains(basePostViewModel)) {
