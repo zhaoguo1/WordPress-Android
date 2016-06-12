@@ -48,6 +48,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     private final int mPhotonWidth;
     private final int mPhotonHeight;
 
+    private final List<BasePostViewModel> mLocalDraftPostViewModels = new ArrayList<>();
     private final Map<String, BasePostViewModel> mPosts = new LinkedHashMap<>();
     private final List<PostsListPost> mTrashedPosts = new ArrayList<>();
 
@@ -292,12 +293,25 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
         @Override
         protected void onPostExecute(Boolean result) {
             if (result) {
-                Map<String, BasePostViewModel> posts = new LinkedHashMap<>();
+                List<BasePostViewModel> localDraftViewModels = new ArrayList<>();
+                Map<String, BasePostViewModel> postViewModels = new LinkedHashMap<>();
 
                 ObservableList<BasePostViewModel> tmpPostViewmodels = new ObservableArrayList<>();
                 PostsListPost postPrevious = null;
+                int localDraftIndex = 0;
                 for (PostsListPost post : tmpPosts) {
-                    BasePostViewModel foundBaseViewModel = mPosts.get(post.getRemotePostId());
+                    BasePostViewModel foundBaseViewModel = null;
+
+                    if (!post.isLocalDraft()) {
+                        foundBaseViewModel = mPosts.get(post.getRemotePostId());
+                    } else {
+                        if (mLocalDraftPostViewModels.size() > localDraftIndex) {
+                            foundBaseViewModel = mLocalDraftPostViewModels.get(localDraftIndex);
+                        }
+
+                        localDraftIndex++;
+                    }
+
                     if (foundBaseViewModel == null) {
                         if (mIsPage) {
                             foundBaseViewModel = new PageViewModel();
@@ -323,14 +337,21 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
                         }
                     }
 
-                    posts.put(post.getRemotePostId(), foundBaseViewModel);
+                    if (post.isLocalDraft()) {
+                        localDraftViewModels.add(foundBaseViewModel);
+                    } else {
+                        postViewModels.put(post.getRemotePostId(), foundBaseViewModel);
+                    }
                     tmpPostViewmodels.add(foundBaseViewModel);
 
                     postPrevious = post;
                 }
 
+                mLocalDraftPostViewModels.clear();
+                mLocalDraftPostViewModels.addAll(localDraftViewModels);
+
                 mPosts.clear();
-                mPosts.putAll(posts);
+                mPosts.putAll(postViewModels);
 
                 // manually remove viewModels no longer present (Collection methods like 'retainAll' don't properly
                 // fire the needed removal notifications :( )
