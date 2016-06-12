@@ -1,18 +1,14 @@
 package org.wordpress.android.ui.posts;
 
-import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.util.ObservableString;
 
-import android.content.Context;
-import android.databinding.BaseObservable;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
-public abstract class BasePostViewModel extends BaseObservable {
-    protected Context mContext;
-    private PostPresenter mPostPresenter;
+public abstract class BasePostViewModel {
+    private BasePostPresenter mBasePostPresenter;
 
     public final ObservableString title = new ObservableString();
     public final ObservableInt statusTextVisibility = new ObservableInt(View.GONE);
@@ -20,16 +16,11 @@ public abstract class BasePostViewModel extends BaseObservable {
     public final ObservableInt statusTextColor = new ObservableInt();
     public final ObservableField<Drawable> statusTextLeftDrawable = new ObservableField<>();
 
-    public PostPresenter getPostPresenter() {
-        return mPostPresenter;
+    public BasePostPresenter getBasePostPresenter() {
+        return mBasePostPresenter;
     }
 
-    public void setPostPresenter(PostPresenter postPresenter) {
-        mPostPresenter = postPresenter;
-        notifyChange();
-    }
-
-    public void setContext(Context context) {
-        mContext = context;
+    public void setBasePostPresenter(BasePostPresenter basePostPresenter) {
+        mBasePostPresenter = basePostPresenter;
     }
 }

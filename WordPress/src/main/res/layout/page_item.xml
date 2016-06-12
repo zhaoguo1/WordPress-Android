@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/page_item_background"
+        android:onClick="@{() -> actionHandler.onPageSelected()}"
         android:orientation="vertical">
 
         <View
@@ -102,6 +103,8 @@
                 android:contentDescription="@string/more"
                 android:src="@drawable/ic_action_more"
                 android:onClick="@{(view) -> actionHandler.onMoreButtonClick(view)}"
+                app:showPagePopupMenuTrigger="@{pageViewModel.showPagePopupMenuTrigger}"
+                app:pageViewModel="@{pageViewModel}"
                 android:visibility="@{pageViewModel.moreButtonVisibility}"/>
         </RelativeLayout>
 

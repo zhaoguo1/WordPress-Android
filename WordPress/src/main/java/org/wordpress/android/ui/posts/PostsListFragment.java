@@ -20,7 +20,6 @@ import org.wordpress.android.databinding.PostListFragmentBinding;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.Post;
 import org.wordpress.android.ui.ActivityLauncher;
-import org.wordpress.android.ui.posts.PostsListContracts.PageView;
 import org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
@@ -37,7 +36,6 @@ import org.wordpress.android.widgets.RecyclerItemDecoration;
 public class PostsListFragment extends Fragment implements
         PostsListAdapter.OnLoadMoreListener,
         PostsView,
-        PageView,
         PostView {
 
     private static final String ARG_LOCAL_BLOG_ID = "ARG_LOCAL_BLOG_ID";
@@ -110,7 +108,6 @@ public class PostsListFragment extends Fragment implements
 
         viewBinding.setViewModel(postsViewModel);
         viewBinding.setPostView(this);
-        viewBinding.setPageView(this);
         viewBinding.setPostsActionHandler(mPostsPresenter);
         viewBinding.setPagesActionHandler(mPostsPresenter);
         viewBinding.setOnLoadMoreListener(this);

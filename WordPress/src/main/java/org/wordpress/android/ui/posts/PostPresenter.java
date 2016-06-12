@@ -5,7 +5,6 @@ import org.wordpress.android.WordPress;
 import org.wordpress.android.models.Post;
 import org.wordpress.android.models.PostStatus;
 import org.wordpress.android.models.PostsListPost;
-import org.wordpress.android.ui.BasePresenter;
 import org.wordpress.android.ui.posts.PostsListContracts.PostActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
@@ -15,37 +14,33 @@ import org.wordpress.android.widgets.PostListButton;
 
 import android.view.View;
 
-public class PostPresenter implements BasePresenter, PostActionHandler {
+public class PostPresenter extends BasePostPresenter implements PostActionHandler {
+    private boolean mHasInit;
 
     private final PostView mPostView;
     private final PostViewModel mPostViewModel;
     private final boolean mIsStatsSupported;
 
-    private PostsListPost mPostsListPost;
     private boolean mAlwaysShowAllButtons;
 
     private final PostsActionHandler mPostsActionHandler;
 
-    public PostPresenter(PostView postView, PostViewModel postViewModel, PostsListPost postsListPost, boolean
-            isStatsSupported, PostsActionHandler postsActionHandler) {
+    public PostPresenter(PostView postView, PostViewModel postViewModel, boolean isStatsSupported, PostsActionHandler
+            postsActionHandler) {
         mPostView = postView;
         mPostViewModel = postViewModel;
-        mPostsListPost = postsListPost;
         mIsStatsSupported = isStatsSupported;
 
         int displayWidth = DisplayUtils.getDisplayPixelWidth(mPostView.getContext());
         // on larger displays we can always show all buttons
-        mAlwaysShowAllButtons = (displayWidth >= 3080);
+        mAlwaysShowAllButtons = (displayWidth >= 1080);
 
         mPostsActionHandler = postsActionHandler;
     }
 
-    public PostsListPost getPostsListPost() {
-        return mPostsListPost;
-    }
-
     public void setPostsListPost(PostsListPost postsListPost) {
         mPostsListPost = postsListPost;
+
         displayPost();
     }
 
@@ -101,6 +96,8 @@ public class PostPresenter implements BasePresenter, PostActionHandler {
 
     @Override
     public void init() {
+        mHasInit = true;
+
         displayPost();
     }
 
@@ -113,12 +110,11 @@ public class PostPresenter implements BasePresenter, PostActionHandler {
     }
 
     private void displayPost() {
-        // set title
-        if (mPostsListPost.hasTitle()) {
-            mPostViewModel.title.set(mPostsListPost.getTitle());
-        } else {
-            mPostViewModel.title.set("(" + mPostView.getContext().getResources().getString(R.string.untitled) + ")");
+        if (!mHasInit) {
+            return;
         }
+
+        displayCommon(mPostViewModel, mPostView.getContext());
 
         // set excerpt
         if (mPostsListPost.hasExcerpt()) {
@@ -140,118 +136,6 @@ public class PostPresenter implements BasePresenter, PostActionHandler {
         // set featured image visibility
         mPostViewModel.featuredImageVisibility.set((mPostsListPost.hasFeaturedImageId() || mPostsListPost
                 .hasFeaturedImageUrl()) ? View.VISIBLE : View.GONE);
-
-        // set status text
-        if ((mPostsListPost.getStatusEnum() == PostStatus.PUBLISHED) && !mPostsListPost.isLocalDraft() &&
-                !mPostsListPost.hasLocalChanges()) {
-            mPostViewModel.statusText.set("");
-        } else {
-            int statusTextResId = 0;
-
-            if (mPostsListPost.isUploading()) {
-                statusTextResId = R.string.post_uploading;
-            } else if (mPostsListPost.isLocalDraft()) {
-                statusTextResId = R.string.local_draft;
-            } else if (mPostsListPost.hasLocalChanges()) {
-                statusTextResId = R.string.local_changes;
-            } else {
-                switch (mPostsListPost.getStatusEnum()) {
-                    case DRAFT:
-                        statusTextResId = R.string.draft;
-                        break;
-                    case PRIVATE:
-                        statusTextResId = R.string.post_private;
-                        break;
-                    case PENDING:
-                        statusTextResId = R.string.pending_review;
-                        break;
-                    case SCHEDULED:
-                        statusTextResId = R.string.scheduled;
-                        break;
-                    case TRASHED:
-                        statusTextResId = R.string.trashed;
-                        break;
-                }
-            }
-
-            mPostViewModel.statusText.set(statusTextResId != 0 ?
-                    mPostView.getContext().getResources().getString(statusTextResId) : "");
-        }
-
-        // set status text color
-        if ((mPostsListPost.getStatusEnum() == PostStatus.PUBLISHED) && !mPostsListPost.isLocalDraft() &&
-                !mPostsListPost.hasLocalChanges()) {
-            mPostViewModel.statusTextColor.set(0);
-        } else {
-            int statusColorResId = R.color.grey_darken_10;
-
-            if (mPostsListPost.isUploading()) {
-                statusColorResId = R.color.alert_yellow;
-            } else if (mPostsListPost.isLocalDraft()) {
-                statusColorResId = R.color.alert_yellow;
-            } else if (mPostsListPost.hasLocalChanges()) {
-                statusColorResId = R.color.alert_yellow;
-            } else {
-                switch (mPostsListPost.getStatusEnum()) {
-                    case DRAFT:
-                        statusColorResId = R.color.alert_yellow;
-                        break;
-                    case PRIVATE:
-                        break;
-                    case PENDING:
-                        statusColorResId = R.color.alert_yellow;
-                        break;
-                    case SCHEDULED:
-                        statusColorResId = R.color.alert_yellow;
-                        break;
-                    case TRASHED:
-                        statusColorResId = R.color.alert_red;
-                        break;
-                }
-            }
-
-            mPostViewModel.statusTextColor.set(mPostView.getContext().getResources().getColor(statusColorResId));
-        }
-
-        // set status text visibility
-        mPostViewModel.statusTextVisibility.set(
-                ((mPostsListPost.getStatusEnum() == PostStatus.PUBLISHED) && !mPostsListPost.isLocalDraft() &&
-                        !mPostsListPost.hasLocalChanges()) ? View.GONE : View.VISIBLE);
-
-        // set status text left drawable
-        if ((mPostsListPost.getStatusEnum() == PostStatus.PUBLISHED) && !mPostsListPost.isLocalDraft() &&
-                !mPostsListPost.hasLocalChanges()) {
-            mPostViewModel.statusTextLeftDrawable.set(null);
-        } else {
-            int statusIconResId = 0;
-
-            if (mPostsListPost.isUploading()) {
-            } else if (mPostsListPost.isLocalDraft()) {
-                statusIconResId = R.drawable.noticon_scheduled;
-            } else if (mPostsListPost.hasLocalChanges()) {
-                statusIconResId = R.drawable.noticon_scheduled;
-            } else {
-                switch (mPostsListPost.getStatusEnum()) {
-                    case DRAFT:
-                        statusIconResId = R.drawable.noticon_scheduled;
-                        break;
-                    case PRIVATE:
-                        break;
-                    case PENDING:
-                        statusIconResId = R.drawable.noticon_scheduled;
-                        break;
-                    case SCHEDULED:
-                        statusIconResId = R.drawable.noticon_scheduled;
-                        break;
-                    case TRASHED:
-                        statusIconResId = R.drawable.noticon_trashed;
-                        break;
-                }
-            }
-
-            mPostViewModel.statusTextLeftDrawable.set(statusIconResId != 0 ?
-                    mPostView.getContext().getResources().getDrawable(statusIconResId) : null);
-        }
 
         // set date visibility
         mPostViewModel.dateVisibility.set(mPostsListPost.isLocalDraft() ? View.GONE : View.VISIBLE);

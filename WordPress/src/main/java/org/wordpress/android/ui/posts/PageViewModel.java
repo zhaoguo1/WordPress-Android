@@ -1,87 +1,68 @@
 package org.wordpress.android.ui.posts;
 
 import org.wordpress.android.R;
-import org.wordpress.android.models.PostStatus;
-import org.wordpress.android.models.PostsListPost;
-import org.wordpress.android.util.DateTimeUtils;
+import org.wordpress.android.ui.posts.PostsListContracts.PageActionHandler;
+import org.wordpress.android.ui.posts.adapters.PageMenuAdapter;
+import org.wordpress.android.util.ObservableString;
 
 import android.content.Context;
-import android.text.format.DateUtils;
+import android.databinding.BindingAdapter;
+import android.databinding.ObservableInt;
 import android.view.View;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.ListPopupWindow;
 
 /**
  * Exposes the data to be used in the {@link PostsListContracts.PageView}.
  */
 public class PageViewModel extends BasePostViewModel {
-    private int mPosition;
-    private PostsListPost mPostsListPost;
-    private PostsListPost mPostsListPostPrevious;
+    public final ObservableString date = new ObservableString();
+    public final ObservableInt dateHeaderVisibility = new ObservableInt();
+    public final ObservableInt moreButtonVisibility = new ObservableInt();
+    public final ObservableInt dividerTopVisibility = new ObservableInt();
 
-    public PageViewModel(int position, PostsListPost postsListPost, PostsListPost postsListPostPrevious) {
-        mPosition = position;
-        mPostsListPost = postsListPost;
-        mPostsListPostPrevious = postsListPostPrevious;
-    }
+    public final ObservableInt showPagePopupMenuTrigger = new ObservableInt();
 
-    public String getDate() {
-        return getPageDateHeaderText(mContext, mPostsListPost);
-    }
+    // counters used for triggering the animation of the buttons row
+    private Integer mDoneShowPagePopupMenuCounter = 0;
 
-    public int getDateHeaderVisibility() {
-        // don't show date header if same as previous
-        boolean showDate;
-        if (mPostsListPostPrevious != null) {
-            String prevDateStr = getPageDateHeaderText(mContext, mPostsListPostPrevious);
-            showDate = !prevDateStr.equals(getPageDateHeaderText(mContext, mPostsListPost));
-        } else {
-            showDate = true;
-        }
-        return showDate ? View.VISIBLE : View.GONE;
+    public PageActionHandler getActionHandler() {
+        return (PageActionHandler) getBasePostPresenter();
     }
 
     /*
-     * returns the caption to show in the date header for the passed page - pages with the same
-     * caption will be grouped together
-     *  - if page is local draft, returns "Local draft"
-     *  - if page is scheduled, returns formatted date w/o time
-     *  - if created today or yesterday, returns "Today" or "Yesterday"
-     *  - if created this month, returns the number of days ago
-     *  - if created this year, returns the month name
-     *  - if created before this year, returns the month name with year
+     * user tapped "..." next to a page, show a popup menu of choices
      */
-    private static String getPageDateHeaderText(Context context, PostsListPost page) {
-        if (page.isLocalDraft()) {
-            return context.getString(R.string.local_draft);
-        } else if (page.getStatusEnum() == PostStatus.SCHEDULED) {
-            return DateUtils.formatDateTime(context, page.getDateCreatedGmt(), DateUtils.FORMAT_ABBREV_ALL);
-        } else {
-            Date dtCreated = new Date(page.getDateCreatedGmt());
-            Date dtNow = DateTimeUtils.nowUTC();
-            int daysBetween = DateTimeUtils.daysBetween(dtCreated, dtNow);
-            if (daysBetween == 0) {
-                return context.getString(R.string.today);
-            } else if (daysBetween == 1) {
-                return context.getString(R.string.yesterday);
-            } else if (DateTimeUtils.isSameMonthAndYear(dtCreated, dtNow)) {
-                return String.format(context.getString(R.string.days_ago), daysBetween);
-            } else if (DateTimeUtils.isSameYear(dtCreated, dtNow)) {
-                return new SimpleDateFormat("MMMM").format(dtCreated);
-            } else {
-                return new SimpleDateFormat("MMMM yyyy").format(dtCreated);
-            }
+    @BindingAdapter({"showPagePopupMenuTrigger", "pageViewModel"})
+    public static void onShowPagePopupMenu(ImageView imageView, final int showPagePopupMenuTrigger, final
+    PageViewModel pageViewModel) {
+        if (pageViewModel.mDoneShowPagePopupMenuCounter == showPagePopupMenuTrigger) {
+            return;
         }
+
+        pageViewModel.mDoneShowPagePopupMenuCounter = showPagePopupMenuTrigger;
+
+        Context context = imageView.getContext();
+        final ListPopupWindow listPopup = new ListPopupWindow(context);
+        listPopup.setAnchorView(imageView);
+
+        listPopup.setWidth(context.getResources().getDimensionPixelSize(R.dimen.menu_item_width));
+        listPopup.setModal(true);
+        listPopup.setAdapter(new PageMenuAdapter(context, pageViewModel.getBasePostPresenter().getPostsListPost()));
+        listPopup.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                listPopup.dismiss();
+                if (pageViewModel.getActionHandler() != null) {
+                    pageViewModel.getActionHandler().onPageButtonClick((int) id);
+                }
+            }
+        });
+        listPopup.show();
     }
 
-    public int getMoreButtonVisibility() {
-        // no "..." more button when uploading
-        return mPostsListPost.isUploading() ? View.GONE : View.VISIBLE;
-    }
-
-    public int getDividerTopVisibility() {
-        // only show the top divider for the first item
-        return mPosition == 0 ? View.VISIBLE : View.GONE;
+    public void showPagePopupMenu() {
+        showPagePopupMenuTrigger.set(showPagePopupMenuTrigger.get() + 1);
     }
 }

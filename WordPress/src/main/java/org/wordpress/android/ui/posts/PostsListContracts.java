@@ -59,14 +59,9 @@ public interface PostsListContracts {
         void onTrashPost(PostsListPost postsListPost);
     }
 
-    interface PageView extends PostView {
-    }
-
-    interface PageAdapterView {
-        void showPagePopupMenu(View view);
-    }
-
     interface PageActionHandler {
+        void onPageSelected();
+
         void onMoreButtonClick(View view);
 
         void onPageButtonClick(int buttonType);
