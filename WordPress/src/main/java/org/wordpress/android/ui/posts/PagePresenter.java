@@ -6,8 +6,8 @@ import org.wordpress.android.models.Post;
 import org.wordpress.android.models.PostStatus;
 import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.ui.posts.PostsListContracts.PageActionHandler;
-import org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
+import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
 import org.wordpress.android.util.DateTimeUtils;
 import org.wordpress.android.widgets.PostListButton;
 
@@ -22,15 +22,15 @@ public class PagePresenter extends BasePostPresenter<PageViewModel> implements P
     private final PostView mPageView;
     private PostsListPost mPostsListPostPrevious;
 
-    private final PagesActionHandler mPagesActionHandler;
+    private final PostsListContracts.PostsActionHandler mPostsActionHandler;
 
     public PagePresenter(PostView pageView, PostsListPost postsListPost, PostsListPost postsListPostPrevious,
-            PagesActionHandler pagesActionHandler) {
+            PostsActionHandler postsActionHandler) {
         super(new PageViewModel(), postsListPost);
 
         mPageView = pageView;
         mPostsListPostPrevious = postsListPostPrevious;
-        mPagesActionHandler = pagesActionHandler;
+        mPostsActionHandler = postsActionHandler;
     }
 
     public void setPostsListPosts(PostsListPost postsListPost, PostsListPost postsListPostPrevious) {
@@ -81,7 +81,7 @@ public class PagePresenter extends BasePostPresenter<PageViewModel> implements P
             case PostListButton.BUTTON_DELETE:
                 // prevent deleting post while it's being uploaded
                 if (!mPostsListPost.isUploading()) {
-                    mPagesActionHandler.onTrashPost(mPostsListPost);
+                    mPostsActionHandler.onTrashPost(mPostsListPost);
                 }
                 break;
         }

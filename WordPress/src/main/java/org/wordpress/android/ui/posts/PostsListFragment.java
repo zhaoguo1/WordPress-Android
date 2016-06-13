@@ -20,7 +20,6 @@ import org.wordpress.android.databinding.PostListFragmentBinding;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.Post;
 import org.wordpress.android.ui.ActivityLauncher;
-import org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
@@ -43,7 +42,6 @@ public class PostsListFragment extends Fragment implements
 
     PostsPresenter mPostsPresenter;
     PostsActionHandler mPostsActionHandler;
-    PagesActionHandler mPagesActionHandler;
 
     public static final int POSTS_REQUEST_COUNT = 20;
 
@@ -94,7 +92,6 @@ public class PostsListFragment extends Fragment implements
 
         mPostsPresenter = new PostsPresenter(mLocalBlogId, postsViewModel, this, this, mIsPage, isStatsSupported);
         mPostsActionHandler = mPostsPresenter;
-        mPagesActionHandler = mPostsPresenter;
 
         postsViewModel.setSwipeToRefreshHelper(new SwipeToRefreshHelper(
                 inflater.getContext(),
@@ -109,7 +106,6 @@ public class PostsListFragment extends Fragment implements
         viewBinding.setViewModel(postsViewModel);
         viewBinding.setPostView(this);
         viewBinding.setPostsActionHandler(mPostsPresenter);
-        viewBinding.setPagesActionHandler(mPostsPresenter);
         viewBinding.setOnLoadMoreListener(this);
         viewBinding.executePendingBindings();
 

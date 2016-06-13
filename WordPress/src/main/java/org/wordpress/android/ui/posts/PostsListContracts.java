@@ -54,11 +54,6 @@ public interface PostsListContracts {
         void onPostButtonClick(int buttonType);
     }
 
-    interface PagesActionHandler {
-
-        void onTrashPost(PostsListPost postsListPost);
-    }
-
     interface PageActionHandler {
         void onPageSelected();
 

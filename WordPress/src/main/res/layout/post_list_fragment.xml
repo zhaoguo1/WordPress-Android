@@ -19,10 +19,6 @@
             type="org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler"/>
 
         <variable
-            name="pagesActionHandler"
-            type="org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler"/>
-
-        <variable
             name="onLoadMoreListener"
             type="org.wordpress.android.ui.posts.adapters.PostsListAdapter.OnLoadMoreListener"/>
     </data>
