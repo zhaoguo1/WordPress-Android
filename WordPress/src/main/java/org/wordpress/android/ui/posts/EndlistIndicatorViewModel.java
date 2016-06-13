@@ -3,10 +3,8 @@ package org.wordpress.android.ui.posts;
 import org.wordpress.android.util.DisplayUtils;
 
 import android.content.Context;
-import android.databinding.BaseObservable;
 import android.databinding.BindingAdapter;
 import android.databinding.ObservableFloat;
-import android.databinding.ObservableInt;
 import android.view.View;
 import android.view.ViewGroup;
 

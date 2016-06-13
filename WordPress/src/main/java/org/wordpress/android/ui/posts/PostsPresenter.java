@@ -55,9 +55,9 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler {
 
     private boolean mCanLoadMorePosts = true;
 
-    public PostsPresenter(int blogLocalId, PostsViewModel postsViewModel, PostsView postsView, PostView postView,
-            boolean isPage, boolean isStatsSupported) {
-        mPostsViewModel = postsViewModel;
+    public PostsPresenter(int blogLocalId, PostsView postsView, PostView postView, boolean isPage, boolean
+            isStatsSupported) {
+        mPostsViewModel = new PostsViewModel(isPage);
         mPostsView = postsView;
         mPostView = postView;
         mIsPage = isPage;
@@ -73,6 +73,10 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler {
         mPhotonWidth = displayWidth - (contentSpacing * 2);
         mPhotonHeight = mPostsView.getContext().getResources().getDimensionPixelSize(R.dimen
                 .reader_featured_image_height);
+    }
+
+    public PostsViewModel getPostsViewModel() {
+        return mPostsViewModel;
     }
 
     @Override
