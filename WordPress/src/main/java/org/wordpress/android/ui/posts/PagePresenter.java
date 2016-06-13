@@ -18,18 +18,18 @@ import android.view.View;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class PagePresenter extends BasePostPresenter implements PageActionHandler {
-    private boolean mHasInit;
-
+public class PagePresenter extends BasePostPresenter<PageViewModel> implements PageActionHandler {
     private final PostView mPageView;
-    private final PageViewModel mPageViewModel;
     private PostsListPost mPostsListPostPrevious;
 
     private final PagesActionHandler mPagesActionHandler;
 
-    public PagePresenter(PostView pageView, PageViewModel pageViewModel, PagesActionHandler pagesActionHandler) {
+    public PagePresenter(PostView pageView, PostsListPost postsListPost, PostsListPost postsListPostPrevious,
+            PagesActionHandler pagesActionHandler) {
+        super(new PageViewModel(), postsListPost);
+
         mPageView = pageView;
-        mPageViewModel = pageViewModel;
+        mPostsListPostPrevious = postsListPostPrevious;
         mPagesActionHandler = pagesActionHandler;
     }
 
@@ -50,7 +50,7 @@ public class PagePresenter extends BasePostPresenter implements PageActionHandle
      */
     @Override
     public void onMoreButtonClick(View view) {
-        mPageViewModel.showPagePopupMenu();
+        mViewModel.showPagePopupMenu(mPostsListPost);
     }
 
     @Override
@@ -89,8 +89,6 @@ public class PagePresenter extends BasePostPresenter implements PageActionHandle
 
     @Override
     public void init() {
-        mHasInit = true;
-
         displayPage();
     }
 
@@ -103,14 +101,10 @@ public class PagePresenter extends BasePostPresenter implements PageActionHandle
     }
 
     private void displayPage() {
-        if (!mHasInit) {
-            return;
-        }
-
-        displayCommon(mPageViewModel, mPageView.getContext());
+        displayCommon(mViewModel, mPageView.getContext());
 
         // set date
-        mPageViewModel.date.set(getPageDateHeaderText(mPostsListPost));
+        mViewModel.date.set(getPageDateHeaderText(mPostsListPost));
 
         // set date header visibility
         // don't show date header if same as previous
@@ -121,15 +115,15 @@ public class PagePresenter extends BasePostPresenter implements PageActionHandle
         } else {
             showDate = true;
         }
-        mPageViewModel.dateHeaderVisibility.set(showDate ? View.VISIBLE : View.GONE);
+        mViewModel.dateHeaderVisibility.set(showDate ? View.VISIBLE : View.GONE);
 
         // set More button visibility
         // no "..." more button when uploading
-        mPageViewModel.moreButtonVisibility.set(mPostsListPost.isUploading() ? View.GONE : View.VISIBLE);
+        mViewModel.moreButtonVisibility.set(mPostsListPost.isUploading() ? View.GONE : View.VISIBLE);
 
         // set divider top visibility
         // only show the top divider for the first item
-        mPageViewModel.dividerTopVisibility.set(mPostsListPostPrevious == null ? View.VISIBLE : View.GONE);
+        mViewModel.dividerTopVisibility.set(mPostsListPostPrevious == null ? View.VISIBLE : View.GONE);
     }
 
     /*

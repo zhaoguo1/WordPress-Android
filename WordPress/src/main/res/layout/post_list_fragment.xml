@@ -82,7 +82,7 @@
                     android:paddingTop="@dimen/margin_medium"
                     android:scrollbars="vertical"
                     app:isPage="@{viewModel.isPage}"
-                    app:posts="@{viewModel.postViewModels}"
+                    app:posts="@{viewModel.postPresenters}"
                     app:postView="@{postView}"
                     app:postsActionHandler="@{postsActionHandler}"
                     app:pagesActionHandler="@{pagesActionHandler}"

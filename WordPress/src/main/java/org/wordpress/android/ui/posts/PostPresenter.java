@@ -14,21 +14,19 @@ import org.wordpress.android.widgets.PostListButton;
 
 import android.view.View;
 
-public class PostPresenter extends BasePostPresenter implements PostActionHandler {
-    private boolean mHasInit;
-
+public class PostPresenter extends BasePostPresenter<PostViewModel> implements PostActionHandler {
     private final PostView mPostView;
-    private final PostViewModel mPostViewModel;
     private final boolean mIsStatsSupported;
 
     private boolean mAlwaysShowAllButtons;
 
     private final PostsActionHandler mPostsActionHandler;
 
-    public PostPresenter(PostView postView, PostViewModel postViewModel, boolean isStatsSupported, PostsActionHandler
+    public PostPresenter(PostView postView, PostsListPost postsListPost, boolean isStatsSupported, PostsActionHandler
             postsActionHandler) {
+        super(new PostViewModel(), postsListPost);
+
         mPostView = postView;
-        mPostViewModel = postViewModel;
         mIsStatsSupported = isStatsSupported;
 
         int displayWidth = DisplayUtils.getDisplayPixelWidth(mPostView.getContext());
@@ -86,18 +84,16 @@ public class PostPresenter extends BasePostPresenter implements PostActionHandle
                 }
                 break;
             case PostListButton.BUTTON_MORE:
-                mPostViewModel.animateButtonRows(false, canShowStatsForPost());
+                mViewModel.animateButtonRows(false, canShowStatsForPost());
                 break;
             case PostListButton.BUTTON_BACK:
-                mPostViewModel.animateButtonRows(true, canShowStatsForPost());
+                mViewModel.animateButtonRows(true, canShowStatsForPost());
                 break;
         }
     }
 
     @Override
     public void init() {
-        mHasInit = true;
-
         displayPost();
     }
 
@@ -110,59 +106,55 @@ public class PostPresenter extends BasePostPresenter implements PostActionHandle
     }
 
     private void displayPost() {
-        if (!mHasInit) {
-            return;
-        }
-
-        displayCommon(mPostViewModel, mPostView.getContext());
+        displayCommon(mViewModel, mPostView.getContext());
 
         // set excerpt
         if (mPostsListPost.hasExcerpt()) {
-            mPostViewModel.excerpt.set(PostUtils.collapseShortcodes(mPostsListPost.getExcerpt()));
+            mViewModel.excerpt.set(PostUtils.collapseShortcodes(mPostsListPost.getExcerpt()));
         } else {
-            mPostViewModel.excerpt.set(StringUtils.notNullStr(mPostsListPost.getExcerpt()));
+            mViewModel.excerpt.set(StringUtils.notNullStr(mPostsListPost.getExcerpt()));
         }
 
         // set excerpt visibility
-        mPostViewModel.excerptVisibility.set(mPostsListPost.hasExcerpt() ? View.VISIBLE : View.GONE);
+        mViewModel.excerptVisibility.set(mPostsListPost.hasExcerpt() ? View.VISIBLE : View.GONE);
 
         // set featured image url
         if (mPostsListPost.hasFeaturedImageId() || mPostsListPost.hasFeaturedImageUrl()) {
-            mPostViewModel.featuredImageUrl.set(mPostsListPost.getFeaturedImageUrl());
+            mViewModel.featuredImageUrl.set(mPostsListPost.getFeaturedImageUrl());
         } else {
-            mPostViewModel.featuredImageUrl.set(null);
+            mViewModel.featuredImageUrl.set(null);
         }
 
         // set featured image visibility
-        mPostViewModel.featuredImageVisibility.set((mPostsListPost.hasFeaturedImageId() || mPostsListPost
+        mViewModel.featuredImageVisibility.set((mPostsListPost.hasFeaturedImageId() || mPostsListPost
                 .hasFeaturedImageUrl()) ? View.VISIBLE : View.GONE);
 
         // set date visibility
-        mPostViewModel.dateVisibility.set(mPostsListPost.isLocalDraft() ? View.GONE : View.VISIBLE);
+        mViewModel.dateVisibility.set(mPostsListPost.isLocalDraft() ? View.GONE : View.VISIBLE);
 
         // set formatted date
-        mPostViewModel.formattedDate.set(mPostsListPost.getFormattedDate());
+        mViewModel.formattedDate.set(mPostsListPost.getFormattedDate());
 
         // set Trash button type
         // local drafts say "delete" instead of "trash"
-        mPostViewModel.trashButtonType
+        mViewModel.trashButtonType
                 .set(mPostsListPost.isLocalDraft() ? PostListButton.BUTTON_DELETE : PostListButton.BUTTON_TRASH);
 
         // set view button type
         // posts with local changes have preview rather than view button
-        mPostViewModel.viewButtonType.set((mPostsListPost.isLocalDraft() || mPostsListPost.hasLocalChanges()) ?
+        mViewModel.viewButtonType.set((mPostsListPost.isLocalDraft() || mPostsListPost.hasLocalChanges()) ?
                 PostListButton.BUTTON_PREVIEW : PostListButton.BUTTON_VIEW);
 
         // if we have enough room to show all buttons, hide the back/more buttons and show stats/trash
 
         // set More button visibility
-        mPostViewModel.moreButtonVisibility.set(hasEnoughRoom() ? View.GONE : View.VISIBLE);
+        mViewModel.moreButtonVisibility.set(hasEnoughRoom() ? View.GONE : View.VISIBLE);
 
         // set Trash button visibility
-        mPostViewModel.trashButtonVisibility.set(hasEnoughRoom() ? View.VISIBLE : View.GONE);
+        mViewModel.trashButtonVisibility.set(hasEnoughRoom() ? View.VISIBLE : View.GONE);
 
         // set stats button visibility
-        mPostViewModel.statsButtonVisibility
+        mViewModel.statsButtonVisibility
                 .set((canShowStatsForPost() && hasEnoughRoom()) ? View.VISIBLE : View.GONE);
     }
 

@@ -1,6 +1,5 @@
 package org.wordpress.android.ui.posts;
 
-import org.wordpress.android.ui.posts.PostsListContracts.PostActionHandler;
 import org.wordpress.android.util.ObservableString;
 import org.wordpress.android.widgets.WPNetworkImageView;
 
@@ -105,9 +104,5 @@ public class PostViewModel extends BasePostViewModel {
 
         // force the notifyChange so the animation will happen now
         this.showRow1.notifyChange();
-    }
-
-    public PostActionHandler getActionHandler() {
-        return (PostActionHandler) getBasePostPresenter();
     }
 }

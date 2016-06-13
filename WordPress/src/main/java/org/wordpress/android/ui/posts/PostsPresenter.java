@@ -17,7 +17,6 @@ import org.wordpress.android.ui.posts.services.PostMediaService;
 import org.wordpress.android.ui.posts.services.PostUpdateService;
 import org.wordpress.android.ui.reader.utils.ReaderImageScanner;
 import org.wordpress.android.ui.reader.utils.ReaderUtils;
-import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.DisplayUtils;
 import org.wordpress.android.util.NetworkUtils;
 import org.xmlrpc.android.ApiHelper;
@@ -48,8 +47,8 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     private final int mPhotonWidth;
     private final int mPhotonHeight;
 
-    private final List<BasePostViewModel> mLocalDraftPostViewModels = new ArrayList<>();
-    private final Map<String, BasePostViewModel> mPosts = new LinkedHashMap<>();
+    private final List<BasePostPresenter<?>> mLocalDraftPostPresenters = new ArrayList<>();
+    private final Map<String, BasePostPresenter<?>> mPostPresenters = new LinkedHashMap<>();
     private final List<PostsListPost> mTrashedPosts = new ArrayList<>();
 
     private boolean mIsLoadingPosts;
@@ -109,20 +108,20 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
      */
     @SuppressWarnings("unused")
     public void onEventMainThread(PostEvents.PostMediaInfoUpdated event) {
-        BasePostViewModel basePostViewModel = indexOfFeaturedMediaId(event.getMediaId());
+        BasePostPresenter<?> basePostPresenter = indexOfFeaturedMediaId(event.getMediaId());
 
-        if (basePostViewModel != null && basePostViewModel instanceof PostViewModel) {
-            ((PostViewModel) basePostViewModel).featuredImageUrl.set(event.getMediaUrl());
+        if (basePostPresenter != null && basePostPresenter instanceof PostPresenter) {
+            ((PostPresenter) basePostPresenter).getViewModel().featuredImageUrl.set(event.getMediaUrl());
         }
     }
 
-    private BasePostViewModel indexOfFeaturedMediaId(long mediaId) {
+    private BasePostPresenter<?> indexOfFeaturedMediaId(long mediaId) {
         if (mediaId == 0) {
             return null;
         }
-        for (BasePostViewModel basePostViewModel : mPostsViewModel.postViewModels) {
-            if (basePostViewModel.getBasePostPresenter().getPostsListPost().getFeaturedImageId() == mediaId) {
-                return basePostViewModel;
+        for (BasePostPresenter<?> basePostPresenter : mPostsViewModel.postPresenters) {
+            if (basePostPresenter.getPostsListPost().getFeaturedImageId() == mediaId) {
+                return basePostPresenter;
             }
         }
         return null;
@@ -180,7 +179,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     }
 
     private boolean isPostListEmpty() {
-        return mPosts != null && mPosts.size() == 0;
+        return mPostPresenters != null && mPostPresenters.size() == 0;
     }
 
     private void loadPosts() {
@@ -293,83 +292,76 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
         @Override
         protected void onPostExecute(Boolean result) {
             if (result) {
-                List<BasePostViewModel> localDraftViewModels = new ArrayList<>();
-                Map<String, BasePostViewModel> postViewModels = new LinkedHashMap<>();
+                List<BasePostPresenter<?>> localDraftPresenters = new ArrayList<>();
+                Map<String, BasePostPresenter<?>> postPresenters = new LinkedHashMap<>();
 
-                ObservableList<BasePostViewModel> tmpPostViewmodels = new ObservableArrayList<>();
+                ObservableList<BasePostPresenter<?>> tmpPostPresenters = new ObservableArrayList<>();
                 PostsListPost postPrevious = null;
                 int localDraftIndex = 0;
                 for (PostsListPost post : tmpPosts) {
-                    BasePostViewModel foundBaseViewModel = null;
+                    BasePostPresenter<?> foundBasePostPresenter = null;
 
                     if (!post.isLocalDraft()) {
-                        foundBaseViewModel = mPosts.get(post.getRemotePostId());
+                        foundBasePostPresenter = mPostPresenters.get(post.getRemotePostId());
                     } else {
-                        if (mLocalDraftPostViewModels.size() > localDraftIndex) {
-                            foundBaseViewModel = mLocalDraftPostViewModels.get(localDraftIndex);
+                        if (mLocalDraftPostPresenters.size() > localDraftIndex) {
+                            foundBasePostPresenter = mLocalDraftPostPresenters.get(localDraftIndex);
                         }
 
                         localDraftIndex++;
                     }
 
-                    if (foundBaseViewModel == null) {
+                    if (foundBasePostPresenter == null) {
                         if (mIsPage) {
-                            foundBaseViewModel = new PageViewModel();
-                            PagePresenter pagePresenter = new PagePresenter(mPostView, (PageViewModel)
-                                    foundBaseViewModel, PostsPresenter.this);
-                            pagePresenter.setPostsListPosts(post, postPrevious);
-
-                            foundBaseViewModel.setBasePostPresenter(pagePresenter);
+                            foundBasePostPresenter = new PagePresenter(mPostView, post, postPrevious, PostsPresenter
+                                    .this);
                         } else {
-                            foundBaseViewModel = new PostViewModel();
-                            PostPresenter postPresenter = new PostPresenter(mPostView, (PostViewModel)
-                                    foundBaseViewModel, mIsStatsSupported, PostsPresenter.this);
-                            postPresenter.setPostsListPost(post);
-
-                            foundBaseViewModel.setBasePostPresenter(postPresenter);
+                            foundBasePostPresenter = new PostPresenter(mPostView, post, mIsStatsSupported,
+                                    PostsPresenter.this);
                         }
+
+                        foundBasePostPresenter.init();
                     } else {
                         if (mIsPage) {
-                            ((PagePresenter) foundBaseViewModel.getBasePostPresenter())
-                                    .setPostsListPosts(post, postPrevious);
+                            ((PagePresenter) foundBasePostPresenter).setPostsListPosts(post, postPrevious);
                         } else {
-                            ((PostPresenter) foundBaseViewModel.getBasePostPresenter()).setPostsListPost(post);
+                            ((PostPresenter) foundBasePostPresenter).setPostsListPost(post);
                         }
                     }
 
                     if (post.isLocalDraft()) {
-                        localDraftViewModels.add(foundBaseViewModel);
+                        localDraftPresenters.add(foundBasePostPresenter);
                     } else {
-                        postViewModels.put(post.getRemotePostId(), foundBaseViewModel);
+                        postPresenters.put(post.getRemotePostId(), foundBasePostPresenter);
                     }
-                    tmpPostViewmodels.add(foundBaseViewModel);
+                    tmpPostPresenters.add(foundBasePostPresenter);
 
                     postPrevious = post;
                 }
 
-                mLocalDraftPostViewModels.clear();
-                mLocalDraftPostViewModels.addAll(localDraftViewModels);
+                mLocalDraftPostPresenters.clear();
+                mLocalDraftPostPresenters.addAll(localDraftPresenters);
 
-                mPosts.clear();
-                mPosts.putAll(postViewModels);
+                mPostPresenters.clear();
+                mPostPresenters.putAll(postPresenters);
 
-                // manually remove viewModels no longer present (Collection methods like 'retainAll' don't properly
+                // manually remove presenters no longer present (Collection methods like 'retainAll' don't properly
                 // fire the needed removal notifications :( )
-                List<BasePostViewModel> toRemove = new ArrayList<>();
-                for (BasePostViewModel vm : mPostsViewModel.postViewModels) {
-                    if (!tmpPostViewmodels.contains(vm)) {
-                        toRemove.add(vm);
+                List<BasePostPresenter<?>> toRemove = new ArrayList<>();
+                for (BasePostPresenter<?> presenter : mPostsViewModel.postPresenters) {
+                    if (!tmpPostPresenters.contains(presenter)) {
+                        toRemove.add(presenter);
                     }
                 }
-                for (BasePostViewModel vm : toRemove) {
-                    mPostsViewModel.postViewModels.remove(vm);
+                for (BasePostPresenter<?> presenter : toRemove) {
+                    mPostsViewModel.postPresenters.remove(presenter);
                 }
 
                 // add any new viewModels into the correct position
                 int i = 0;
-                for (BasePostViewModel basePostViewModel : tmpPostViewmodels) {
-                    if (!mPostsViewModel.postViewModels.contains(basePostViewModel)) {
-                        mPostsViewModel.postViewModels.add(i, basePostViewModel);
+                for (BasePostPresenter<?> basePostPresenter : tmpPostPresenters) {
+                    if (!mPostsViewModel.postPresenters.contains(basePostPresenter)) {
+                        mPostsViewModel.postPresenters.add(i, basePostPresenter);
                     }
 
                     i++;
@@ -387,14 +379,14 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     }
 
     private boolean isSameList(List<PostsListPost> list2) {
-        if (list2 == null || mPosts.size() != list2.size()) {
+        if (list2 == null || mPostPresenters.size() != list2.size()) {
             return false;
         }
 
         int i = 0;
-        for (Map.Entry<String, BasePostViewModel> entry : mPosts.entrySet()) {
+        for (Map.Entry<String, BasePostPresenter<?>> entry : mPostPresenters.entrySet()) {
             PostsListPost newPost = list2.get(i++);
-            PostsListPost currentPost = entry.getValue().getBasePostPresenter().getPostsListPost();
+            PostsListPost currentPost = entry.getValue().getPostsListPost();
 
             if (newPost.getPostId() != currentPost.getPostId())
                 return false;
@@ -418,19 +410,19 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
     }
 
     private void hidePost(PostsListPost postsListPost) {
-        mPostsViewModel.postViewModels.remove(mPosts.get(postsListPost.getRemotePostId()));
+        mPostsViewModel.postPresenters.remove(mPostPresenters.get(postsListPost.getRemotePostId()));
 
         updateEmptyView();
     }
 
     private void updateEmptyView() {
-        if (mPosts.size() == 0 && !mIsFetchingPosts) {
+        if (mPostPresenters.size() == 0 && !mIsFetchingPosts) {
             if (NetworkUtils.isNetworkAvailable(mPostsView.getContext())) {
                 updateEmptyView(mIsPage, EmptyViewMessageType.NO_CONTENT, isPostListEmpty());
             } else {
                 updateEmptyView(mIsPage, EmptyViewMessageType.NETWORK_ERROR, isPostListEmpty());
             }
-        } else if (mPosts.size() > 0) {
+        } else if (mPostPresenters.size() > 0) {
             mPostsViewModel.emptyViewVisibility.set(View.GONE);
         }
     }
@@ -483,7 +475,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler, PagesA
 
         // remove post from the list and add it to the list of trashed posts
         hidePost(post);
-        mPosts.remove(post);
+        mPostPresenters.remove(post);
         mTrashedPosts.add(post);
 
         mPostsView.withUndo(new Undoable() {

@@ -1,12 +1,14 @@
 package org.wordpress.android.ui.posts;
 
 import org.wordpress.android.R;
+import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.ui.posts.PostsListContracts.PageActionHandler;
 import org.wordpress.android.ui.posts.adapters.PageMenuAdapter;
 import org.wordpress.android.util.ObservableString;
 
 import android.content.Context;
 import android.databinding.BindingAdapter;
+import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
 import android.view.View;
 import android.widget.AdapterView;
@@ -21,27 +23,29 @@ public class PageViewModel extends BasePostViewModel {
     public final ObservableInt dateHeaderVisibility = new ObservableInt();
     public final ObservableInt moreButtonVisibility = new ObservableInt();
     public final ObservableInt dividerTopVisibility = new ObservableInt();
+    public final ObservableField<ShowPagePopupMenuConfig> showPagePopupMenuConfig = new ObservableField<>();
 
-    public final ObservableInt showPagePopupMenuTrigger = new ObservableInt();
+    private ShowPagePopupMenuConfig mOldShowPagePopupMenuConfig;
 
-    // counters used for triggering the animation of the buttons row
-    private Integer mDoneShowPagePopupMenuCounter = 0;
+    public static class ShowPagePopupMenuConfig {
+        private final PostsListPost mPostsListPost;
 
-    public PageActionHandler getActionHandler() {
-        return (PageActionHandler) getBasePostPresenter();
+        public ShowPagePopupMenuConfig(PostsListPost postsListPost) {
+            mPostsListPost = postsListPost;
+        }
     }
 
     /*
      * user tapped "..." next to a page, show a popup menu of choices
      */
-    @BindingAdapter({"showPagePopupMenuTrigger", "pageViewModel"})
-    public static void onShowPagePopupMenu(ImageView imageView, final int showPagePopupMenuTrigger, final
-    PageViewModel pageViewModel) {
-        if (pageViewModel.mDoneShowPagePopupMenuCounter == showPagePopupMenuTrigger) {
+    @BindingAdapter({"showPagePopupMenuConfig", "pageViewModel", "pageActionHandler"})
+    public static void onShowPagePopupMenu(ImageView imageView, final ShowPagePopupMenuConfig
+            showPagePopupMenuConfig, final PageViewModel pageViewModel, final PageActionHandler pageActionHandler) {
+        if (pageViewModel.mOldShowPagePopupMenuConfig == showPagePopupMenuConfig) {
             return;
         }
 
-        pageViewModel.mDoneShowPagePopupMenuCounter = showPagePopupMenuTrigger;
+        pageViewModel.mOldShowPagePopupMenuConfig = showPagePopupMenuConfig;
 
         Context context = imageView.getContext();
         final ListPopupWindow listPopup = new ListPopupWindow(context);
@@ -49,20 +53,21 @@ public class PageViewModel extends BasePostViewModel {
 
         listPopup.setWidth(context.getResources().getDimensionPixelSize(R.dimen.menu_item_width));
         listPopup.setModal(true);
-        listPopup.setAdapter(new PageMenuAdapter(context, pageViewModel.getBasePostPresenter().getPostsListPost()));
+        listPopup.setAdapter(new PageMenuAdapter(context, showPagePopupMenuConfig.mPostsListPost));
         listPopup.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 listPopup.dismiss();
-                if (pageViewModel.getActionHandler() != null) {
-                    pageViewModel.getActionHandler().onPageButtonClick((int) id);
+                if (pageActionHandler != null) {
+                    pageActionHandler.onPageButtonClick((int) id);
                 }
             }
         });
         listPopup.show();
     }
 
-    public void showPagePopupMenu() {
-        showPagePopupMenuTrigger.set(showPagePopupMenuTrigger.get() + 1);
+    public void showPagePopupMenu(PostsListPost postsListPost) {
+        // trigger the popup menu by changing the observable;
+        showPagePopupMenuConfig.set(new ShowPagePopupMenuConfig(postsListPost));
     }
 }

@@ -8,15 +8,25 @@ import org.wordpress.android.ui.BasePresenter;
 import android.content.Context;
 import android.view.View;
 
-public abstract class BasePostPresenter implements BasePresenter {
+public abstract class BasePostPresenter<T extends BasePostViewModel> implements BasePresenter {
 
+    protected final T mViewModel;
     protected PostsListPost mPostsListPost;
+
+    protected BasePostPresenter(T viewModel, PostsListPost postsListPost) {
+        mViewModel = viewModel;
+        mPostsListPost = postsListPost;
+    }
+
+    public T getViewModel() {
+        return mViewModel;
+    }
 
     public PostsListPost getPostsListPost() {
         return mPostsListPost;
     }
 
-    protected void displayCommon(BasePostViewModel basePostViewModel, Context context) {
+    protected void displayCommon(T basePostViewModel, Context context) {
         // set title
         if (mPostsListPost.hasTitle()) {
             basePostViewModel.title.set(mPostsListPost.getTitle());

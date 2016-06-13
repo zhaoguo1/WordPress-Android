@@ -103,8 +103,9 @@
                 android:contentDescription="@string/more"
                 android:src="@drawable/ic_action_more"
                 android:onClick="@{(view) -> actionHandler.onMoreButtonClick(view)}"
-                app:showPagePopupMenuTrigger="@{pageViewModel.showPagePopupMenuTrigger}"
+                app:showPagePopupMenuConfig="@{pageViewModel.showPagePopupMenuConfig}"
                 app:pageViewModel="@{pageViewModel}"
+                app:pageActionHandler="@{actionHandler}"
                 android:visibility="@{pageViewModel.moreButtonVisibility}"/>
         </RelativeLayout>
 

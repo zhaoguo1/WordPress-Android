@@ -14,10 +14,10 @@ import org.wordpress.android.R;
 import org.wordpress.android.databinding.EndlistIndicatorBinding;
 import org.wordpress.android.databinding.PageItemBinding;
 import org.wordpress.android.databinding.PostCardviewBinding;
-import org.wordpress.android.ui.posts.BasePostViewModel;
+import org.wordpress.android.ui.posts.BasePostPresenter;
 import org.wordpress.android.ui.posts.EndlistIndicatorViewModel;
-import org.wordpress.android.ui.posts.PageViewModel;
-import org.wordpress.android.ui.posts.PostViewModel;
+import org.wordpress.android.ui.posts.PagePresenter;
+import org.wordpress.android.ui.posts.PostPresenter;
 import org.wordpress.android.ui.posts.PostsListContracts.PagesActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
@@ -34,51 +34,51 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private final boolean mIsPage;
 
-    private ObservableList<BasePostViewModel> mPostViewModels = new ObservableArrayList<>();
+    private ObservableList<BasePostPresenter<?>> mPostPresenters = new ObservableArrayList<>();
 
     private static final int VIEW_TYPE_POST_OR_PAGE = 0;
     private static final int VIEW_TYPE_ENDLIST_INDICATOR = 1;
 
-    public PostsListAdapter(boolean isPage, ObservableList<BasePostViewModel> postViewModels,
+    public PostsListAdapter(boolean isPage, ObservableList<BasePostPresenter<?>> postPresenters,
             PostsActionHandler postsActionHandler, PagesActionHandler pagesActionHandler,
             OnLoadMoreListener onLoadMoreListener) {
         mIsPage = isPage;
-        mPostViewModels = postViewModels;
+        mPostPresenters = postPresenters;
         mPagesActionHandler = pagesActionHandler;
         mPostsActionHandler = postsActionHandler;
         mOnLoadMoreListener = onLoadMoreListener;
 
-        postViewModels.addOnListChangedCallback(new ObservableList
-                .OnListChangedCallback<ObservableList<BasePostViewModel>>() {
+        postPresenters.addOnListChangedCallback(new ObservableList
+                .OnListChangedCallback<ObservableList<BasePostPresenter<?>>>() {
                     @Override
-                    public void onChanged(ObservableList<BasePostViewModel> baseObservables) {
+                    public void onChanged(ObservableList<BasePostPresenter<?>> baseObservables) {
                         notifyDataSetChanged();
                     }
 
                     @Override
-                    public void onItemRangeChanged(ObservableList<BasePostViewModel> basePostViewModels, int
+                    public void onItemRangeChanged(ObservableList<BasePostPresenter<?>> basePostViewModels, int
                             positionStart, int itemCount) {
                         notifyItemRangeChanged(positionStart, itemCount);
                     }
 
                     @Override
-                    public void onItemRangeInserted(ObservableList<BasePostViewModel> basePostViewModels, int
+                    public void onItemRangeInserted(ObservableList<BasePostPresenter<?>> basePostViewModels, int
                             positionStart, int itemCount) {
                         notifyItemRangeInserted(positionStart, itemCount);
                     }
 
                     @Override
-                    public void onItemRangeMoved(ObservableList<BasePostViewModel> basePostViewModels, int fromPosition,
-                            int toPosition, int itemCount) {
+                    public void onItemRangeMoved(ObservableList<BasePostPresenter<?>> basePostViewModels, int
+                            fromPosition, int toPosition, int itemCount) {
                         for (int i = 0; i < itemCount; i++) {
                             notifyItemMoved(fromPosition + i, toPosition + i);
                         }
                     }
 
                     @Override
-                    public void onItemRangeRemoved(ObservableList<BasePostViewModel> basePostViewModels, int
+                    public void onItemRangeRemoved(ObservableList<BasePostPresenter<?>> basePostViewModels, int
                             positionStart, int itemCount) {
-                        if (mPostViewModels.size() > 0) {
+                        if (mPostPresenters.size() > 0) {
                             notifyItemRangeRemoved(positionStart, itemCount);
                         } else {
                             // we must call notifyDataSetChanged when the only post has been deleted - if we
@@ -92,7 +92,7 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public int getItemViewType(int position) {
-        if (position == mPostViewModels.size()) {
+        if (position == mPostPresenters.size()) {
             return VIEW_TYPE_ENDLIST_INDICATOR;
         }
         return VIEW_TYPE_POST_OR_PAGE;
@@ -100,10 +100,10 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public int getItemCount() {
-        if (mPostViewModels.size() == 0) {
+        if (mPostPresenters.size() == 0) {
             return 0;
         } else {
-            return mPostViewModels.size() + 1; // +1 for the endlist indicator
+            return mPostPresenters.size() + 1; // +1 for the endlist indicator
         }
     }
 
@@ -141,29 +141,27 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (holder instanceof PostViewHolder) {
             final PostCardviewBinding binding = ((PostViewHolder) holder).getBinding();
 
-            final PostViewModel postViewModel = (PostViewModel) mPostViewModels.get(position);
+            final PostPresenter postPresenter = (PostPresenter) mPostPresenters.get(position);
 
-            postViewModel.getBasePostPresenter().init();
-            postViewModel.getBasePostPresenter().start();
+            postPresenter.start();
 
-            binding.setActionHandler(postViewModel.getActionHandler());
-            binding.setPostViewModel(postViewModel);
+            binding.setActionHandler(postPresenter);
+            binding.setPostViewModel(postPresenter.getViewModel());
             binding.executePendingBindings();
         } else if (holder instanceof PageViewHolder) {
             final PageItemBinding pageItemBinding = ((PageViewHolder) holder).getBinding();
 
-            final PageViewModel pageViewModel = (PageViewModel) mPostViewModels.get(position);//new PageViewModel(context, position, post, position == 0 ? null : mPosts.get(position - 1));
+            final PagePresenter pagePresenter = (PagePresenter) mPostPresenters.get(position);
 
-            pageViewModel.getBasePostPresenter().init();
-            pageViewModel.getBasePostPresenter().start();
+            pagePresenter.start();
 
-            pageItemBinding.setActionHandler(pageViewModel.getActionHandler());
-            pageItemBinding.setPageViewModel(pageViewModel);
+            pageItemBinding.setActionHandler(pagePresenter);
+            pageItemBinding.setPageViewModel(pagePresenter.getViewModel());
             pageItemBinding.executePendingBindings();
         }
 
         // load more posts when we near the end
-        if (mOnLoadMoreListener != null && position >= mPostViewModels.size() - 1
+        if (mOnLoadMoreListener != null && position >= mPostPresenters.size() - 1
                 && position >= PostsListFragment.POSTS_REQUEST_COUNT - 1) {
             mOnLoadMoreListener.onLoadMore();
         }
@@ -216,13 +214,13 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     @BindingAdapter({"isPage", "posts", "postView", "postsActionHandler", "pagesActionHandler", "onLoadMoreListener"})
-    public static void bindAdapter(RecyclerView recyclerView, boolean isPage, ObservableList<BasePostViewModel>
-            postViewModels, PostView postView, PostsActionHandler postsActionHandler,
+    public static void bindAdapter(RecyclerView recyclerView, boolean isPage, ObservableList<BasePostPresenter<?>>
+            postPresenters, PostView postView, PostsActionHandler postsActionHandler,
             PagesActionHandler pagesActionHandler, PostsListAdapter.OnLoadMoreListener onLoadMoreListener) {
         if (recyclerView.getAdapter() == null) {
             LinearLayoutManager layoutManager = new LinearLayoutManager(recyclerView.getContext());
             recyclerView.setLayoutManager(layoutManager);
-            recyclerView.setAdapter(new PostsListAdapter(isPage, postViewModels, postsActionHandler,
+            recyclerView.setAdapter(new PostsListAdapter(isPage, postPresenters, postsActionHandler,
                     pagesActionHandler, onLoadMoreListener));
         }
     }
