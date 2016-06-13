@@ -16,9 +16,10 @@ import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 
-public class PostsViewModel {
-    private SwipeToRefreshHelper mSwipeToRefreshHelper;
+import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
+import org.wordpress.android.util.widgets.CustomSwipeRefreshLayout;
 
+public class PostsViewModel {
     public final ObservableInt fabVisibility = new ObservableInt(View.GONE);
     public final ObservableBoolean isRefreshing = new ObservableBoolean(false);
     public final ObservableInt loadMoreProgressVisibility = new ObservableInt(View.GONE);
@@ -30,10 +31,6 @@ public class PostsViewModel {
 
     public PostsViewModel(boolean isPage) {
         this.isPage = new ObservableBoolean(isPage);
-    }
-
-    public void setSwipeToRefreshHelper(SwipeToRefreshHelper swipeToRefreshHelper) {
-        mSwipeToRefreshHelper = swipeToRefreshHelper;
     }
 
     @BindingAdapter({"slideInDelayMS", "android:visibility"})
@@ -55,5 +52,19 @@ public class PostsViewModel {
                         });
             }
         }, delayMS);
+    }
+
+    @BindingAdapter("postsActionHandler")
+    public static void setSwipeToRefreshHelper(CustomSwipeRefreshLayout ptrLayout, final PostsActionHandler
+            postsActionHandler) {
+        new SwipeToRefreshHelper(
+                ptrLayout.getContext(),
+                ptrLayout,
+                new SwipeToRefreshHelper.RefreshListener() {
+                    @Override
+                    public void onRefreshStarted() {
+                        postsActionHandler.onRefreshRequested();
+                    }
+                });
     }
 }

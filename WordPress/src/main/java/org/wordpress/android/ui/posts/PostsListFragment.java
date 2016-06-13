@@ -21,13 +21,10 @@ import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.Post;
 import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
-import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
 import org.wordpress.android.ui.posts.services.PostUploadService;
 import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ToastUtils;
-import org.wordpress.android.util.helpers.SwipeToRefreshHelper;
-import org.wordpress.android.util.helpers.SwipeToRefreshHelper.RefreshListener;
 import org.wordpress.android.widgets.RecyclerItemDecoration;
 
 public class PostsListFragment extends Fragment implements
@@ -38,7 +35,6 @@ public class PostsListFragment extends Fragment implements
     private static final String ARG_IS_PAGE = "ARG_IS_PAGE";
 
     PostsPresenter mPostsPresenter;
-    PostsActionHandler mPostsActionHandler;
 
     public static final int POSTS_REQUEST_COUNT = 20;
 
@@ -86,17 +82,6 @@ public class PostsListFragment extends Fragment implements
         boolean isStatsSupported = blog.isDotcomFlag() || blog.isJetpackPowered();
 
         mPostsPresenter = new PostsPresenter(mLocalBlogId, this, this, mIsPage, isStatsSupported);
-        mPostsActionHandler = mPostsPresenter;
-
-        mPostsPresenter.getPostsViewModel().setSwipeToRefreshHelper(new SwipeToRefreshHelper(
-                inflater.getContext(),
-                viewBinding.ptrLayout,
-                new RefreshListener() {
-                    @Override
-                    public void onRefreshStarted() {
-                        mPostsActionHandler.onRefreshRequested();
-                    }
-                }));
 
         viewBinding.setViewModel(mPostsPresenter.getPostsViewModel());
         viewBinding.setPostsActionHandler(mPostsPresenter);
