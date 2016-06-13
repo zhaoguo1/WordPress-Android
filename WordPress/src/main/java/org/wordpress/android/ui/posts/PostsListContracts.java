@@ -12,6 +12,14 @@ public interface PostsListContracts {
         void newPost();
 
         void withUndo(Undoable undoable);
+
+        interface Undoable {
+            String getText();
+
+            void onUndo();
+
+            void onDismiss();
+        }
     }
 
     interface PostsActionHandler {
@@ -23,14 +31,6 @@ public interface PostsListContracts {
         void onFabClick();
 
         void onTrashPost(PostsListPost postsListPost);
-    }
-
-    interface Undoable {
-        String getText();
-
-        void onUndo();
-
-        void onDismiss();
     }
 
     interface PostView extends BaseView {

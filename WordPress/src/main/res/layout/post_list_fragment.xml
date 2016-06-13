@@ -10,10 +10,6 @@
             type="org.wordpress.android.ui.posts.PostsViewModel"/>
 
         <variable
-            name="postView"
-            type="org.wordpress.android.ui.posts.PostsListContracts.PostView"/>
-
-        <variable
             name="postsActionHandler"
             type="org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler"/>
     </data>

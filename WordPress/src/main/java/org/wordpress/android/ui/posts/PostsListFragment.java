@@ -23,7 +23,6 @@ import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
-import org.wordpress.android.ui.posts.PostsListContracts.Undoable;
 import org.wordpress.android.ui.posts.services.PostUploadService;
 import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ToastUtils;
@@ -102,7 +101,6 @@ public class PostsListFragment extends Fragment implements
                 }));
 
         viewBinding.setViewModel(postsViewModel);
-        viewBinding.setPostView(this);
         viewBinding.setPostsActionHandler(mPostsPresenter);
         viewBinding.executePendingBindings();
 

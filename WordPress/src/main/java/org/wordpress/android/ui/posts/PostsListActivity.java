@@ -1,7 +1,6 @@
 package org.wordpress.android.ui.posts;
 
 import android.app.AlertDialog;
-import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,14 +15,11 @@ import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.util.ToastUtils;
 
 public class PostsListActivity extends AppCompatActivity {
-    public static final String TAG_POSTS_LIST_FRAGMENT = "TAG_POSTS_LIST_FRAGMENT";
-
     public static final String EXTRA_VIEW_PAGES = "viewPages";
     public static final String EXTRA_ERROR_MSG = "errorMessage";
     public static final String EXTRA_BLOG_LOCAL_ID = "EXTRA_BLOG_LOCAL_ID";
 
     private boolean mIsPage = false;
-    private PostsListFragment mPostList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,13 +40,10 @@ public class PostsListActivity extends AppCompatActivity {
         }
 
         if (savedInstanceState == null) {
-            mPostList = PostsListFragment.newInstance(WordPress.getCurrentLocalTableBlogId(), mIsPage);
+            PostsListFragment postList = PostsListFragment.newInstance(WordPress.getCurrentLocalTableBlogId(), mIsPage);
             getFragmentManager().beginTransaction()
-                    .add(R.id.postListContainer, mPostList, TAG_POSTS_LIST_FRAGMENT)
+                    .add(R.id.postListContainer, postList)
                     .commit();
-        } else {
-            FragmentManager fm = getFragmentManager();
-            mPostList = (PostsListFragment) fm.findFragmentByTag(TAG_POSTS_LIST_FRAGMENT);
         }
 
         showErrorDialogIfNeeded(getIntent().getExtras());
