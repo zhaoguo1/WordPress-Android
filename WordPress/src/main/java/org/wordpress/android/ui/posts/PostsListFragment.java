@@ -24,7 +24,6 @@ import org.wordpress.android.ui.posts.PostsListContracts.PostView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
 import org.wordpress.android.ui.posts.PostsListContracts.Undoable;
-import org.wordpress.android.ui.posts.adapters.PostsListAdapter;
 import org.wordpress.android.ui.posts.services.PostUploadService;
 import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ToastUtils;
@@ -33,7 +32,6 @@ import org.wordpress.android.util.helpers.SwipeToRefreshHelper.RefreshListener;
 import org.wordpress.android.widgets.RecyclerItemDecoration;
 
 public class PostsListFragment extends Fragment implements
-        PostsListAdapter.OnLoadMoreListener,
         PostsView,
         PostView {
 
@@ -106,7 +104,6 @@ public class PostsListFragment extends Fragment implements
         viewBinding.setViewModel(postsViewModel);
         viewBinding.setPostView(this);
         viewBinding.setPostsActionHandler(mPostsPresenter);
-        viewBinding.setOnLoadMoreListener(this);
         viewBinding.executePendingBindings();
 
         return viewBinding.getRoot();
@@ -196,14 +193,6 @@ public class PostsListFragment extends Fragment implements
     public void onStop() {
         mPostsPresenter.stop();
         super.onStop();
-    }
-
-    /*
-     * called by the adapter to load more posts when the user scrolls towards the last post
-     */
-    @Override
-    public void onLoadMore() {
-        mPostsActionHandler.onLoadMore();
     }
 
     @Override

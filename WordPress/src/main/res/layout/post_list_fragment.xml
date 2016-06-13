@@ -5,7 +5,6 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
         <variable
             name="viewModel"
             type="org.wordpress.android.ui.posts.PostsViewModel"/>
@@ -17,10 +16,6 @@
         <variable
             name="postsActionHandler"
             type="org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler"/>
-
-        <variable
-            name="onLoadMoreListener"
-            type="org.wordpress.android.ui.posts.adapters.PostsListAdapter.OnLoadMoreListener"/>
     </data>
 
     <RelativeLayout
@@ -79,7 +74,7 @@
                     android:scrollbars="vertical"
                     app:isPage="@{viewModel.isPage}"
                     app:posts="@{viewModel.postPresenters}"
-                    app:onLoadMoreListener="@{onLoadMoreListener}"/>
+                    app:postsActionHandler="@{postsActionHandler}"/>
 
             </org.wordpress.android.util.widgets.CustomSwipeRefreshLayout>
 

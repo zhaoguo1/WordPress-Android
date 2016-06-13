@@ -18,6 +18,7 @@ import org.wordpress.android.ui.posts.BasePostPresenter;
 import org.wordpress.android.ui.posts.EndlistIndicatorViewModel;
 import org.wordpress.android.ui.posts.PagePresenter;
 import org.wordpress.android.ui.posts.PostPresenter;
+import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
 import org.wordpress.android.ui.posts.PostsListFragment;
 
 /**
@@ -25,7 +26,7 @@ import org.wordpress.android.ui.posts.PostsListFragment;
  */
 public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private OnLoadMoreListener mOnLoadMoreListener;
+    private PostsActionHandler mPostsActionHandler;
 
     private final boolean mIsPage;
 
@@ -34,11 +35,11 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEW_TYPE_POST_OR_PAGE = 0;
     private static final int VIEW_TYPE_ENDLIST_INDICATOR = 1;
 
-    public PostsListAdapter(boolean isPage, ObservableList<BasePostPresenter<?>> postPresenters, OnLoadMoreListener
-            onLoadMoreListener) {
+    public PostsListAdapter(boolean isPage, ObservableList<BasePostPresenter<?>> postPresenters, PostsActionHandler
+            postsActionHandler) {
         mIsPage = isPage;
         mPostPresenters = postPresenters;
-        mOnLoadMoreListener = onLoadMoreListener;
+        mPostsActionHandler = postsActionHandler;
 
         postPresenters.addOnListChangedCallback(new ObservableList
                 .OnListChangedCallback<ObservableList<BasePostPresenter<?>>>() {
@@ -153,14 +154,10 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         // load more posts when we near the end
-        if (mOnLoadMoreListener != null && position >= mPostPresenters.size() - 1
+        if (mPostsActionHandler != null && position >= mPostPresenters.size() - 1
                 && position >= PostsListFragment.POSTS_REQUEST_COUNT - 1) {
-            mOnLoadMoreListener.onLoadMore();
+            mPostsActionHandler.onLoadMore();
         }
-    }
-
-    public interface OnLoadMoreListener {
-        void onLoadMore();
     }
 
     class PostViewHolder extends RecyclerView.ViewHolder {
@@ -205,13 +202,13 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    @BindingAdapter({"isPage", "posts", "onLoadMoreListener"})
+    @BindingAdapter({"isPage", "posts", "postsActionHandler"})
     public static void bindAdapter(RecyclerView recyclerView, boolean isPage, ObservableList<BasePostPresenter<?>>
-            postPresenters, PostsListAdapter.OnLoadMoreListener onLoadMoreListener) {
+            postPresenters, PostsActionHandler postsActionHandler) {
         if (recyclerView.getAdapter() == null) {
             LinearLayoutManager layoutManager = new LinearLayoutManager(recyclerView.getContext());
             recyclerView.setLayoutManager(layoutManager);
-            recyclerView.setAdapter(new PostsListAdapter(isPage, postPresenters, onLoadMoreListener));
+            recyclerView.setAdapter(new PostsListAdapter(isPage, postPresenters, postsActionHandler));
         }
     }
 }
