@@ -20,6 +20,7 @@ import org.wordpress.android.ui.posts.PagePresenter;
 import org.wordpress.android.ui.posts.PostPresenter;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
 import org.wordpress.android.ui.posts.PostsListFragment;
+import org.wordpress.android.widgets.RecyclerItemDecoration;
 
 /**
  * Adapter for Posts/Pages list
@@ -202,12 +203,15 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    @BindingAdapter({"isPage", "posts", "postsActionHandler"})
-    public static void bindAdapter(RecyclerView recyclerView, boolean isPage, ObservableList<BasePostPresenter<?>>
-            postPresenters, PostsActionHandler postsActionHandler) {
+    @BindingAdapter({"isPage", "spacingHorizontal", "spacingVertical", "posts", "postsActionHandler"})
+    public static void bindAdapter(RecyclerView recyclerView, boolean isPage, float spacingHorizontal, float
+            spacingVertical, ObservableList<BasePostPresenter<?>> postPresenters, PostsActionHandler
+            postsActionHandler) {
         if (recyclerView.getAdapter() == null) {
             LinearLayoutManager layoutManager = new LinearLayoutManager(recyclerView.getContext());
             recyclerView.setLayoutManager(layoutManager);
+            recyclerView.addItemDecoration(new RecyclerItemDecoration(
+                    (int) spacingHorizontal, isPage ? 0 : (int) spacingVertical));
             recyclerView.setAdapter(new PostsListAdapter(isPage, postPresenters, postsActionHandler));
         }
     }

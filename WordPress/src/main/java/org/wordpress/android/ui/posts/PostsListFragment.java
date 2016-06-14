@@ -2,7 +2,6 @@ package org.wordpress.android.ui.posts;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -25,7 +24,6 @@ import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
 import org.wordpress.android.ui.posts.services.PostUploadService;
 import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ToastUtils;
-import org.wordpress.android.widgets.RecyclerItemDecoration;
 
 public class PostsListFragment extends Fragment implements
         PostsView,
@@ -71,12 +69,6 @@ public class PostsListFragment extends Fragment implements
                 container, false);
 
         mRecyclerView = viewBinding.recyclerView;
-
-        Context context = getActivity();
-
-        int spacingVertical = mIsPage ? 0 : context.getResources().getDimensionPixelSize(R.dimen.reader_card_gutters);
-        int spacingHorizontal = context.getResources().getDimensionPixelSize(R.dimen.content_margin);
-        mRecyclerView.addItemDecoration(new RecyclerItemDecoration(spacingHorizontal, spacingVertical));
 
         final Blog blog = WordPress.getBlog(mLocalBlogId);
         boolean isStatsSupported = blog.isDotcomFlag() || blog.isJetpackPowered();

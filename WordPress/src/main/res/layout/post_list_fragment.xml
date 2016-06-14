@@ -70,6 +70,8 @@
                     android:paddingTop="@dimen/margin_medium"
                     android:scrollbars="vertical"
                     app:isPage="@{viewModel.isPage}"
+                    app:spacingHorizontal="@{@dimen/content_margin}"
+                    app:spacingVertical="@{@dimen/reader_card_gutters}"
                     app:posts="@{viewModel.postPresenters}"
                     app:postsActionHandler="@{postsActionHandler}"/>
 
