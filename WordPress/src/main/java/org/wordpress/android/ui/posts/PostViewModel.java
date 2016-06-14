@@ -1,5 +1,6 @@
 package org.wordpress.android.ui.posts;
 
+import org.wordpress.android.util.DataBindingUtils.AnimationTrigger;
 import org.wordpress.android.util.ObservableString;
 import org.wordpress.android.widgets.WPNetworkImageView;
 
@@ -45,18 +46,16 @@ public class PostViewModel extends BasePostViewModel {
     public final ObservableBoolean showRow1 = new ObservableBoolean(true);
     public final ObservableBoolean canShowStatsForPost = new ObservableBoolean();
 
-    // counters used for triggering the animation of the buttons row
-    private Integer mDoButtonAnimationCounter = 0;
-    private Integer mDoneButtonAnimationCounter = 0;
+    public AnimationTrigger animTriggered = new AnimationTrigger();
 
-    @BindingAdapter({"showRow1", "canShowStatsForPost", "postViewModel"})
+    @BindingAdapter({"showRow1", "canShowStatsForPost", "postViewModel", "animTriggered"})
     public static void onAnimateButtonRow(final LinearLayout layoutButtons, final boolean showRow1, final boolean
-            canShowStatsForPost, final PostViewModel postViewModel) {
-        if(postViewModel.mDoneButtonAnimationCounter == postViewModel.mDoButtonAnimationCounter) {
+            canShowStatsForPost, final PostViewModel postViewModel, AnimationTrigger animTriggered) {
+        if(!animTriggered.isTriggered()) {
             return;
         }
 
-        postViewModel.mDoneButtonAnimationCounter = postViewModel.mDoButtonAnimationCounter;
+        animTriggered.clearTrigger();
 
         /*
          * buttons may appear in two rows depending on display size and number of visible
@@ -100,9 +99,7 @@ public class PostViewModel extends BasePostViewModel {
         this.showRow1.set(showRow1);
         this.canShowStatsForPost.set(canShowStatsForPost);
 
-        mDoButtonAnimationCounter++;
-
-        // force the notifyChange so the animation will happen now
-        this.showRow1.notifyChange();
+        // trigger the animation
+        animTriggered.trigger();
     }
 }

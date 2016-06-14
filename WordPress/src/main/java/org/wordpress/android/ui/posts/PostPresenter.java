@@ -31,7 +31,7 @@ public class PostPresenter extends BasePostPresenter<PostViewModel> implements P
 
         int displayWidth = DisplayUtils.getDisplayPixelWidth(mPostView.getContext());
         // on larger displays we can always show all buttons
-        mAlwaysShowAllButtons = (displayWidth >= 1080);
+        mAlwaysShowAllButtons = (displayWidth >= 3080);
 
         mPostsActionHandler = postsActionHandler;
     }

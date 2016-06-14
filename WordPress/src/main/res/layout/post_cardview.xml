@@ -101,7 +101,8 @@
                     android:orientation="horizontal"
                     wp:showRow1="@{postViewModel.showRow1}"
                     wp:canShowStatsForPost="@{postViewModel.canShowStatsForPost}"
-                    wp:postViewModel="@{postViewModel}">
+                    wp:postViewModel="@{postViewModel}"
+                    wp:animTriggered="@{postViewModel.animTriggered}">
 
                     <org.wordpress.android.widgets.PostListButton
                         android:id="@+id/btn_edit"
