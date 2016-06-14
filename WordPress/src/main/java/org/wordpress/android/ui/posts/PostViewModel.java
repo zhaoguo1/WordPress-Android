@@ -45,14 +45,19 @@ public class PostViewModel extends BasePostViewModel {
     public final ObservableBoolean showRow1 = new ObservableBoolean(true);
     public final ObservableBoolean canShowStatsForPost = new ObservableBoolean();
 
+    // counters used for triggering the animation of the buttons row
+    private Integer mDoButtonAnimationCounter = 0;
+    private Integer mDoneButtonAnimationCounter = 0;
+
     @BindingAdapter({"showRow1", "canShowStatsForPost", "postViewModel"})
-    public static void onAnimateButtonRow(final LinearLayout layoutButtons, final boolean showRow1Old, final boolean
-            canShowStatsForPostOld, PostViewModel postViewModelOld, final boolean showRow1, final boolean
+    public static void onAnimateButtonRow(final LinearLayout layoutButtons, final boolean showRow1, final boolean
             canShowStatsForPost, final PostViewModel postViewModel) {
-        if (showRow1 == showRow1Old && canShowStatsForPost == canShowStatsForPostOld) {
-            // no change in view variables so, bail
+        if(postViewModel.mDoneButtonAnimationCounter == postViewModel.mDoButtonAnimationCounter) {
             return;
         }
+
+        postViewModel.mDoneButtonAnimationCounter = postViewModel.mDoButtonAnimationCounter;
+
         /*
          * buttons may appear in two rows depending on display size and number of visible
          * buttons - these rows are toggled through the "more" and "back" buttons - this
@@ -94,5 +99,10 @@ public class PostViewModel extends BasePostViewModel {
     public void animateButtonRows(final boolean showRow1, boolean canShowStatsForPost) {
         this.showRow1.set(showRow1);
         this.canShowStatsForPost.set(canShowStatsForPost);
+
+        mDoButtonAnimationCounter++;
+
+        // force the notifyChange so the animation will happen now
+        this.showRow1.notifyChange();
     }
 }

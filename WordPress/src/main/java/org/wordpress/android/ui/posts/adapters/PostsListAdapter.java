@@ -204,24 +204,9 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     @BindingAdapter({"isPage", "spacingHorizontal", "spacingVertical", "posts", "postsActionHandler"})
-    public static void bindAdapter(RecyclerView recyclerView,
-            boolean isPageOld,
-            float spacingHorizontalOld,
-            float spacingVerticalOld,
-            ObservableList<BasePostPresenter<?>> postPresentersOld,
-            PostsActionHandler postsActionHandlerOld,
-            boolean isPage,
-            float spacingHorizontal,
-            float spacingVertical,
-            ObservableList<BasePostPresenter<?>> postPresenters,
-            PostsActionHandler postsActionHandler) {
-
-        if (isPage == isPageOld && spacingHorizontal == spacingHorizontalOld && spacingVertical == spacingVerticalOld
-                && postPresenters == postPresentersOld && postsActionHandler == postsActionHandlerOld) {
-            // data haven't changed so, bail
-            return;
-        }
-
+    public static void bindAdapter(RecyclerView recyclerView, boolean isPage, float spacingHorizontal, float
+            spacingVertical, ObservableList<BasePostPresenter<?>> postPresenters, PostsActionHandler
+            postsActionHandler) {
         if (recyclerView.getAdapter() == null) {
             LinearLayoutManager layoutManager = new LinearLayoutManager(recyclerView.getContext());
             recyclerView.setLayoutManager(layoutManager);

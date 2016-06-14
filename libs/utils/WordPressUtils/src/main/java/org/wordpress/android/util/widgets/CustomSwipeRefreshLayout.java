@@ -36,12 +36,7 @@ public class CustomSwipeRefreshLayout extends SwipeRefreshLayout {
     }
 
     @BindingAdapter("isRefreshing")
-    public static void setRefreshing(View view, final boolean refreshingOld, final boolean refreshing) {
-        if (refreshing == refreshingOld) {
-            // no change in the refreshing variable so, bail
-            return;
-        }
-
+    public static void setRefreshing(View view, final boolean refreshing) {
         final CustomSwipeRefreshLayout swipeRefreshLayout = (CustomSwipeRefreshLayout) view;
         swipeRefreshLayout.mRefreshing = refreshing;
 

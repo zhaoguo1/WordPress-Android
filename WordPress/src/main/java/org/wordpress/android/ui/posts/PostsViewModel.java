@@ -34,13 +34,7 @@ public class PostsViewModel {
     }
 
     @BindingAdapter({"slideInDelayMS", "android:visibility"})
-    public static void visibilityAdapter(final FloatingActionButton fab, long delayMSOld, int visibilityOld, long
-            delayMS, int visibility) {
-        if (visibility == visibilityOld) {
-            // no change in visibility so, bail
-            return;
-        }
-
+    public static void visibilityAdapter(final FloatingActionButton fab, long delayMS, int visibility) {
         if (visibility != View.VISIBLE) {
             fab.setVisibility(visibility);
             return;

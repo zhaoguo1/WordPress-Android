@@ -25,6 +25,8 @@ public class PageViewModel extends BasePostViewModel {
     public final ObservableInt dividerTopVisibility = new ObservableInt();
     public final ObservableField<ShowPagePopupMenuConfig> showPagePopupMenuConfig = new ObservableField<>();
 
+    private ShowPagePopupMenuConfig mOldShowPagePopupMenuConfig;
+
     public static class ShowPagePopupMenuConfig {
         private final PostsListPost mPostsListPost;
 
@@ -37,16 +39,13 @@ public class PageViewModel extends BasePostViewModel {
      * user tapped "..." next to a page, show a popup menu of choices
      */
     @BindingAdapter({"showPagePopupMenuConfig", "pageViewModel", "pageActionHandler"})
-    public static void onShowPagePopupMenu(ImageView imageView,
-            final ShowPagePopupMenuConfig showPagePopupMenuConfigOld,
-            final PageViewModel pageViewModelOld,
-            final PageActionHandler pageActionHandlerOld,
-            final ShowPagePopupMenuConfig showPagePopupMenuConfig,
-            final PageViewModel pageViewModel,
-            final PageActionHandler pageActionHandler) {
-        if (showPagePopupMenuConfig == showPagePopupMenuConfigOld) {
+    public static void onShowPagePopupMenu(ImageView imageView, final ShowPagePopupMenuConfig
+            showPagePopupMenuConfig, final PageViewModel pageViewModel, final PageActionHandler pageActionHandler) {
+        if (pageViewModel.mOldShowPagePopupMenuConfig == showPagePopupMenuConfig) {
             return;
         }
+
+        pageViewModel.mOldShowPagePopupMenuConfig = showPagePopupMenuConfig;
 
         Context context = imageView.getContext();
         final ListPopupWindow listPopup = new ListPopupWindow(context);
