@@ -81,7 +81,7 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler {
 
     @Override
     public void onFabClick() {
-        mPostsView.newPost();
+        mPostsView.newPost(mIsPage);
     }
 
     @Override

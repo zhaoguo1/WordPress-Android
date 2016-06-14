@@ -35,9 +35,6 @@ public class PostsListFragment extends Fragment implements
     private PostsPresenter mPostsPresenter;
     private boolean isAfterRotation;
 
-    private int mLocalBlogId;
-    private boolean mIsPage;
-
     public static PostsListFragment newInstance(int localBlogId, boolean isPage) {
         Bundle args = new Bundle();
         args.putInt(ARG_LOCAL_BLOG_ID, localBlogId);
@@ -52,14 +49,6 @@ public class PostsListFragment extends Fragment implements
         super.onCreate(savedInstanceState);
 
         isAfterRotation = (savedInstanceState != null);
-
-        if (isAdded()) {
-            Bundle args = getArguments();
-            if (args != null) {
-                mIsPage = args.getBoolean(ARG_IS_PAGE);
-                mLocalBlogId = args.getInt(ARG_LOCAL_BLOG_ID);
-            }
-        }
     }
 
     @Override
@@ -67,10 +56,14 @@ public class PostsListFragment extends Fragment implements
         PostListFragmentBinding viewBinding = DataBindingUtil.inflate(inflater, R.layout.post_list_fragment,
                 container, false);
 
-        final Blog blog = WordPress.getBlog(mLocalBlogId);
+        Bundle args = getArguments();
+        boolean isPage = args.getBoolean(ARG_IS_PAGE);
+        int localBlogId = args.getInt(ARG_LOCAL_BLOG_ID);
+
+        final Blog blog = WordPress.getBlog(localBlogId);
         boolean isStatsSupported = blog.isDotcomFlag() || blog.isJetpackPowered();
 
-        mPostsPresenter = new PostsPresenter(mLocalBlogId, this, this, mIsPage, isStatsSupported);
+        mPostsPresenter = new PostsPresenter(localBlogId, this, this, isPage, isStatsSupported);
         mPostsPresenter.init();
 
         viewBinding.setViewModel(mPostsPresenter.getPostsViewModel());
@@ -125,11 +118,11 @@ public class PostsListFragment extends Fragment implements
     }
 
     @Override
-    public void newPost() {
+    public void newPost(boolean isPage) {
         if (!isAdded()) return;
 
         if (WordPress.getCurrentBlog() != null) {
-            ActivityLauncher.addNewBlogPostOrPageForResult(getActivity(), WordPress.getCurrentBlog(), mIsPage);
+            ActivityLauncher.addNewBlogPostOrPageForResult(getActivity(), WordPress.getCurrentBlog(), isPage);
         } else {
             ToastUtils.showToast(getActivity(), R.string.blog_not_found);
         }

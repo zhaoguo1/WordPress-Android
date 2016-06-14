@@ -9,7 +9,7 @@ import android.view.View;
 
 public interface PostsListContracts {
     interface PostsView extends BaseView {
-        void newPost();
+        void newPost(boolean isPage);
 
         void withUndo(Undoable undoable);
 
