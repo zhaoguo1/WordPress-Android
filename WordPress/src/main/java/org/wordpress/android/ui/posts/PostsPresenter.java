@@ -86,7 +86,6 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler {
 
     @Override
     public void init() {
-        requestPosts(false);
     }
 
     @Override

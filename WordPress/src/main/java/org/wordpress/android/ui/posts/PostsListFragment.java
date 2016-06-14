@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +21,6 @@ import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
 import org.wordpress.android.ui.posts.services.PostUploadService;
-import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ToastUtils;
 
 public class PostsListFragment extends Fragment implements
@@ -32,11 +30,10 @@ public class PostsListFragment extends Fragment implements
     private static final String ARG_LOCAL_BLOG_ID = "ARG_LOCAL_BLOG_ID";
     private static final String ARG_IS_PAGE = "ARG_IS_PAGE";
 
-    PostsPresenter mPostsPresenter;
-
     public static final int POSTS_REQUEST_COUNT = 20;
 
-    private RecyclerView mRecyclerView;
+    private PostsPresenter mPostsPresenter;
+    private boolean isAfterRotation;
 
     private int mLocalBlogId;
     private boolean mIsPage;
@@ -54,6 +51,8 @@ public class PostsListFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        isAfterRotation = (savedInstanceState != null);
+
         if (isAdded()) {
             Bundle args = getArguments();
             if (args != null) {
@@ -68,12 +67,11 @@ public class PostsListFragment extends Fragment implements
         PostListFragmentBinding viewBinding = DataBindingUtil.inflate(inflater, R.layout.post_list_fragment,
                 container, false);
 
-        mRecyclerView = viewBinding.recyclerView;
-
         final Blog blog = WordPress.getBlog(mLocalBlogId);
         boolean isStatsSupported = blog.isDotcomFlag() || blog.isJetpackPowered();
 
         mPostsPresenter = new PostsPresenter(mLocalBlogId, this, this, mIsPage, isStatsSupported);
+        mPostsPresenter.init();
 
         viewBinding.setViewModel(mPostsPresenter.getPostsViewModel());
         viewBinding.setPostsActionHandler(mPostsPresenter);
@@ -127,17 +125,6 @@ public class PostsListFragment extends Fragment implements
     }
 
     @Override
-    public void onActivityCreated(Bundle bundle) {
-        super.onActivityCreated(bundle);
-
-        // since setRetainInstance(true) is used, we only need to request latest
-        // posts the first time this is called (ie: not after device rotation)
-        if (bundle == null && NetworkUtils.checkConnection(getActivity())) {
-            mPostsPresenter.init();
-        }
-    }
-
-    @Override
     public void newPost() {
         if (!isAdded()) return;
 
@@ -148,18 +135,14 @@ public class PostsListFragment extends Fragment implements
         }
     }
 
-    public void onResume() {
-        super.onResume();
-
-//        if (WordPress.getCurrentBlog() != null && mRecyclerView.getAdapter() == null) {
-//            mRecyclerView.setAdapter(getPostListAdapter());
-//        }
-    }
-
     @Override
     public void onStart() {
         super.onStart();
         mPostsPresenter.start();
+
+        if (!isAfterRotation) {
+            mPostsPresenter.onRefreshRequested();
+        }
     }
 
     @Override
