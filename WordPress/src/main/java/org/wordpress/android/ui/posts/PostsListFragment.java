@@ -33,7 +33,7 @@ public class PostsListFragment extends Fragment implements
     public static final int POSTS_REQUEST_COUNT = 20;
 
     private PostsPresenter mPostsPresenter;
-    private boolean isAfterRotation;
+    private boolean fetchPostsOnce;
 
     public static PostsListFragment newInstance(int localBlogId, boolean isPage) {
         Bundle args = new Bundle();
@@ -48,7 +48,8 @@ public class PostsListFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        isAfterRotation = (savedInstanceState != null);
+        // request posts the first time we open
+        fetchPostsOnce = (savedInstanceState == null);
     }
 
     @Override
@@ -133,7 +134,8 @@ public class PostsListFragment extends Fragment implements
         super.onStart();
         mPostsPresenter.start();
 
-        if (!isAfterRotation) {
+        if (fetchPostsOnce) {
+            fetchPostsOnce = false;
             mPostsPresenter.onRefreshRequested();
         }
     }
