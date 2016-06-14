@@ -147,15 +147,24 @@ public class PostPresenter extends BasePostPresenter<PostViewModel> implements P
 
         // if we have enough room to show all buttons, hide the back/more buttons and show stats/trash
 
-        // set More button visibility
-        mViewModel.moreButtonVisibility.set(hasEnoughRoom() ? View.GONE : View.VISIBLE);
+        // set Edit button visibility
+        mViewModel.editButtonVisibility.set(View.VISIBLE);
 
-        // set Trash button visibility
-        mViewModel.trashButtonVisibility.set(hasEnoughRoom() ? View.VISIBLE : View.GONE);
+        // set View button visibility
+        mViewModel.viewButtonVisibility.set(View.VISIBLE);
 
         // set stats button visibility
         mViewModel.statsButtonVisibility
                 .set((canShowStatsForPost() && hasEnoughRoom()) ? View.VISIBLE : View.GONE);
+
+        // set Trash button visibility
+        mViewModel.trashButtonVisibility.set(hasEnoughRoom() ? View.VISIBLE : View.GONE);
+
+        // set More button visibility
+        mViewModel.moreButtonVisibility.set(hasEnoughRoom() ? View.GONE : View.VISIBLE);
+
+        // set Back button visibility
+        mViewModel.backButtonVisibility.set(View.GONE);
     }
 
     private boolean canShowStatsForPost() {
