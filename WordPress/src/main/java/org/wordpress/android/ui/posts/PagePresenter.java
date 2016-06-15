@@ -31,6 +31,8 @@ public class PagePresenter extends BasePostPresenter<PageViewModel> implements P
         mPageView = pageView;
         mPostsListPostPrevious = postsListPostPrevious;
         mPostsActionHandler = postsActionHandler;
+
+        displayPage();
     }
 
     public void setPostsListPosts(PostsListPost postsListPost, PostsListPost postsListPostPrevious) {
@@ -85,11 +87,6 @@ public class PagePresenter extends BasePostPresenter<PageViewModel> implements P
                 }
                 break;
         }
-    }
-
-    @Override
-    public void init() {
-        displayPage();
     }
 
     @Override

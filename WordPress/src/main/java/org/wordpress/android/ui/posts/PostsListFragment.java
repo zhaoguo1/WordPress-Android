@@ -64,7 +64,6 @@ public class PostsListFragment extends Fragment implements
         boolean isStatsSupported = blog.isDotcomFlag() || blog.isJetpackPowered();
 
         mPostsPresenter = new PostsPresenter(localBlogId, this, this, isPage, isStatsSupported);
-        mPostsPresenter.init();
 
         viewBinding.setViewModel(mPostsPresenter.getPostsViewModel());
         viewBinding.setPostsActionHandler(mPostsPresenter);

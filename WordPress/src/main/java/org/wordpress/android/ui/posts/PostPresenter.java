@@ -34,6 +34,8 @@ public class PostPresenter extends BasePostPresenter<PostViewModel> implements P
         mAlwaysShowAllButtons = (displayWidth >= 1080);
 
         mPostsActionHandler = postsActionHandler;
+
+        displayPost();
     }
 
     public void setPostsListPost(PostsListPost postsListPost) {
@@ -90,11 +92,6 @@ public class PostPresenter extends BasePostPresenter<PostViewModel> implements P
                 mViewModel.animateButtonRows(true, canShowStatsForPost());
                 break;
         }
-    }
-
-    @Override
-    public void init() {
-        displayPost();
     }
 
     @Override

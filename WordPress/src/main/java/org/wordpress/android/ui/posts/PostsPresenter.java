@@ -90,10 +90,6 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler {
     }
 
     @Override
-    public void init() {
-    }
-
-    @Override
     public void willBeFirstStart() {
         mDoOneTimeStartStuff = true;
     }
@@ -339,8 +335,6 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler {
                             foundBasePostPresenter = new PostPresenter(mPostView, post, mIsStatsSupported,
                                     PostsPresenter.this);
                         }
-
-                        foundBasePostPresenter.init();
                     } else {
                         if (mIsPage) {
                             ((PagePresenter) foundBasePostPresenter).setPostsListPosts(post, postPrevious);
