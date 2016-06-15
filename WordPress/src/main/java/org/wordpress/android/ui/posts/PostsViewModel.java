@@ -2,6 +2,7 @@ package org.wordpress.android.ui.posts;
 
 import org.wordpress.android.R;
 import org.wordpress.android.util.AniUtils;
+import org.wordpress.android.util.DataBindingUtils.AnimationTrigger;
 import org.wordpress.android.util.helpers.SwipeToRefreshHelper;
 
 import android.animation.Animator;
@@ -29,16 +30,19 @@ public class PostsViewModel {
     public final ObservableList<BasePostPresenter<?>> postPresenters = new ObservableArrayList<>();
     public final ObservableBoolean isPage;
 
+    public AnimationTrigger animTriggered = new AnimationTrigger();
+
     public PostsViewModel(boolean isPage) {
         this.isPage = new ObservableBoolean(isPage);
     }
 
-    @BindingAdapter({"slideInDelayMS", "android:visibility"})
-    public static void visibilityAdapter(final FloatingActionButton fab, long delayMS, int visibility) {
-        if (visibility != View.VISIBLE) {
-            fab.setVisibility(visibility);
+    @BindingAdapter({"slideInDelayMS", "animTriggered"})
+    public static void visibilityAdapter(final FloatingActionButton fab, long delayMS, AnimationTrigger animTriggered) {
+        if (!animTriggered.isTriggered()) {
             return;
         }
+
+        animTriggered.clearTrigger();
 
         new Handler().postDelayed(new Runnable() {
             @Override

@@ -55,6 +55,8 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler {
 
     private boolean mCanLoadMorePosts = true;
 
+    private boolean mDoOneTimeStartStuff;
+
     public PostsPresenter(int blogLocalId, PostsView postsView, PostView postView, boolean isPage, boolean
             isStatsSupported) {
         mPostsViewModel = new PostsViewModel(isPage);
@@ -73,6 +75,9 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler {
         mPhotonWidth = displayWidth - (contentSpacing * 2);
         mPhotonHeight = mPostsView.getContext().getResources().getDimensionPixelSize(R.dimen
                 .reader_featured_image_height);
+
+        // start with the FAB gone so it can be scaled in later
+        mPostsViewModel.fabVisibility.set(View.GONE);
     }
 
     public PostsViewModel getPostsViewModel() {
@@ -89,6 +94,11 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler {
     }
 
     @Override
+    public void willBeFirstStart() {
+        mDoOneTimeStartStuff = true;
+    }
+
+    @Override
     public void start() {
         EventBus.getDefault().register(this);
 
@@ -96,7 +106,15 @@ public class PostsPresenter implements BasePresenter, PostsActionHandler {
             loadPosts();
         }
 
-        mPostsViewModel.fabVisibility.set(View.VISIBLE);
+        if (mDoOneTimeStartStuff) {
+            mDoOneTimeStartStuff = false;
+
+            mPostsViewModel.animTriggered.trigger();
+
+            onRefreshRequested();
+        } else {
+            mPostsViewModel.fabVisibility.set(View.VISIBLE);
+        }
     }
 
     @Override

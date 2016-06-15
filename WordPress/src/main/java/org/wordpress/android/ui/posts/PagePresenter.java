@@ -93,6 +93,10 @@ public class PagePresenter extends BasePostPresenter<PageViewModel> implements P
     }
 
     @Override
+    public void willBeFirstStart() {
+    }
+
+    @Override
     public void start() {
     }
 

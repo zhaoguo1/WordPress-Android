@@ -33,7 +33,7 @@ public class PostsListFragment extends Fragment implements
     public static final int POSTS_REQUEST_COUNT = 20;
 
     private PostsPresenter mPostsPresenter;
-    private boolean fetchPostsOnce;
+    private boolean isFirstStart;
 
     public static PostsListFragment newInstance(int localBlogId, boolean isPage) {
         Bundle args = new Bundle();
@@ -48,8 +48,7 @@ public class PostsListFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // request posts the first time we open
-        fetchPostsOnce = (savedInstanceState == null);
+        isFirstStart = (savedInstanceState == null);
     }
 
     @Override
@@ -132,12 +131,14 @@ public class PostsListFragment extends Fragment implements
     @Override
     public void onStart() {
         super.onStart();
-        mPostsPresenter.start();
 
-        if (fetchPostsOnce) {
-            fetchPostsOnce = false;
-            mPostsPresenter.onRefreshRequested();
+        if (isFirstStart) {
+            isFirstStart = false;
+
+            mPostsPresenter.willBeFirstStart();
         }
+
+        mPostsPresenter.start();
     }
 
     @Override

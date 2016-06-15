@@ -90,6 +90,7 @@
                 app:borderWidth="0dp"
                 app:rippleColor="@color/fab_pressed"
                 app:slideInDelayMS="@{@integer/fab_animation_delay}"
+                app:animTriggered="@{viewModel.animTriggered}"
                 android:visibility="@{viewModel.fabVisibility}"/>
 
         </android.support.design.widget.CoordinatorLayout>
