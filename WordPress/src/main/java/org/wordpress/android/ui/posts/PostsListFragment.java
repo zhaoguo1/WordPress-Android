@@ -73,6 +73,25 @@ public class PostsListFragment extends Fragment implements
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        if (isFirstStart) {
+            isFirstStart = false;
+
+            mPostsPresenter.willBeFirstStart();
+        }
+
+        mPostsPresenter.start();
+    }
+
+    @Override
+    public void onStop() {
+        mPostsPresenter.stop();
+        super.onStop();
+    }
+
+    @Override
     public void editBlogPostOrPageForResult(long postOrPageId, boolean isPage) {
         if (isAdded()) {
             ActivityLauncher.editBlogPostOrPageForResult(getActivity(), postOrPageId, isPage);
@@ -125,25 +144,6 @@ public class PostsListFragment extends Fragment implements
         } else {
             ToastUtils.showToast(getActivity(), R.string.blog_not_found);
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        if (isFirstStart) {
-            isFirstStart = false;
-
-            mPostsPresenter.willBeFirstStart();
-        }
-
-        mPostsPresenter.start();
-    }
-
-    @Override
-    public void onStop() {
-        mPostsPresenter.stop();
-        super.onStop();
     }
 
     @Override
