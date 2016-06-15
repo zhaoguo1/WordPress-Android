@@ -5,6 +5,7 @@ import android.databinding.BindingAdapter;
 import android.databinding.DataBindingUtil;
 import android.databinding.ObservableArrayList;
 import android.databinding.ObservableList;
+import android.databinding.ViewDataBinding;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -106,15 +107,15 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (viewType == VIEW_TYPE_ENDLIST_INDICATOR) {
             EndlistIndicatorBinding endlistIndicatorBinding = DataBindingUtil.inflate(LayoutInflater.from(parent
                     .getContext()), R.layout.endlist_indicator, parent, false);
-            return new EndListViewHolder(endlistIndicatorBinding);
+            return new PostViewHolder<>(endlistIndicatorBinding);
         } else if (mIsPage) {
             PageItemBinding pageBinding = DataBindingUtil.inflate(LayoutInflater.from(parent
                     .getContext()), R.layout.page_item, parent, false);
-            return new PageViewHolder(pageBinding);
+            return new PostViewHolder<>(pageBinding);
         } else {
             PostCardviewBinding postCardviewBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),
                     R.layout.post_cardview, parent, false);
-            return new PostViewHolder(postCardviewBinding);
+            return new PostViewHolder<>(postCardviewBinding);
         }
     }
 
@@ -126,14 +127,15 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (getItemViewType(position) == VIEW_TYPE_ENDLIST_INDICATOR) {
             final EndlistIndicatorViewModel endlistIndicatorViewModel = new EndlistIndicatorViewModel(context, mIsPage);
 
-            final EndlistIndicatorBinding binding = ((EndListViewHolder) holder).getBinding();
+            final EndlistIndicatorBinding binding = ((PostViewHolder<EndlistIndicatorBinding>) holder).getBinding();
             binding.setEndlistIndicatorViewModel(endlistIndicatorViewModel);
             binding.executePendingBindings();
             return;
         }
 
-        if (holder instanceof PostViewHolder) {
-            final PostCardviewBinding binding = ((PostViewHolder) holder).getBinding();
+        ViewDataBinding genericBinding = ((PostViewHolder) holder).getBinding();
+        if (genericBinding instanceof  PostCardviewBinding) {
+            final PostCardviewBinding binding = (PostCardviewBinding) genericBinding;
 
             final PostPresenter postPresenter = (PostPresenter) mPostPresenters.get(position);
 
@@ -142,8 +144,8 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             binding.setActionHandler(postPresenter);
             binding.setPostViewModel(postPresenter.getViewModel());
             binding.executePendingBindings();
-        } else if (holder instanceof PageViewHolder) {
-            final PageItemBinding pageItemBinding = ((PageViewHolder) holder).getBinding();
+        } else if (genericBinding instanceof PageItemBinding) {
+            final PageItemBinding pageItemBinding = (PageItemBinding) genericBinding;
 
             final PagePresenter pagePresenter = (PagePresenter) mPostPresenters.get(position);
 
@@ -161,44 +163,16 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    class PostViewHolder extends RecyclerView.ViewHolder {
-        private PostCardviewBinding binding;
+    class PostViewHolder<T extends ViewDataBinding> extends RecyclerView.ViewHolder {
+        private T binding;
 
-        public PostViewHolder(PostCardviewBinding postCardviewBinding) {
-            super(postCardviewBinding.cardView);
+        public PostViewHolder(T viewBinding) {
+            super(viewBinding.getRoot());
 
-            binding = postCardviewBinding;
+            binding = viewBinding;
         }
 
-        public PostCardviewBinding getBinding() {
-            return binding;
-        }
-    }
-
-    class PageViewHolder extends RecyclerView.ViewHolder {
-        private PageItemBinding binding;
-
-        public PageViewHolder(PageItemBinding pageItemBinding) {
-            super(pageItemBinding.getRoot());
-
-            binding = pageItemBinding;
-        }
-
-        public PageItemBinding getBinding() {
-            return binding;
-        }
-    }
-
-    class EndListViewHolder extends RecyclerView.ViewHolder {
-        private EndlistIndicatorBinding binding;
-
-        public EndListViewHolder(EndlistIndicatorBinding endlistIndicatorBinding) {
-            super(endlistIndicatorBinding.endlistIndicator);
-
-            binding = endlistIndicatorBinding;
-        }
-
-        EndlistIndicatorBinding getBinding() {
+        public T getBinding() {
             return binding;
         }
     }
