@@ -321,7 +321,7 @@ public class ReaderSubsActivity extends AppCompatActivity
         }
 
         // URL is valid, so follow it
-        performAddUrl(normUrl);
+        followByUrl(normUrl);
     }
 
     /*
@@ -364,7 +364,7 @@ public class ReaderSubsActivity extends AppCompatActivity
      *    2. perform the actual follow
      * note that the passed URL is assumed to be normalized and validated
      */
-    private void performAddUrl(final String blogUrl) {
+    /*private void performAddUrl(final String blogUrl) {
         if (!NetworkUtils.checkConnection(this)) {
             return;
         }
@@ -400,9 +400,9 @@ public class ReaderSubsActivity extends AppCompatActivity
             }
         };
         ReaderBlogActions.checkUrlReachable(blogUrl, requestListener);
-    }
+    }*/
 
-    private void followBlogUrl(String normUrl) {
+    private void followByUrl(String normUrl) {
         ReaderActions.ActionListener followListener = new ReaderActions.ActionListener() {
             @Override
             public void onActionResult(boolean succeeded) {

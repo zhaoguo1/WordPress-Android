@@ -42,9 +42,7 @@ public class ReaderBlogActions {
                                          final boolean isAskingToFollow,
                                          final ActionListener actionListener) {
         if (blogId == 0) {
-            if (actionListener != null) {
-                actionListener.onActionResult(false);
-            }
+            ReaderActions.callActionListener(actionListener, false);
             return false;
         }
 
@@ -70,9 +68,7 @@ public class ReaderBlogActions {
                     AppLog.w(T.READER, "blog " + actionName + " failed - " + jsonToString(jsonObject) + " - " + path);
                     localRevertFollowBlogId(blogId, isAskingToFollow);
                 }
-                if (actionListener != null) {
-                    actionListener.onActionResult(success);
-                }
+                ReaderActions.callActionListener(actionListener, success);
             }
         };
         RestRequest.ErrorListener errorListener = new RestRequest.ErrorListener() {
@@ -81,9 +77,7 @@ public class ReaderBlogActions {
                 AppLog.w(T.READER, "blog " + actionName + " failed with error");
                 AppLog.e(T.READER, volleyError);
                 localRevertFollowBlogId(blogId, isAskingToFollow);
-                if (actionListener != null) {
-                    actionListener.onActionResult(false);
-                }
+                ReaderActions.callActionListener(actionListener, false);
             }
         };
         WordPress.getRestClientUtilsV1_1().post(path, listener, errorListener);
@@ -108,8 +102,8 @@ public class ReaderBlogActions {
                             blogInfo.getFeedUrl(),
                             isAskingToFollow,
                             actionListener);
-                } else if (actionListener != null) {
-                    actionListener.onActionResult(false);
+                } else {
+                    ReaderActions.callActionListener(actionListener, false);
                 }
             }
         });
@@ -120,9 +114,7 @@ public class ReaderBlogActions {
     public static void followFeedByUrl(final String feedUrl,
                                        final ActionListener actionListener) {
         if (TextUtils.isEmpty(feedUrl)) {
-            if (actionListener != null) {
-                actionListener.onActionResult(false);
-            }
+            ReaderActions.callActionListener(actionListener, false);
             return;
         }
 
@@ -141,8 +133,8 @@ public class ReaderBlogActions {
                             blogInfo.getFeedUrl(),
                             true,
                             actionListener);
-                } else if (actionListener != null) {
-                    actionListener.onActionResult(false);
+                } else {
+                    ReaderActions.callActionListener(actionListener, false);
                 }
             }
         });
@@ -156,9 +148,7 @@ public class ReaderBlogActions {
     {
         // feedUrl is required
         if (TextUtils.isEmpty(feedUrl)) {
-            if (actionListener != null) {
-                actionListener.onActionResult(false);
-            }
+            ReaderActions.callActionListener(actionListener, false);
             return false;
         }
 
@@ -188,9 +178,7 @@ public class ReaderBlogActions {
                     AppLog.w(T.READER, "feed " + actionName + " failed - " + jsonToString(jsonObject) + " - " + path);
                     localRevertFollowFeedId(feedId, isAskingToFollow);
                 }
-                if (actionListener != null) {
-                    actionListener.onActionResult(success);
-                }
+                ReaderActions.callActionListener(actionListener, success);
             }
         };
         RestRequest.ErrorListener errorListener = new RestRequest.ErrorListener() {
@@ -199,9 +187,7 @@ public class ReaderBlogActions {
                 AppLog.w(T.READER, "feed " + actionName + " failed with error");
                 AppLog.e(T.READER, volleyError);
                 localRevertFollowFeedId(feedId, isAskingToFollow);
-                if (actionListener != null) {
-                    actionListener.onActionResult(false);
-                }
+                ReaderActions.callActionListener(actionListener, false);
             }
         };
         WordPress.getRestClientUtilsV1_1().post(path, listener, errorListener);
@@ -217,9 +203,7 @@ public class ReaderBlogActions {
                                             ActionListener actionListener) {
         if (post == null) {
             AppLog.w(T.READER, "follow action performed with null post");
-            if (actionListener != null) {
-                actionListener.onActionResult(false);
-            }
+            ReaderActions.callActionListener(actionListener, false);
             return false;
         }
         if (post.feedId != 0) {
@@ -416,9 +400,7 @@ public class ReaderBlogActions {
         com.wordpress.rest.RestRequest.Listener listener = new RestRequest.Listener() {
             @Override
             public void onResponse(JSONObject jsonObject) {
-               if (actionListener != null) {
-                    actionListener.onActionResult(true);
-                }
+                ReaderActions.callActionListener(actionListener, true);
             }
         };
         RestRequest.ErrorListener errorListener = new RestRequest.ErrorListener() {
@@ -429,9 +411,7 @@ public class ReaderBlogActions {
                 if (blockResult.wasFollowing) {
                     ReaderBlogTable.setIsFollowedBlogId(blogId, true);
                 }
-                if (actionListener != null) {
-                    actionListener.onActionResult(false);
-                }
+                ReaderActions.callActionListener(actionListener, false);
             }
         };
 
