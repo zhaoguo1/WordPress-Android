@@ -50,6 +50,17 @@ public class ReaderActions {
         void onFailure(int statusCode);
     }
 
+    public static void callRequestListener(ReaderActions.OnRequestListener listener, boolean succeeded, int statusCode) {
+        if (listener == null) return;
+
+        if (succeeded) {
+            listener.onSuccess();
+        } else {
+            listener.onFailure(statusCode);
+        }
+    }
+
+
     /*
      * listener when submitting a comment
      */

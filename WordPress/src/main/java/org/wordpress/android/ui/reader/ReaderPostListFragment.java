@@ -507,18 +507,23 @@ public class ReaderPostListFragment extends Fragment
 
         final boolean isAskingToFollow = !ReaderPostTable.isPostFollowed(post);
 
-        ReaderActions.ActionListener actionListener = new ReaderActions.ActionListener() {
+        ReaderActions.OnRequestListener requestListener = new ReaderActions.OnRequestListener() {
             @Override
-            public void onActionResult(boolean succeeded) {
-                if (isAdded() && !succeeded) {
-                    int resId = (isAskingToFollow ? R.string.reader_toast_err_follow_blog : R.string.reader_toast_err_unfollow_blog);
-                    ToastUtils.showToast(getActivity(), resId);
-                    getPostAdapter().setFollowStatusForBlog(post.blogId, !isAskingToFollow);
-                }
+            public void onSuccess() {
+                // noop
+            }
+
+            @Override
+            public void onFailure(int statusCode) {
+                if (!isAdded()) return;
+
+                int resId = (isAskingToFollow ? R.string.reader_toast_err_follow_blog : R.string.reader_toast_err_unfollow_blog);
+                ToastUtils.showToast(getActivity(), resId);
+                getPostAdapter().setFollowStatusForBlog(post.blogId, !isAskingToFollow);
             }
         };
 
-        if (ReaderBlogActions.followSiteByUrl(post.getBlogUrl(), isAskingToFollow, actionListener)) {
+        if (ReaderBlogActions.followSiteByUrl(post.getBlogUrl(), isAskingToFollow, requestListener)) {
             getPostAdapter().setFollowStatusForBlog(post.blogId, isAskingToFollow);
         }
     }

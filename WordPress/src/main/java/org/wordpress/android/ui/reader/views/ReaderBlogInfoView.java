@@ -151,9 +151,7 @@ public class ReaderBlogInfoView extends LinearLayout {
     }
 
     private void toggleFollowStatus() {
-        if (!NetworkUtils.checkConnection(getContext())) {
-            return;
-        }
+        if (!NetworkUtils.checkConnection(getContext())) return;
 
         final boolean isAskingToFollow;
         if (mFeedId != 0) {
@@ -162,25 +160,28 @@ public class ReaderBlogInfoView extends LinearLayout {
             isAskingToFollow = !ReaderBlogTable.isFollowedBlog(mBlogId);
         }
 
-        ReaderActions.ActionListener listener = new ReaderActions.ActionListener() {
+        ReaderActions.OnRequestListener requestListener = new ReaderActions.OnRequestListener() {
             @Override
-            public void onActionResult(boolean succeeded) {
-                if (getContext() == null) {
-                    return;
-                }
+            public void onSuccess() {
+                if (getContext() == null) return;
+
                 mFollowButton.setEnabled(true);
-                if (!succeeded) {
-                    int errResId = isAskingToFollow ? R.string.reader_toast_err_follow_blog : R.string.reader_toast_err_unfollow_blog;
-                    ToastUtils.showToast(getContext(), errResId);
-                    mFollowButton.setIsFollowed(!isAskingToFollow);
-                }
+            }
+            @Override
+            public void onFailure(int statusCode) {
+                if (getContext() == null) return;
+
+                mFollowButton.setEnabled(true);
+                int errResId = isAskingToFollow ? R.string.reader_toast_err_follow_blog : R.string.reader_toast_err_unfollow_blog;
+                ToastUtils.showToast(getContext(), errResId);
+                mFollowButton.setIsFollowed(!isAskingToFollow);
             }
         };
 
         // disable follow button until API call returns
         mFollowButton.setEnabled(false);
 
-        boolean result = ReaderBlogActions.followSiteByUrl(mBlogInfo.getUrl(), isAskingToFollow, listener);
+        boolean result = ReaderBlogActions.followSiteByUrl(mBlogInfo.getUrl(), isAskingToFollow, requestListener);
         if (result) {
             mFollowButton.setIsFollowedAnimated(isAskingToFollow);
         }

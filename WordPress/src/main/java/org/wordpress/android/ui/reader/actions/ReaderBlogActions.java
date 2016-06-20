@@ -36,15 +36,15 @@ public class ReaderBlogActions {
 
     public static boolean followSiteByUrl(final String siteUrl,
                                           final boolean isAskingToFollow,
-                                          final ActionListener actionListener) {
+                                          final ReaderActions.OnRequestListener requestListener) {
         if (TextUtils.isEmpty(siteUrl)) {
-            ReaderActions.callActionListener(actionListener, false);
+            ReaderActions.callRequestListener(requestListener, false, 0);
             return false;
         }
 
         ReaderBlog blogInfo = ReaderBlogTable.getBlogInfoFromUrl(siteUrl);
         if (blogInfo != null) {
-            return internalFollowSite(blogInfo, isAskingToFollow, actionListener);
+            return internalFollowSite(blogInfo, isAskingToFollow, requestListener);
         }
 
         updateFeedInfo(0, siteUrl, new UpdateBlogInfoListener() {
@@ -54,9 +54,9 @@ public class ReaderBlogActions {
                     internalFollowSite(
                             blogInfo,
                             isAskingToFollow,
-                            actionListener);
+                            requestListener);
                 } else {
-                    ReaderActions.callActionListener(actionListener, false);
+                    ReaderActions.callRequestListener(requestListener, false, 0);
                 }
             }
         });
@@ -67,10 +67,10 @@ public class ReaderBlogActions {
     private static boolean internalFollowSite(
             final ReaderBlog blogInfo,
             final boolean isAskingToFollow,
-            final ActionListener actionListener)
+            final ReaderActions.OnRequestListener requestListener)
     {
         if (blogInfo == null) {
-            ReaderActions.callActionListener(actionListener, false);
+            ReaderActions.callRequestListener(requestListener, false, 0);
             return false;
         }
 
@@ -97,7 +97,7 @@ public class ReaderBlogActions {
                     AppLog.w(T.READER, actionName + " failed - " + jsonToString(jsonObject) + " - " + path);
                     setIsFollowedBlog(blogInfo, !isAskingToFollow);
                 }
-                ReaderActions.callActionListener(actionListener, success);
+                ReaderActions.callRequestListener(requestListener, success, 0);
             }
         };
         RestRequest.ErrorListener errorListener = new RestRequest.ErrorListener() {
@@ -106,7 +106,8 @@ public class ReaderBlogActions {
                 AppLog.w(T.READER, "feed " + actionName + " failed with error");
                 AppLog.e(T.READER, volleyError);
                 setIsFollowedBlog(blogInfo, !isAskingToFollow);
-                ReaderActions.callActionListener(actionListener, false);
+                int statusCode = VolleyUtils.statusCodeFromVolleyError(volleyError);
+                ReaderActions.callRequestListener(requestListener, false, statusCode);
             }
         };
 

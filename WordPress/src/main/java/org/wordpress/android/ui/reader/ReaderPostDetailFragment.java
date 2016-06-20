@@ -325,24 +325,25 @@ public class ReaderPostDetailFragment extends Fragment
         final boolean isAskingToFollow = !ReaderPostTable.isPostFollowed(mPost);
         final ReaderFollowButton followButton = (ReaderFollowButton) getView().findViewById(R.id.follow_button);
 
-        ReaderActions.ActionListener listener = new ReaderActions.ActionListener() {
+        followButton.setEnabled(false);
+
+        ReaderActions.OnRequestListener requestListener = new ReaderActions.OnRequestListener() {
             @Override
-            public void onActionResult(boolean succeeded) {
-                if (!isAdded()) {
-                    return;
-                }
+            public void onSuccess() {
+                if (!isAdded()) return;
                 followButton.setEnabled(true);
-                if (!succeeded) {
-                    int resId = (isAskingToFollow ? R.string.reader_toast_err_follow_blog : R.string.reader_toast_err_unfollow_blog);
-                    ToastUtils.showToast(getActivity(), resId);
-                    followButton.setIsFollowedAnimated(!isAskingToFollow);
-                }
+            }
+            @Override
+            public void onFailure(int statusCode) {
+                if (!isAdded()) return;
+                followButton.setEnabled(true);
+                int resId = (isAskingToFollow ? R.string.reader_toast_err_follow_blog : R.string.reader_toast_err_unfollow_blog);
+                ToastUtils.showToast(getActivity(), resId);
+                followButton.setIsFollowedAnimated(!isAskingToFollow);
             }
         };
 
-        followButton.setEnabled(false);
-
-        if (ReaderBlogActions.followSiteByUrl(mPost.getBlogUrl(), isAskingToFollow, listener)) {
+        if (ReaderBlogActions.followSiteByUrl(mPost.getBlogUrl(), isAskingToFollow, requestListener)) {
             followButton.setIsFollowedAnimated(isAskingToFollow);
         }
     }

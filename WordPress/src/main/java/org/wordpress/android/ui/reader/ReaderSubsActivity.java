@@ -405,27 +405,29 @@ public class ReaderSubsActivity extends AppCompatActivity
     private void followByUrl(String normUrl) {
         if (!NetworkUtils.checkConnection(this)) return;
 
-        ReaderActions.ActionListener followListener = new ReaderActions.ActionListener() {
+        ReaderActions.OnRequestListener requestListener = new ReaderActions.OnRequestListener() {
             @Override
-            public void onActionResult(boolean succeeded) {
+            public void onSuccess() {
                 if (isFinishing()) return;
 
                 hideAddUrlProgress();
+                mEditAdd.setText(null);
+                EditTextUtils.hideSoftInput(mEditAdd);
+                showInfoToast(getString(R.string.reader_label_followed_blog));
+                getPageAdapter().refreshBlogFragments(ReaderBlogType.FOLLOWED);
+            }
 
-                if (succeeded) {
-                    // clear the edit text and hide the soft keyboard
-                    mEditAdd.setText(null);
-                    EditTextUtils.hideSoftInput(mEditAdd);
-                    showInfoToast(getString(R.string.reader_label_followed_blog));
-                    getPageAdapter().refreshBlogFragments(ReaderBlogType.FOLLOWED);
-                } else {
-                    ToastUtils.showToast(ReaderSubsActivity.this, R.string.reader_toast_err_follow_blog);
-                }
+            @Override
+            public void onFailure(int statusCode) {
+                if (isFinishing()) return;
+
+                hideAddUrlProgress();
+                ToastUtils.showToast(ReaderSubsActivity.this, R.string.reader_toast_err_follow_blog);
             }
         };
 
         showAddUrlProgress();
-        ReaderBlogActions.followSiteByUrl(normUrl, true, followListener);
+        ReaderBlogActions.followSiteByUrl(normUrl, true, requestListener);
     }
 
     /*
