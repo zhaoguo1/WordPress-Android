@@ -518,7 +518,7 @@ public class ReaderPostListFragment extends Fragment
             }
         };
 
-        if (ReaderBlogActions.followBlogForPost(post, isAskingToFollow, actionListener)) {
+        if (ReaderBlogActions.followSiteByUrl(post.getBlogUrl(), isAskingToFollow, actionListener)) {
             getPostAdapter().setFollowStatusForBlog(post.blogId, isAskingToFollow);
         }
     }

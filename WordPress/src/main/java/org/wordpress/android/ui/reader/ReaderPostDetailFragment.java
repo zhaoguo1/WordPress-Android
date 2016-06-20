@@ -342,7 +342,7 @@ public class ReaderPostDetailFragment extends Fragment
 
         followButton.setEnabled(false);
 
-        if (ReaderBlogActions.followBlogForPost(mPost, isAskingToFollow, listener)) {
+        if (ReaderBlogActions.followSiteByUrl(mPost.getBlogUrl(), isAskingToFollow, listener)) {
             followButton.setIsFollowedAnimated(isAskingToFollow);
         }
     }

@@ -10,7 +10,6 @@ import org.wordpress.android.models.ReaderBlog;
 import org.wordpress.android.models.ReaderBlogList;
 import org.wordpress.android.models.ReaderRecommendBlogList;
 import org.wordpress.android.models.ReaderRecommendedBlog;
-import org.wordpress.android.models.ReaderUrlList;
 import org.wordpress.android.ui.reader.ReaderConstants;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.DateTimeUtils;
@@ -81,6 +80,22 @@ public class ReaderBlogTable {
         }
     }
 
+    public static ReaderBlog getBlogInfoFromUrl(String url) {
+        if (TextUtils.isEmpty(url)) {
+            return null;
+        }
+        String[] args = {UrlUtils.normalizeUrl(url)};
+        Cursor cursor = ReaderDatabase.getReadableDb().rawQuery("SELECT * FROM tbl_blog_info WHERE blog_url=? OR feed_url=?", args);
+        try {
+            if (!cursor.moveToFirst()) {
+                return null;
+            }
+            return getBlogInfoFromCursor(cursor);
+        } finally {
+            SqlUtils.closeCursor(cursor);
+        }
+    }
+
     public static ReaderBlog getFeedInfo(long feedId) {
         if (feedId == 0) {
             return null;
@@ -95,16 +110,6 @@ public class ReaderBlogTable {
         } finally {
             SqlUtils.closeCursor(cursor);
         }
-    }
-
-    public static long getFeedIdFromUrl(String url) {
-        if (TextUtils.isEmpty(url)) {
-            return 0;
-        }
-        String[] args = {UrlUtils.normalizeUrl(url)};
-        return SqlUtils.longForQuery(ReaderDatabase.getReadableDb(),
-                "SELECT feed_id FROM tbl_blog_info WHERE feed_url=?",
-                args);
     }
 
     private static ReaderBlog getBlogInfoFromCursor(Cursor c) {
@@ -197,24 +202,6 @@ public class ReaderBlogTable {
 
         } finally {
             db.endTransaction();
-        }
-    }
-
-    /*
-     * return list of URLs of followed blogs
-     */
-    public static ReaderUrlList getFollowedBlogUrls() {
-        Cursor c = ReaderDatabase.getReadableDb().rawQuery("SELECT DISTINCT blog_url FROM tbl_blog_info WHERE is_following!=0", null);
-        try {
-            ReaderUrlList urls = new ReaderUrlList();
-            if (c.moveToFirst()) {
-                do {
-                    urls.add(c.getString(0));
-                } while (c.moveToNext());
-            }
-            return urls;
-        } finally {
-            SqlUtils.closeCursor(c);
         }
     }
 

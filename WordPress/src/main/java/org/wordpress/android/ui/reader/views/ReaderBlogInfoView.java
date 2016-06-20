@@ -180,13 +180,7 @@ public class ReaderBlogInfoView extends LinearLayout {
         // disable follow button until API call returns
         mFollowButton.setEnabled(false);
 
-        boolean result;
-        if (mFeedId != 0) {
-            result = ReaderBlogActions.followFeedById(mFeedId, isAskingToFollow, listener);
-        } else {
-            result = ReaderBlogActions.followBlogById(mBlogId, isAskingToFollow, listener);
-        }
-
+        boolean result = ReaderBlogActions.followSiteByUrl(mBlogInfo.getUrl(), isAskingToFollow, listener);
         if (result) {
             mFollowButton.setIsFollowedAnimated(isAskingToFollow);
         }
