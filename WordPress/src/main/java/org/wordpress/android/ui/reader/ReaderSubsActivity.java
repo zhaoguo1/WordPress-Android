@@ -358,50 +358,6 @@ public class ReaderSubsActivity extends AppCompatActivity
         }
     }
 
-    /*
-     * start a two-step process to follow a blog by url:
-     *    1. test whether the url is reachable (API will follow any url, even if it doesn't exist)
-     *    2. perform the actual follow
-     * note that the passed URL is assumed to be normalized and validated
-     */
-    /*private void performAddUrl(final String blogUrl) {
-        if (!NetworkUtils.checkConnection(this)) {
-            return;
-        }
-
-        showAddUrlProgress();
-
-        ReaderActions.OnRequestListener requestListener = new ReaderActions.OnRequestListener() {
-            @Override
-            public void onSuccess() {
-                if (!isFinishing()) {
-                    followBlogUrl(blogUrl);
-                }
-            }
-            @Override
-            public void onFailure(int statusCode) {
-                if (!isFinishing()) {
-                    hideAddUrlProgress();
-                    String errMsg;
-                    switch (statusCode) {
-                        case 401:
-                            errMsg = getString(R.string.reader_toast_err_follow_blog_not_authorized);
-                            break;
-                        case 0: // can happen when host name not found
-                        case 404:
-                            errMsg = getString(R.string.reader_toast_err_follow_blog_not_found);
-                            break;
-                        default:
-                            errMsg = getString(R.string.reader_toast_err_follow_blog) + " (" + Integer.toString(statusCode) + ")";
-                            break;
-                    }
-                    ToastUtils.showToast(ReaderSubsActivity.this, errMsg);
-                }
-            }
-        };
-        ReaderBlogActions.checkUrlReachable(blogUrl, requestListener);
-    }*/
-
     private void followByUrl(String normUrl) {
         if (!NetworkUtils.checkConnection(this)) return;
 
@@ -413,7 +369,6 @@ public class ReaderSubsActivity extends AppCompatActivity
                 hideAddUrlProgress();
                 mEditAdd.setText(null);
                 EditTextUtils.hideSoftInput(mEditAdd);
-                showInfoToast(getString(R.string.reader_label_followed_blog));
                 getPageAdapter().refreshBlogFragments(ReaderBlogType.FOLLOWED);
             }
 
@@ -422,7 +377,20 @@ public class ReaderSubsActivity extends AppCompatActivity
                 if (isFinishing()) return;
 
                 hideAddUrlProgress();
-                ToastUtils.showToast(ReaderSubsActivity.this, R.string.reader_toast_err_follow_blog);
+                String errMsg;
+                switch (statusCode) {
+                    case 401:
+                        errMsg = getString(R.string.reader_toast_err_follow_blog_not_authorized);
+                        break;
+                    case 0: // can happen when host name not found
+                    case 404:
+                        errMsg = getString(R.string.reader_toast_err_follow_blog_not_found);
+                        break;
+                    default:
+                        errMsg = getString(R.string.reader_toast_err_follow_blog) + " (" + Integer.toString(statusCode) + ")";
+                        break;
+                }
+                ToastUtils.showToast(ReaderSubsActivity.this, errMsg);
             }
         };
 
