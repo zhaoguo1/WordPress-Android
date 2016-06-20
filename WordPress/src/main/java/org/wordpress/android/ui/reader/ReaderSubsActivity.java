@@ -403,13 +403,15 @@ public class ReaderSubsActivity extends AppCompatActivity
     }*/
 
     private void followByUrl(String normUrl) {
+        if (!NetworkUtils.checkConnection(this)) return;
+
         ReaderActions.ActionListener followListener = new ReaderActions.ActionListener() {
             @Override
             public void onActionResult(boolean succeeded) {
-                if (isFinishing()) {
-                    return;
-                }
+                if (isFinishing()) return;
+
                 hideAddUrlProgress();
+
                 if (succeeded) {
                     // clear the edit text and hide the soft keyboard
                     mEditAdd.setText(null);
@@ -421,6 +423,9 @@ public class ReaderSubsActivity extends AppCompatActivity
                 }
             }
         };
+
+        showAddUrlProgress();
+
         // note that this uses the endpoint to follow as a feed since typed URLs are more
         // likely to point to a feed than a wp blog (and the endpoint should internally
         // follow it as a blog if it is one)
