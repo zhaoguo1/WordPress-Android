@@ -21,6 +21,7 @@ import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
 import org.wordpress.android.ui.posts.services.PostUploadService;
+import org.wordpress.android.util.DisplayUtils;
 import org.wordpress.android.util.ToastUtils;
 
 public class PostsListFragment extends Fragment implements
@@ -89,6 +90,15 @@ public class PostsListFragment extends Fragment implements
     public void onStop() {
         mPostsPresenter.stop();
         super.onStop();
+    }
+
+    @Override
+    public int getDisplayWidth() {
+        if (isAdded()) {
+            return DisplayUtils.getDisplayPixelWidth(getActivity());
+        } else {
+            return 0;
+        }
     }
 
     @Override

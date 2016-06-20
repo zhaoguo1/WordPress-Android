@@ -34,6 +34,8 @@ public interface PostsListContracts {
     }
 
     interface PostView extends BaseView {
+        int getDisplayWidth();
+
         void editBlogPostOrPageForResult(long postOrPageId, boolean isPage);
 
         void publishPost(Post post);

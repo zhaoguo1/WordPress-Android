@@ -18,8 +18,6 @@ public class PostPresenter extends BasePostPresenter<PostViewModel> implements P
     private final PostView mPostView;
     private final boolean mIsStatsSupported;
 
-    private boolean mAlwaysShowAllButtons;
-
     private final PostsActionHandler mPostsActionHandler;
 
     public PostPresenter(PostView postView, PostsListPost postsListPost, boolean isStatsSupported, PostsActionHandler
@@ -28,10 +26,6 @@ public class PostPresenter extends BasePostPresenter<PostViewModel> implements P
 
         mPostView = postView;
         mIsStatsSupported = isStatsSupported;
-
-        int displayWidth = DisplayUtils.getDisplayPixelWidth(mPostView.getContext());
-        // on larger displays we can always show all buttons
-        mAlwaysShowAllButtons = (displayWidth >= 1080);
 
         mPostsActionHandler = postsActionHandler;
 
@@ -178,6 +172,10 @@ public class PostPresenter extends BasePostPresenter<PostViewModel> implements P
         boolean canShowStatsButton = canShowStatsForPost();
         int numVisibleButtons = (canShowStatsButton ? 4 : 3);
 
-        return mAlwaysShowAllButtons || numVisibleButtons <= 3;
+        int displayWidth = mPostView.getDisplayWidth();
+        // on larger displays we can always show all buttons
+        boolean alwaysShowAllButtons = (displayWidth >= 1080);
+
+        return alwaysShowAllButtons || numVisibleButtons <= 3;
     }
 }
