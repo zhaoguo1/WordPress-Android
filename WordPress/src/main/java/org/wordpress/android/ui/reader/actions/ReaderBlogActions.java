@@ -42,45 +42,6 @@ public class ReaderBlogActions {
             return false;
         }
 
-        // if we already have the info for this URL, use it to follow the site
-        ReaderBlog blogInfo = ReaderBlogTable.getBlogInfoFromUrl(siteUrl);
-        if (blogInfo != null) {
-            return internalFollowSite(blogInfo, isAskingToFollow, requestListener);
-        }
-
-        // otherwise lookup the info
-        updateFeedInfo(0, siteUrl, new UpdateBlogInfoListener() {
-            @Override
-            public void onSuccess(ReaderBlog blogInfo) {
-                internalFollowSite(blogInfo, isAskingToFollow, requestListener);
-            }
-            @Override
-            public void onFailure(int statusCode) {
-                // failure may be because there's no feed known for this exact URL, but we
-                // can still try to follow since the endpoint to follow will use discovery
-                // to attempt to locate a feed for this URL
-                ReaderBlog blogInfo = new ReaderBlog();
-                blogInfo.setUrl(siteUrl);
-                internalFollowSite(blogInfo, isAskingToFollow, requestListener);
-            }
-        });
-
-        return true;
-    }
-
-    private static boolean internalFollowSite(
-            final ReaderBlog blogInfo,
-            final boolean isAskingToFollow,
-            final ReaderActions.OnRequestListener requestListener)
-    {
-        // a URL is required
-        if (blogInfo == null || !blogInfo.hasUrl()) {
-            ReaderActions.callRequestListener(requestListener, false, 0);
-            return false;
-        }
-
-        setIsFollowedBlog(blogInfo, isAskingToFollow);
-
         if (isAskingToFollow) {
             AnalyticsTracker.track(AnalyticsTracker.Stat.READER_BLOG_FOLLOWED);
         } else {
@@ -90,7 +51,7 @@ public class ReaderBlogActions {
         final String actionName = (isAskingToFollow ? "follow" : "unfollow");
         final String path = "read/following/mine/"
                 + (isAskingToFollow ? "new" : "delete")
-                + "?url=" + UrlUtils.urlEncode(blogInfo.getUrl());
+                + "?url=" + UrlUtils.urlEncode(UrlUtils.normalizeUrl(siteUrl));
 
         com.wordpress.rest.RestRequest.Listener listener = new RestRequest.Listener() {
             @Override
@@ -100,7 +61,7 @@ public class ReaderBlogActions {
                     AppLog.d(T.READER, actionName + " succeeded");
                 } else {
                     AppLog.w(T.READER, actionName + " failed - " + jsonToString(jsonObject) + " - " + path);
-                    setIsFollowedBlog(blogInfo, !isAskingToFollow);
+                    setIsFollowedUrl(siteUrl, !isAskingToFollow);
                 }
                 ReaderActions.callRequestListener(requestListener, success, 0);
             }
@@ -110,18 +71,20 @@ public class ReaderBlogActions {
             public void onErrorResponse(VolleyError volleyError) {
                 AppLog.w(T.READER, "feed " + actionName + " failed with error");
                 AppLog.e(T.READER, volleyError);
-                setIsFollowedBlog(blogInfo, !isAskingToFollow);
+                setIsFollowedUrl(siteUrl, !isAskingToFollow);
                 int statusCode = VolleyUtils.statusCodeFromVolleyError(volleyError);
                 ReaderActions.callRequestListener(requestListener, false, statusCode);
             }
         };
 
+        setIsFollowedUrl(siteUrl, isAskingToFollow);
         WordPress.getRestClientUtilsV1_1().post(path, listener, errorListener);
+
         return true;
     }
 
     /*
-     * called when a follow/unfollow fails to restore local data to previous state
+     * called when a follow/unfollow fails so we can restore local data to previous state
      */
     private static void setIsFollowedBlogId(long blogId, boolean isFollowed) {
         ReaderBlogTable.setIsFollowedBlogId(blogId, isFollowed);
@@ -133,7 +96,8 @@ public class ReaderBlogActions {
         ReaderPostTable.setFollowStatusForPostsInFeed(feedId, isFollowed);
     }
 
-    private static void setIsFollowedBlog(ReaderBlog blogInfo, boolean isFollowed) {
+    private static void setIsFollowedUrl(String url, boolean isFollowed) {
+        ReaderBlog blogInfo = ReaderBlogTable.getBlogInfoFromUrl(url);
         if (blogInfo == null) return;
 
         ReaderDatabase.getWritableDb().beginTransaction();

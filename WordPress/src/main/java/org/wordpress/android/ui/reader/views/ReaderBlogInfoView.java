@@ -158,18 +158,14 @@ public class ReaderBlogInfoView extends LinearLayout {
     private void toggleFollowStatus() {
         if (!NetworkUtils.checkConnection(getContext())) return;
 
-        final boolean isAskingToFollow;
-        if (mFeedId != 0) {
-            isAskingToFollow = !ReaderBlogTable.isFollowedFeed(mFeedId);
-        } else {
-            isAskingToFollow = !ReaderBlogTable.isFollowedBlog(mBlogId);
-        }
+        final boolean isAskingToFollow = !mBlogInfo.isFollowing;
 
         ReaderActions.OnRequestListener requestListener = new ReaderActions.OnRequestListener() {
             @Override
             public void onSuccess() {
                 if (getContext() == null) return;
 
+                mBlogInfo.isFollowing = isAskingToFollow;
                 mFollowButton.setEnabled(true);
             }
             @Override
@@ -177,7 +173,8 @@ public class ReaderBlogInfoView extends LinearLayout {
                 if (getContext() == null) return;
 
                 mFollowButton.setEnabled(true);
-                int errResId = isAskingToFollow ? R.string.reader_toast_err_follow_blog : R.string.reader_toast_err_unfollow_blog;
+                int errResId = isAskingToFollow ?
+                        R.string.reader_toast_err_follow_blog : R.string.reader_toast_err_unfollow_blog;
                 ToastUtils.showToast(getContext(), errResId);
                 mFollowButton.setIsFollowed(!isAskingToFollow);
             }
@@ -186,7 +183,8 @@ public class ReaderBlogInfoView extends LinearLayout {
         // disable follow button until API call returns
         mFollowButton.setEnabled(false);
 
-        boolean result = ReaderBlogActions.followSiteByUrl(mBlogInfo.getUrl(), isAskingToFollow, requestListener);
+        String url = mBlogInfo.hasFeedUrl() ? mBlogInfo.getFeedUrl() : mBlogInfo.getUrl();
+        boolean result = ReaderBlogActions.followSiteByUrl(url, isAskingToFollow, requestListener);
         if (result) {
             mFollowButton.setIsFollowedAnimated(isAskingToFollow);
         }
