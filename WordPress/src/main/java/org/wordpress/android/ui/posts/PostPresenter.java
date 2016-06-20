@@ -50,6 +50,25 @@ public class PostPresenter extends BasePostPresenter<PostViewModel> implements P
     }
 
     public void onPostButtonClick(int buttonType) {
+        switch (buttonType) {
+            case PostListButton.BUTTON_EDIT:
+                mPostView.editBlogPostOrPageForResult(mPostsListPost.getPostId(), false);
+                return;
+            case PostListButton.BUTTON_TRASH:
+            case PostListButton.BUTTON_DELETE:
+                // prevent deleting post while it's being uploaded
+                if (!mPostsListPost.isUploading()) {
+                    mPostsActionHandler.onTrashPost(mPostsListPost);
+                }
+                return;
+            case PostListButton.BUTTON_MORE:
+                mViewModel.animateButtonRows(false, canShowStatsForPost());
+                return;
+            case PostListButton.BUTTON_BACK:
+                mViewModel.animateButtonRows(true, canShowStatsForPost());
+                return;
+        }
+
         Post fullPost = WordPress.wpDB.getPostForLocalTablePostId(mPostsListPost.getPostId());
         if (fullPost == null) {
             mPostView.showToast(R.string.post_not_found);
@@ -57,9 +76,6 @@ public class PostPresenter extends BasePostPresenter<PostViewModel> implements P
         }
 
         switch (buttonType) {
-            case PostListButton.BUTTON_EDIT:
-                mPostView.editBlogPostOrPageForResult(mPostsListPost.getPostId(), false);
-                break;
             case PostListButton.BUTTON_PUBLISH:
                 mPostView.publishPost(fullPost);
                 break;
@@ -71,19 +87,6 @@ public class PostPresenter extends BasePostPresenter<PostViewModel> implements P
                 break;
             case PostListButton.BUTTON_STATS:
                 mPostView.viewStatsSinglePostDetails(fullPost, false);
-                break;
-            case PostListButton.BUTTON_TRASH:
-            case PostListButton.BUTTON_DELETE:
-                // prevent deleting post while it's being uploaded
-                if (!mPostsListPost.isUploading()) {
-                    mPostsActionHandler.onTrashPost(mPostsListPost);
-                }
-                break;
-            case PostListButton.BUTTON_MORE:
-                mViewModel.animateButtonRows(false, canShowStatsForPost());
-                break;
-            case PostListButton.BUTTON_BACK:
-                mViewModel.animateButtonRows(true, canShowStatsForPost());
                 break;
         }
     }
