@@ -42,23 +42,26 @@ public class ReaderBlogActions {
             return false;
         }
 
+        // if we already have the info for this URL, use it to follow the site
         ReaderBlog blogInfo = ReaderBlogTable.getBlogInfoFromUrl(siteUrl);
         if (blogInfo != null) {
             return internalFollowSite(blogInfo, isAskingToFollow, requestListener);
         }
 
+        // otherwise lookup the info
         updateFeedInfo(0, siteUrl, new UpdateBlogInfoListener() {
             @Override
             public void onSuccess(ReaderBlog blogInfo) {
-                internalFollowSite(
-                        blogInfo,
-                        isAskingToFollow,
-                        requestListener);
+                internalFollowSite(blogInfo, isAskingToFollow, requestListener);
             }
-
             @Override
             public void onFailure(int statusCode) {
-                ReaderActions.callRequestListener(requestListener, false, statusCode);
+                // failure may be because there's no feed known for this exact URL, but we
+                // can still try to follow since the endpoint to follow will use discovery
+                // to attempt to locate a feed for this URL
+                ReaderBlog blogInfo = new ReaderBlog();
+                blogInfo.setUrl(siteUrl);
+                internalFollowSite(blogInfo, isAskingToFollow, requestListener);
             }
         });
 
@@ -70,7 +73,8 @@ public class ReaderBlogActions {
             final boolean isAskingToFollow,
             final ReaderActions.OnRequestListener requestListener)
     {
-        if (blogInfo == null) {
+        // a URL is required
+        if (blogInfo == null || !blogInfo.hasUrl()) {
             ReaderActions.callRequestListener(requestListener, false, 0);
             return false;
         }
