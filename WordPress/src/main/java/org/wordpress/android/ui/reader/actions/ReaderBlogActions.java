@@ -111,33 +111,10 @@ public class ReaderBlogActions {
         return true;
     }
 
-    public static void followFeedByUrl(final String feedUrl,
-                                       final ActionListener actionListener) {
-        if (TextUtils.isEmpty(feedUrl)) {
-            ReaderActions.callActionListener(actionListener, false);
-            return;
-        }
-
-        ReaderBlog blogInfo = ReaderBlogTable.getFeedInfo(ReaderBlogTable.getFeedIdFromUrl(feedUrl));
-        if (blogInfo != null) {
-            internalFollowFeed(blogInfo.feedId, blogInfo.getFeedUrl(), true, actionListener);
-            return;
-        }
-
-        updateFeedInfo(0, feedUrl, new UpdateBlogInfoListener() {
-            @Override
-            public void onResult(ReaderBlog blogInfo) {
-                if (blogInfo != null) {
-                    internalFollowFeed(
-                            blogInfo.feedId,
-                            blogInfo.getFeedUrl(),
-                            true,
-                            actionListener);
-                } else {
-                    ReaderActions.callActionListener(actionListener, false);
-                }
-            }
-        });
+    public static void followFeedByUrl(String feedUrl, ActionListener actionListener) {
+        // see if we already know the feedId - okay if not, this just passes zero
+        long feedId = ReaderBlogTable.getFeedIdFromUrl(feedUrl);
+        internalFollowFeed(feedId, feedUrl, true, actionListener);
     }
 
     private static boolean internalFollowFeed(
