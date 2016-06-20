@@ -79,8 +79,13 @@ public class ReaderBlogInfoView extends LinearLayout {
         if (localBlogInfo == null || ReaderBlogTable.isTimeToUpdateBlogInfo(localBlogInfo)) {
             ReaderActions.UpdateBlogInfoListener listener = new ReaderActions.UpdateBlogInfoListener() {
                 @Override
-                public void onResult(ReaderBlog serverBlogInfo) {
+                public void onSuccess(ReaderBlog serverBlogInfo) {
                     showBlogInfo(serverBlogInfo);
+                }
+
+                @Override
+                public void onFailure(int statusCode) {
+                    // noop
                 }
             };
             if (mFeedId != 0) {

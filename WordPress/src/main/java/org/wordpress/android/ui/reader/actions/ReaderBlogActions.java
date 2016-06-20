@@ -49,15 +49,16 @@ public class ReaderBlogActions {
 
         updateFeedInfo(0, siteUrl, new UpdateBlogInfoListener() {
             @Override
-            public void onResult(ReaderBlog blogInfo) {
-                if (blogInfo != null) {
-                    internalFollowSite(
-                            blogInfo,
-                            isAskingToFollow,
-                            requestListener);
-                } else {
-                    ReaderActions.callRequestListener(requestListener, false, 0);
-                }
+            public void onSuccess(ReaderBlog blogInfo) {
+                internalFollowSite(
+                        blogInfo,
+                        isAskingToFollow,
+                        requestListener);
+            }
+
+            @Override
+            public void onFailure(int statusCode) {
+                ReaderActions.callRequestListener(requestListener, false, statusCode);
             }
         });
 
@@ -181,7 +182,7 @@ public class ReaderBlogActions {
         if (!hasBlogId && !hasBlogUrl) {
             AppLog.w(T.READER, "cannot get blog info without either id or url");
             if (infoListener != null) {
-                infoListener.onResult(null);
+                infoListener.onFailure(0);
             }
             return;
         }
@@ -206,7 +207,7 @@ public class ReaderBlogActions {
                 } else {
                     AppLog.e(T.READER, volleyError);
                     if (infoListener != null) {
-                        infoListener.onResult(null);
+                        infoListener.onFailure(statusCode);
                     }
                 }
             }
@@ -233,7 +234,8 @@ public class ReaderBlogActions {
             public void onErrorResponse(VolleyError volleyError) {
                 AppLog.e(T.READER, volleyError);
                 if (infoListener != null) {
-                    infoListener.onResult(null);
+                    int statusCode = VolleyUtils.statusCodeFromVolleyError(volleyError);
+                    infoListener.onFailure(statusCode);
                 }
             }
         };
@@ -250,7 +252,7 @@ public class ReaderBlogActions {
     private static void handleUpdateBlogInfoResponse(JSONObject jsonObject, UpdateBlogInfoListener infoListener) {
         if (jsonObject == null) {
             if (infoListener != null) {
-                infoListener.onResult(null);
+                infoListener.onFailure(0);
             }
             return;
         }
@@ -259,7 +261,7 @@ public class ReaderBlogActions {
         ReaderBlogTable.addOrUpdateBlog(blogInfo);
 
         if (infoListener != null) {
-            infoListener.onResult(blogInfo);
+            infoListener.onSuccess(blogInfo);
         }
     }
 

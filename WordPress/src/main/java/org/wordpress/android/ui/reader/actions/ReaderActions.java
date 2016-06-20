@@ -92,10 +92,11 @@ public class ReaderActions {
     }
 
     /*
-     * used by blog preview when requesting latest info about a blog
+     * used when requesting latest info about a blog
      */
     public interface UpdateBlogInfoListener {
-        void onResult(ReaderBlog blogInfo);
+        void onSuccess(ReaderBlog blogInfo);
+        void onFailure(int statusCode);
     }
 
 }
