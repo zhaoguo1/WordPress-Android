@@ -350,6 +350,11 @@
             android:label="@string/my_profile"
             android:theme="@style/CalypsoTheme" />
 
+        <activity
+            android:name=".ui.prefs.MySettingsActivity"
+            android:label="@string/my_settings"
+            android:theme="@style/CalypsoTheme" />
+
         <activity android:name=".ui.VisualEditorOptionsReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

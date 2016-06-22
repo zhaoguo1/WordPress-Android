@@ -1401,6 +1401,7 @@
 
     <!--My profile-->
     <string name="my_profile">My Profile</string>
+    <string name="my_settings">My Settings</string>
     <string name="first_name">First name</string>
     <string name="last_name">Last name</string>
     <string name="public_display_name">Public display name</string>

@@ -36,6 +36,7 @@ import org.wordpress.android.ui.prefs.AccountSettingsActivity;
 import org.wordpress.android.ui.prefs.AppSettingsActivity;
 import org.wordpress.android.ui.prefs.BlogPreferencesActivity;
 import org.wordpress.android.ui.prefs.MyProfileActivity;
+import org.wordpress.android.ui.prefs.MySettingsActivity;
 import org.wordpress.android.ui.prefs.SiteSettingsInterface;
 import org.wordpress.android.ui.prefs.notifications.NotificationsSettingsActivity;
 import org.wordpress.android.ui.stats.StatsActivity;
@@ -217,22 +218,28 @@ public class ActivityLauncher {
         slideInFromRight(context, intent);
     }
 
-    public static void viewAccountSettings(Context context) {
-        Intent intent = new Intent(context, AccountSettingsActivity.class);
+    public static void viewSettings(Context context) {
+        Intent intent = new Intent(context, MySettingsActivity.class);
         AnalyticsUtils.trackWithCurrentBlogDetails(AnalyticsTracker.Stat.OPENED_ACCOUNT_SETTINGS);
         slideInFromRight(context, intent);
     }
 
-    public static void viewAppSettings(Activity activity) {
-        Intent intent = new Intent(activity, AppSettingsActivity.class);
-        AnalyticsUtils.trackWithCurrentBlogDetails(AnalyticsTracker.Stat.OPENED_APP_SETTINGS);
-        slideInFromRightForResult(activity, intent, RequestCodes.APP_SETTINGS);
-    }
-
-    public static void viewNotificationsSettings(Activity activity) {
-        Intent intent = new Intent(activity, NotificationsSettingsActivity.class);
-        slideInFromRight(activity, intent);
-    }
+//    public static void viewAccountSettings(Context context) {
+//        Intent intent = new Intent(context, AccountSettingsActivity.class);
+//        AnalyticsUtils.trackWithCurrentBlogDetails(AnalyticsTracker.Stat.OPENED_ACCOUNT_SETTINGS);
+//        slideInFromRight(context, intent);
+//    }
+//
+//    public static void viewAppSettings(Activity activity) {
+//        Intent intent = new Intent(activity, AppSettingsActivity.class);
+//        AnalyticsUtils.trackWithCurrentBlogDetails(AnalyticsTracker.Stat.OPENED_APP_SETTINGS);
+//        slideInFromRightForResult(activity, intent, RequestCodes.APP_SETTINGS);
+//    }
+//
+//    public static void viewNotificationsSettings(Activity activity) {
+//        Intent intent = new Intent(activity, NotificationsSettingsActivity.class);
+//        slideInFromRight(activity, intent);
+//    }
 
     public static void viewHelpAndSupport(Context context, Tag origin) {
         Intent intent = new Intent(context, HelpActivity.class);
