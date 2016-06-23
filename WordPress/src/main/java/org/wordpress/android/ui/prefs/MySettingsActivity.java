@@ -11,13 +11,48 @@ import android.preference.PreferenceActivity;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MySettingsActivity extends AppCompatPreferenceActivity {
 
+    List<Header> mHeaders;
+
+    private void buildHeaders() {
+        final boolean signedInWPcom = AccountHelper.isSignedInWordPressDotCom();
+
+        mHeaders = new ArrayList<>();
+
+        if (signedInWPcom) {
+            Header header = new Header();
+            header.titleRes = R.string.account_settings;
+            header.iconRes = R.drawable.me_icon_account_settings;
+            header.fragment = "org.wordpress.android.ui.prefs.AccountSettingsFragment";
+            mHeaders.add(header);
+        }
+
+        Header header = new Header();
+        header.titleRes = R.string.me_btn_app_settings;
+        header.iconRes = R.drawable.me_icon_app_settings;
+        header.fragment = "org.wordpress.android.ui.prefs.AppSettingsFragment";
+        mHeaders.add(header);
+
+        if (signedInWPcom) {
+            header = new Header();
+            header.titleRes = R.string.notification_settings;
+            header.iconRes = R.drawable.me_icon_notifications;
+            header.fragment = "org.wordpress.android.ui.prefs.notifications.NotificationsSettingsFragment";
+            mHeaders.add(header);
+        }
+    }
+
     @Override
     public void onBuildHeaders(List<Header> target) {
-        loadHeadersFromResource(R.xml.preference_headers, target);
+        if (mHeaders == null) {
+            buildHeaders();
+        }
+
+        target.addAll(mHeaders);
     }
 
     @Override
@@ -27,7 +62,9 @@ public class MySettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        getIntent().putExtra(PreferenceActivity.EXTRA_NO_HEADERS, !onIsMultiPane());
+        buildHeaders();
+
+        getIntent().putExtra(PreferenceActivity.EXTRA_NO_HEADERS, !onIsMultiPane() || (mHeaders.size() == 1));
 
         super.onCreate(savedInstanceState);
 
