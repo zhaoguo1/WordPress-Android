@@ -7,6 +7,7 @@ import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.widgets.AppCompatPreferenceActivity;
 
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
@@ -26,6 +27,8 @@ public class MySettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        getIntent().putExtra(PreferenceActivity.EXTRA_NO_HEADERS, !onIsMultiPane());
+
         super.onCreate(savedInstanceState);
 
         ActionBar actionBar = getSupportActionBar();

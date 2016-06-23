@@ -59,30 +59,30 @@
             </FrameLayout>
 
             <org.wordpress.android.widgets.WPTextView
-                    android:id="@+id/me_display_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/frame_avatar"
-                    android:layout_centerHorizontal="true"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textColor="@color/grey_dark"
-                    android:textSize="@dimen/text_sz_large"
-                    android:textStyle="bold"
-                    android:fontFamily="sans-serif-light"
-                    tools:text="Full Name" />
+                android:id="@+id/me_display_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/frame_avatar"
+                android:layout_centerHorizontal="true"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/grey_dark"
+                android:textSize="@dimen/text_sz_large"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-light"
+                tools:text="Full Name" />
 
             <org.wordpress.android.widgets.WPTextView
-                    android:id="@+id/me_username"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/me_display_name"
-                    android:layout_centerHorizontal="true"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textColor="@color/grey"
-                    android:textSize="@dimen/text_sz_medium"
-                    tools:text="username" />
+                android:id="@+id/me_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/me_display_name"
+                android:layout_centerHorizontal="true"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/grey"
+                android:textSize="@dimen/text_sz_medium"
+                tools:text="username" />
         </RelativeLayout>
 
         <LinearLayout
@@ -106,19 +106,57 @@
         <View style="@style/MeListSectionDividerView" />
 
         <LinearLayout
-            android:id="@+id/row_my_settings"
+            android:id="@+id/row_account_settings"
             style="@style/MeListRowLayout">
 
             <ImageView
-                android:id="@+id/me_my_settings_icon"
+                android:id="@+id/me_account_settings_icon"
                 style="@style/MeListRowIcon"
                 app:srcCompat="@drawable/me_icon_account_settings"
-                android:contentDescription="@string/my_settings"/>
+                android:contentDescription="@string/account_settings"/>
 
             <org.wordpress.android.widgets.WPTextView
-                android:id="@+id/me_my_settings_text_view"
+                android:id="@+id/me_account_settings_text_view"
                 style="@style/MeListRowTextView"
-                android:text="@string/my_settings" />
+                android:text="@string/account_settings" />
+
+        </LinearLayout>
+
+        <View style="@style/MeListSectionDividerView" />
+
+        <LinearLayout
+            android:id="@+id/row_app_settings"
+            style="@style/MeListRowLayout">
+
+            <ImageView
+                android:id="@+id/me_app_settings_icon"
+                style="@style/MeListRowIcon"
+                app:srcCompat="@drawable/me_icon_app_settings"
+                android:contentDescription="@string/me_btn_app_settings"/>
+
+            <org.wordpress.android.widgets.WPTextView
+                android:id="@+id/me_app_settings_text_view"
+                style="@style/MeListRowTextView"
+                android:text="@string/me_btn_app_settings" />
+
+        </LinearLayout>
+
+        <View style="@style/MeListSectionDividerView" />
+
+        <LinearLayout
+            android:id="@+id/row_notifications"
+            style="@style/MeListRowLayout">
+
+            <ImageView
+                android:id="@+id/me_notifications_icon"
+                style="@style/MeListRowIcon"
+                app:srcCompat="@drawable/me_icon_notifications"
+                android:contentDescription="@string/notification_settings"/>
+
+            <org.wordpress.android.widgets.WPTextView
+                android:id="@+id/me_notifications_text_view"
+                style="@style/MeListRowTextView"
+                android:text="@string/notification_settings" />
 
         </LinearLayout>
 

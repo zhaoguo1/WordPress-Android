@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.preference.PreferenceActivity;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.text.TextUtils;
@@ -32,13 +33,13 @@ import org.wordpress.android.ui.plans.PlansActivity;
 import org.wordpress.android.ui.posts.EditPostActivity;
 import org.wordpress.android.ui.posts.PostPreviewActivity;
 import org.wordpress.android.ui.posts.PostsListActivity;
-import org.wordpress.android.ui.prefs.AccountSettingsActivity;
-import org.wordpress.android.ui.prefs.AppSettingsActivity;
+import org.wordpress.android.ui.prefs.AccountSettingsFragment;
+import org.wordpress.android.ui.prefs.AppSettingsFragment;
 import org.wordpress.android.ui.prefs.BlogPreferencesActivity;
 import org.wordpress.android.ui.prefs.MyProfileActivity;
 import org.wordpress.android.ui.prefs.MySettingsActivity;
 import org.wordpress.android.ui.prefs.SiteSettingsInterface;
-import org.wordpress.android.ui.prefs.notifications.NotificationsSettingsActivity;
+import org.wordpress.android.ui.prefs.notifications.NotificationsSettingsFragment;
 import org.wordpress.android.ui.stats.StatsActivity;
 import org.wordpress.android.ui.stats.StatsConstants;
 import org.wordpress.android.ui.stats.StatsSingleItemDetailsActivity;
@@ -218,28 +219,25 @@ public class ActivityLauncher {
         slideInFromRight(context, intent);
     }
 
-    public static void viewSettings(Context context) {
+    public static void viewAccountSettings(Context context) {
         Intent intent = new Intent(context, MySettingsActivity.class);
+        intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, AccountSettingsFragment.class.getName());
         AnalyticsUtils.trackWithCurrentBlogDetails(AnalyticsTracker.Stat.OPENED_ACCOUNT_SETTINGS);
         slideInFromRight(context, intent);
     }
 
-//    public static void viewAccountSettings(Context context) {
-//        Intent intent = new Intent(context, AccountSettingsActivity.class);
-//        AnalyticsUtils.trackWithCurrentBlogDetails(AnalyticsTracker.Stat.OPENED_ACCOUNT_SETTINGS);
-//        slideInFromRight(context, intent);
-//    }
-//
-//    public static void viewAppSettings(Activity activity) {
-//        Intent intent = new Intent(activity, AppSettingsActivity.class);
-//        AnalyticsUtils.trackWithCurrentBlogDetails(AnalyticsTracker.Stat.OPENED_APP_SETTINGS);
-//        slideInFromRightForResult(activity, intent, RequestCodes.APP_SETTINGS);
-//    }
-//
-//    public static void viewNotificationsSettings(Activity activity) {
-//        Intent intent = new Intent(activity, NotificationsSettingsActivity.class);
-//        slideInFromRight(activity, intent);
-//    }
+    public static void viewAppSettings(Activity activity) {
+        Intent intent = new Intent(activity, MySettingsActivity.class);
+        intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, AppSettingsFragment.class.getName());
+        AnalyticsUtils.trackWithCurrentBlogDetails(AnalyticsTracker.Stat.OPENED_APP_SETTINGS);
+        slideInFromRightForResult(activity, intent, RequestCodes.APP_SETTINGS);
+    }
+
+    public static void viewNotificationsSettings(Activity activity) {
+        Intent intent = new Intent(activity, MySettingsActivity.class);
+        intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, NotificationsSettingsFragment.class.getName());
+        slideInFromRight(activity, intent);
+    }
 
     public static void viewHelpAndSupport(Context context, Tag origin) {
         Intent intent = new Intent(context, HelpActivity.class);
