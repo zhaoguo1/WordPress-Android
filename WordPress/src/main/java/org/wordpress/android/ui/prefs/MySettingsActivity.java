@@ -68,6 +68,18 @@ public class MySettingsActivity extends AppCompatPreferenceActivity {
 
         super.onCreate(savedInstanceState);
 
+        if (onIsHidingHeaders()) {
+            String singleFragmentName = getIntent().getStringExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT);
+            if (singleFragmentName != null && singleFragmentName.length() > 0) {
+                for (Header header : mHeaders) {
+                    if (header.fragment.equals(singleFragmentName)) {
+                        setTitle(header.titleRes);
+                        break;
+                    }
+                }
+            }
+        }
+
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setHomeButtonEnabled(true);
