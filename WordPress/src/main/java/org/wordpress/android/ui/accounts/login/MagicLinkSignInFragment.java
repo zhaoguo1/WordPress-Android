@@ -3,7 +3,6 @@ package org.wordpress.android.ui.accounts.login;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.KeyEvent;
@@ -15,6 +14,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
+import com.google.android.gms.auth.api.credentials.Credential;
 import com.wordpress.rest.RestRequest;
 
 import org.json.JSONException;
@@ -25,11 +25,9 @@ import org.wordpress.android.analytics.AnalyticsTracker;
 import org.wordpress.android.models.Account;
 import org.wordpress.android.models.AccountHelper;
 import org.wordpress.android.ui.accounts.SignInFragment;
-import org.wordpress.android.ui.accounts.helpers.FetchBlogListWPCom;
-import org.wordpress.android.ui.accounts.helpers.LoginAbstract;
-import org.wordpress.android.ui.accounts.helpers.LoginWPCom;
 import org.wordpress.android.ui.main.WPMainActivity;
 import org.wordpress.android.ui.notifications.utils.SimperiumUtils;
+import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.EditTextUtils;
 
 import java.util.HashMap;
@@ -51,6 +49,7 @@ public class MagicLinkSignInFragment extends SignInFragment {
     private OnMagicLinkRequestInteraction mListener;
     private String mToken = "";
     private boolean mShouldShowPassword;
+    private boolean mSmartLockEnabled = true;
 
     public MagicLinkSignInFragment() {
         super();
@@ -94,6 +93,9 @@ public class MagicLinkSignInFragment extends SignInFragment {
 
         if (!mToken.isEmpty()) {
             attemptLoginWithMagicLink();
+            mSmartLockEnabled = false;
+        } else {
+            mSmartLockEnabled = true;
         }
         if (mShouldShowPassword) {
             showPasswordFieldAndFocus();
@@ -162,16 +164,6 @@ public class MagicLinkSignInFragment extends SignInFragment {
     }
 
     @Override
-    protected boolean isSmartLockAvailable() {
-        return false;
-    }
-
-    @Override
-    protected boolean isGooglePlayServicesAvailable() {
-        return false;
-    }
-
-    @Override
     protected void showSelfHostedSignInForm() {
         super.showSelfHostedSignInForm();
         showPasswordField();
@@ -189,19 +181,24 @@ public class MagicLinkSignInFragment extends SignInFragment {
     }
 
     private void showPasswordFieldAndFocus() {
-        endProgress();
-        showPasswordField();
-        mPasswordEditText.requestFocus();
-        mSignInButton.setText(getString(R.string.sign_in));
-        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(mPasswordEditText, InputMethodManager.SHOW_IMPLICIT);
+        if (isAdded()) {
+            endProgress();
+            showPasswordField();
+            mPasswordEditText.requestFocus();
+            mSignInButton.setText(getString(R.string.sign_in));
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(mPasswordEditText, InputMethodManager.SHOW_IMPLICIT);
+        }
     }
 
     private void showPasswordField() {
-        mPasswordLayout.setVisibility(View.VISIBLE);
-        mForgotPassword.setVisibility(View.VISIBLE);
-        if (!mSelfHosted) {
-            mPasswordEditText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        if (isAdded()) {
+            mPasswordLayout.setVisibility(View.VISIBLE);
+            mForgotPassword.setVisibility(View.VISIBLE);
+            if (!mSelfHosted) {
+                mPasswordEditText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            }
+            mSignInButton.setText(R.string.sign_in);
         }
     }
 
@@ -216,8 +213,8 @@ public class MagicLinkSignInFragment extends SignInFragment {
                     } else {
                         showPasswordFieldAndFocus();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                } catch (JSONException error) {
+                    AppLog.e(AppLog.T.MAIN, error);
                     showPasswordFieldAndFocus();
                 }
             }
@@ -251,5 +248,17 @@ public class MagicLinkSignInFragment extends SignInFragment {
         account.setUserName(mUsername);
         account.save();
         account.fetchAccountDetails();
+    }
+
+    @Override
+    public void onCredentialRetrieved(Credential credential) {
+        super.onCredentialRetrieved(credential);
+        showPasswordField();
+    }
+
+    @Override
+    public boolean canAutofillUsernameAndPassword() {
+        return mSmartLockEnabled && EditTextUtils.getText(mUsernameEditText).isEmpty()
+                && EditTextUtils.getText(mPasswordEditText).isEmpty();
     }
 }

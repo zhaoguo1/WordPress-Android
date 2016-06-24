@@ -38,19 +38,21 @@ public class PostViewModel extends BasePostViewModel {
     public final ObservableInt viewButtonVisibility = new ObservableInt(View.VISIBLE);
     public final ObservableInt editButtonVisibility = new ObservableInt(View.VISIBLE);
 
+    public final ObservableInt publishButtonVisibility = new ObservableInt(View.VISIBLE);
     public final ObservableInt moreButtonVisibility = new ObservableInt(View.VISIBLE);
     public final ObservableInt backButtonVisibility = new ObservableInt(View.GONE);
     public final ObservableInt trashButtonVisibility = new ObservableInt(View.GONE);
     public final ObservableInt statsButtonVisibility = new ObservableInt(View.GONE);
 
-    public final ObservableBoolean showRow1 = new ObservableBoolean(true);
-    public final ObservableBoolean canShowStatsForPost = new ObservableBoolean();
+    public final ObservableInt showRow = new ObservableInt();
+    public final ObservableBoolean canShowStats = new ObservableBoolean();
+    public final ObservableBoolean canPublish = new ObservableBoolean();
 
     public AnimationTrigger animTriggered = new AnimationTrigger();
 
-    @BindingAdapter({"showRow1", "canShowStatsForPost", "postViewModel", "animTriggered"})
-    public static void onAnimateButtonRow(final LinearLayout layoutButtons, final boolean showRow1, final boolean
-            canShowStatsForPost, final PostViewModel postViewModel, AnimationTrigger animTriggered) {
+    @BindingAdapter({"showRow", "canShowStats", "canPublish", "postViewModel", "animTriggered"})
+    public static void onAnimateButtonRow(final LinearLayout layoutButtons, final int showRow, final boolean
+            canShowStats, final boolean canPublish, final PostViewModel postViewModel, AnimationTrigger animTriggered) {
         if(!animTriggered.isTriggered()) {
             return;
         }
@@ -74,14 +76,21 @@ public class PostViewModel extends BasePostViewModel {
         animOut.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
+                // row 0
+                postViewModel.editButtonVisibility.set(showRow == 0 ? View.VISIBLE : View.GONE);
+                postViewModel.viewButtonVisibility.set(showRow == 0 ? View.VISIBLE : View.GONE);
+
+                final boolean willShowMoreButton = showRow == 0 || showRow == 1 && canShowStats && canPublish;
+                postViewModel.moreButtonVisibility.set(willShowMoreButton ? View.VISIBLE : View.GONE);
+
                 // row 1
-                postViewModel.editButtonVisibility.set(showRow1 ? View.VISIBLE : View.GONE);
-                postViewModel.viewButtonVisibility.set(showRow1 ? View.VISIBLE : View.GONE);
-                postViewModel.moreButtonVisibility.set(showRow1 ? View.VISIBLE : View.GONE);
+                postViewModel.statsButtonVisibility.set(showRow == 1 && canShowStats ? View.VISIBLE : View.GONE);
+                postViewModel.trashButtonVisibility.set(showRow == 1 ? View.VISIBLE : View.GONE);
+                postViewModel.backButtonVisibility.set(!willShowMoreButton ? View.VISIBLE : View.GONE);
+
                 // row 2
-                postViewModel.statsButtonVisibility.set(!showRow1 && canShowStatsForPost ? View.VISIBLE : View.GONE);
-                postViewModel.trashButtonVisibility.set(!showRow1 ? View.VISIBLE : View.GONE);
-                postViewModel.backButtonVisibility.set(!showRow1 ? View.VISIBLE : View.GONE);
+                postViewModel.publishButtonVisibility.set(
+                        (showRow == 1 && !canShowStats || showRow == 2) && canPublish ? View.VISIBLE : View.GONE);
 
                 PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f, 1f);
                 PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f, 1f);
@@ -95,9 +104,10 @@ public class PostViewModel extends BasePostViewModel {
         animOut.start();
     }
 
-    public void animateButtonRows(final boolean showRow1, boolean canShowStatsForPost) {
-        this.showRow1.set(showRow1);
-        this.canShowStatsForPost.set(canShowStatsForPost);
+    public void animateButtonRows(final int showRow, boolean canShowStats, boolean canPublish) {
+        this.showRow.set(showRow);
+        this.canShowStats.set(canShowStats);
+        this.canPublish.set(canPublish);
 
         // trigger the animation
         animTriggered.trigger();

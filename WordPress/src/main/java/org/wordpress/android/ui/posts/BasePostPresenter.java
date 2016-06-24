@@ -27,6 +27,9 @@ public abstract class BasePostPresenter<T extends BasePostViewModel> implements 
     }
 
     protected void displayCommon(T basePostViewModel, Context context) {
+        // show/hide the "disabled" overlay
+        basePostViewModel.disabledOverlayVisibility.set(mPostsListPost.isUploading() ? View.VISIBLE : View.GONE);
+
         // set title
         if (mPostsListPost.hasTitle()) {
             basePostViewModel.title.set(mPostsListPost.getTitle());

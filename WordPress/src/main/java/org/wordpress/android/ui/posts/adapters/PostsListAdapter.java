@@ -75,6 +75,11 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             positionStart, int itemCount) {
                         if (mPostPresenters.size() > 0) {
                             notifyItemRangeRemoved(positionStart, itemCount);
+
+                            // when page is removed update the next one in case we need to show a header
+                            if (mIsPage) {
+                                notifyItemRangeChanged(positionStart, itemCount);
+                            }
                         } else {
                             // we must call notifyDataSetChanged when the only post has been deleted - if we
                             // call notifyItemRemoved the recycler will throw an IndexOutOfBoundsException

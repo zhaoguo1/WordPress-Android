@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -34,7 +35,6 @@ import org.wordpress.android.ui.prefs.AppPrefs;
 import org.wordpress.android.ui.reader.actions.ReaderActions;
 import org.wordpress.android.ui.reader.actions.ReaderBlogActions;
 import org.wordpress.android.ui.reader.actions.ReaderTagActions;
-import org.wordpress.android.ui.reader.actions.ReaderTagActions.TagAction;
 import org.wordpress.android.ui.reader.adapters.ReaderBlogAdapter.ReaderBlogType;
 import org.wordpress.android.ui.reader.adapters.ReaderTagAdapter;
 import org.wordpress.android.ui.reader.services.ReaderUpdateService;
@@ -90,20 +90,23 @@ public class ReaderSubsActivity extends AppCompatActivity
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
-        int normalColor = getResources().getColor(R.color.blue_light);
-        int selectedColor = getResources().getColor(R.color.white);
+        int normalColor = ContextCompat.getColor(this, R.color.blue_light);
+        int selectedColor = ContextCompat.getColor(this, R.color.white);
         tabLayout.setTabTextColors(normalColor, selectedColor);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         tabLayout.setupWithViewPager(mViewPager);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBackPressed();
+                }
+            });
+        }
+
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             // Shadow removed on Activities with a tab toolbar
@@ -332,26 +335,26 @@ public class ReaderSubsActivity extends AppCompatActivity
         ReaderActions.ActionListener actionListener = new ReaderActions.ActionListener() {
             @Override
             public void onActionResult(boolean succeeded) {
-                if (succeeded) {
-                    // update tags when one is added
-                    performUpdate(EnumSet.of(UpdateTask.TAGS));
-                } else if (!succeeded && !isFinishing()) {
-                    getPageAdapter().refreshFollowedTagFragment();
+                if (isFinishing()) return;
+
+                getPageAdapter().refreshFollowedTagFragment();
+
+                if (!succeeded) {
                     ToastUtils.showToast(ReaderSubsActivity.this, R.string.reader_toast_err_add_tag);
                     mLastAddedTagName = null;
                 }
             }
         };
 
-        ReaderTag tag = ReaderUtils.getTagFromTagName(tagName, ReaderTagType.FOLLOWED);
+        ReaderTag tag = ReaderUtils.createTagFromTagName(tagName, ReaderTagType.FOLLOWED);
 
-        if (ReaderTagActions.performTagAction(tag, TagAction.ADD, actionListener)) {
+        if (ReaderTagActions.addTag(tag, actionListener)) {
             AnalyticsTracker.track(AnalyticsTracker.Stat.READER_TAG_FOLLOWED);
             mLastAddedTagName = tag.getTagSlug();
             // make sure addition is reflected on followed tags
             getPageAdapter().refreshFollowedTagFragment();
             String labelAddedTag = getString(R.string.reader_label_added_tag);
-            showInfoToast(String.format(labelAddedTag, tag.getTagDisplayName()));
+            showInfoToast(String.format(labelAddedTag, tag.getLabel()));
         }
     }
 
@@ -421,7 +424,7 @@ public class ReaderSubsActivity extends AppCompatActivity
         // note that this uses the endpoint to follow as a feed since typed URLs are more
         // likely to point to a feed than a wp blog (and the endpoint should internally
         // follow it as a blog if it is one)
-        ReaderBlogActions.followFeedByUrl(normUrl, true, followListener);
+        ReaderBlogActions.followFeedByUrl(normUrl, followListener);
     }
 
     /*
@@ -464,7 +467,7 @@ public class ReaderSubsActivity extends AppCompatActivity
             mLastAddedTagName = null;
         }
         String labelRemovedTag = getString(R.string.reader_label_removed_tag);
-        showInfoToast(String.format(labelRemovedTag, tag.getTagDisplayName()));
+        showInfoToast(String.format(labelRemovedTag, tag.getLabel()));
     }
 
     /*

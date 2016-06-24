@@ -1,6 +1,5 @@
 package org.wordpress.android.ui.posts;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -17,11 +16,13 @@ import org.wordpress.android.WordPress;
 import org.wordpress.android.databinding.PostListFragmentBinding;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.models.Post;
+import org.wordpress.android.models.PostStatus;
 import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsView;
 import org.wordpress.android.ui.posts.services.PostUploadService;
 import org.wordpress.android.util.DisplayUtils;
+import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ToastUtils;
 
 public class PostsListFragment extends Fragment implements
@@ -111,9 +112,24 @@ public class PostsListFragment extends Fragment implements
     @Override
     public void publishPost(Post post) {
         if (isAdded()) {
-            final Activity activity = getActivity();
+            if (!NetworkUtils.isNetworkAvailable(getActivity())) {
+                ToastUtils.showToast(getActivity(), R.string.error_publish_no_network, ToastUtils.Duration.SHORT);
+                return;
+            }
+
+            // If the post is empty, don't publish
+            if (!post.isPublishable()) {
+                ToastUtils.showToast(getActivity(), R.string.error_publish_empty_post, ToastUtils.Duration.SHORT);
+                return;
+            }
+
+            post.setPostStatus(PostStatus.toString(PostStatus.PUBLISHED));
+            post.setChangedFromDraftToPublished(true);
+
             PostUploadService.addPostToUpload(post);
-            activity.startService(new Intent(activity, PostUploadService.class));
+            getActivity().startService(new Intent(getActivity(), PostUploadService.class));
+
+            PostUtils.trackSavePostAnalytics(post);
         }
     }
 

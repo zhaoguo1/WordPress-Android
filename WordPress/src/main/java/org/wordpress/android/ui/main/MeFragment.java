@@ -39,6 +39,7 @@ import android.widget.Toast;
 
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
+import org.wordpress.android.analytics.AnalyticsTracker;
 import org.wordpress.android.models.Account;
 import org.wordpress.android.models.AccountHelper;
 import org.wordpress.android.networking.GravatarApi;
@@ -62,7 +63,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import de.greenrobot.event.EventBus;
@@ -136,6 +141,8 @@ public class MeFragment extends Fragment {
         mGravatarToolTipView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AnalyticsTracker.track(AnalyticsTracker.Stat.ME_GRAVATAR_TOOLTIP_TAPPED);
+
                 mGravatarToolTipView.remove();
                 AppPrefs.setGravatarChangePromoRequired(false);
             }
@@ -177,11 +184,12 @@ public class MeFragment extends Fragment {
         mNotificationsDividerView = rootView.findViewById(R.id.me_notifications_divider);
 
         addDropShadowToAvatar();
-        refreshAccountDetails();
 
         mAvatarContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AnalyticsTracker.track(AnalyticsTracker.Stat.ME_GRAVATAR_TAPPED);
+
                 // User tapped the Gravatar so dismiss the tooltip
                 if (mGravatarToolTipView != null) {
                     mGravatarToolTipView.remove();
@@ -424,14 +432,33 @@ public class MeFragment extends Fragment {
             grantResults) {
         switch (requestCode) {
             case CAMERA_AND_MEDIA_PERMISSION_REQUEST_CODE:
-                for (int grantResult : grantResults) {
-                    if (grantResult == PackageManager.PERMISSION_DENIED) {
+                if (permissions.length == 0) {
+                    AnalyticsTracker.track(AnalyticsTracker.Stat.ME_GRAVATAR_PERMISSIONS_INTERRUPTED);
+                }  else {
+                    List<String> granted = new ArrayList<>();
+                    List<String> denied = new ArrayList<>();
+
+                    for (int i = 0; i < grantResults.length; i++) {
+                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                            granted.add(permissions[i]);
+                        } else {
+                            denied.add(permissions[i]);
+                        }
+                    }
+
+                    if (denied.size() == 0) {
+                        AnalyticsTracker.track(AnalyticsTracker.Stat.ME_GRAVATAR_PERMISSIONS_ACCEPTED);
+                        askForCameraOrGallery();
+                    } else {
                         ToastUtils.showToast(this.getActivity(), getString(R.string
                                 .gravatar_camera_and_media_permission_required), ToastUtils.Duration.LONG);
-                        return;
+                        Map<String, Object> properties = new HashMap<>();
+                        properties.put("permissions granted", granted.size() == 0 ? "[none]" : TextUtils
+                                .join(",", granted));
+                        properties.put("permissions denied", TextUtils.join(",", denied));
+                        AnalyticsTracker.track(AnalyticsTracker.Stat.ME_GRAVATAR_PERMISSIONS_DENIED, properties);
                     }
                 }
-                askForCameraOrGallery();
                 break;
         }
     }
@@ -448,8 +475,10 @@ public class MeFragment extends Fragment {
                     if (data == null || data.getData() == null) {
                         // image is from a capture
                         imageUri = Uri.fromFile(new File(mMediaCapturePath));
+                        AnalyticsTracker.track(AnalyticsTracker.Stat.ME_GRAVATAR_SHOT_NEW);
                     } else {
                         imageUri = data.getData();
+                        AnalyticsTracker.track(AnalyticsTracker.Stat.ME_GRAVATAR_GALLERY_PICKED);
                     }
 
                     if (imageUri != null) {
@@ -460,6 +489,8 @@ public class MeFragment extends Fragment {
                 }
                 break;
             case UCrop.REQUEST_CROP:
+                AnalyticsTracker.track(AnalyticsTracker.Stat.ME_GRAVATAR_CROPPED);
+
                 if (resultCode == Activity.RESULT_OK) {
                     fetchMedia(UCrop.getOutput(data));
                 } else if (resultCode == UCrop.RESULT_ERROR) {
@@ -494,6 +525,7 @@ public class MeFragment extends Fragment {
         options.setStatusBarColor(ContextCompat.getColor(context, R.color.status_bar_tint));
         options.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary));
         options.setAllowedGestures(UCropActivity.ALL, UCropActivity.ALL, UCropActivity.ALL);
+        options.setHideBottomControls(true);
 
         UCrop.of(uri, Uri.fromFile(new File(context.getCacheDir(), "cropped_for_gravatar.jpg")))
                 .withAspectRatio(1, 1)
@@ -605,6 +637,7 @@ public class MeFragment extends Fragment {
 
     public void onEventMainThread(GravatarUploadFinished event) {
         if (event.success) {
+            AnalyticsTracker.track(AnalyticsTracker.Stat.ME_GRAVATAR_UPLOADED);
             final String avatarUrl = constructGravatarUrl(AccountHelper.getDefaultAccount());
             loadAvatar(avatarUrl, event.filePath);
         } else {

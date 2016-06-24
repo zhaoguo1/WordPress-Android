@@ -101,12 +101,28 @@
                 android:background="?android:selectableItemBackground"
                 android:padding="@dimen/margin_medium"
                 android:contentDescription="@string/more"
-                android:src="@drawable/ic_action_more"
+                app:srcCompat="@drawable/ic_action_more"
                 android:onClick="@{(view) -> actionHandler.onMoreButtonClick(view)}"
                 app:showPagePopupMenuConfig="@{pageViewModel.showPagePopupMenuConfig}"
                 app:pageViewModel="@{pageViewModel}"
                 app:pageActionHandler="@{actionHandler}"
                 android:visibility="@{pageViewModel.moreButtonVisibility}"/>
+
+            <RelativeLayout
+                android:id="@+id/disabled_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/translucent_white"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:indeterminate="true"/>
+            </RelativeLayout>
         </RelativeLayout>
 
         <View

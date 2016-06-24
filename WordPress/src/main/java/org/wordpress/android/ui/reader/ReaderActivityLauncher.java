@@ -5,7 +5,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -15,7 +14,6 @@ import android.view.View;
 import org.wordpress.android.R;
 import org.wordpress.android.analytics.AnalyticsTracker;
 import org.wordpress.android.models.AccountHelper;
-import org.wordpress.android.models.ReaderComment;
 import org.wordpress.android.models.ReaderPost;
 import org.wordpress.android.models.ReaderTag;
 import org.wordpress.android.ui.ActivityLauncher;
@@ -23,7 +21,6 @@ import org.wordpress.android.ui.WPWebViewActivity;
 import org.wordpress.android.ui.reader.ReaderTypes.ReaderPostListType;
 import org.wordpress.android.util.AnalyticsUtils;
 import org.wordpress.android.util.ToastUtils;
-import org.wordpress.android.util.UrlUtils;
 import org.wordpress.android.util.WPUrlUtils;
 import org.wordpress.passcodelock.AppLockManager;
 
@@ -134,7 +131,6 @@ public class ReaderActivityLauncher {
         context.startActivity(intent);
     }
 
-
     /*
      * show comments for the passed Ids
      */
@@ -162,17 +158,6 @@ public class ReaderActivityLauncher {
         intent.putExtra(ReaderConstants.ARG_BLOG_ID, blogId);
         intent.putExtra(ReaderConstants.ARG_POST_ID, postId);
         ActivityLauncher.slideInFromRight(context, intent);
-    }
-
-    /*
-     * show users who liked the passed comment
-     */
-    public static void showReaderLikingUsers(Context context, ReaderComment comment) {
-        Intent intent = new Intent(context, ReaderUserListActivity.class);
-        intent.putExtra(ReaderConstants.ARG_BLOG_ID, comment.blogId);
-        intent.putExtra(ReaderConstants.ARG_POST_ID, comment.postId);
-        intent.putExtra(ReaderConstants.ARG_COMMENT_ID, comment.commentId);
-        context.startActivity(intent);
     }
 
     /*
@@ -207,15 +192,10 @@ public class ReaderActivityLauncher {
         }
 
         if (context instanceof Activity) {
-            // use built-in scale animation on jb+, fall back to default animation on pre-jb
             Activity activity = (Activity) context;
-            if (sourceView != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                ActivityOptionsCompat options =
-                        ActivityOptionsCompat.makeScaleUpAnimation(sourceView, startX, startY, 0, 0);
-                ActivityCompat.startActivity(activity, intent, options.toBundle());
-            } else {
-                activity.startActivity(intent);
-            }
+            ActivityOptionsCompat options =
+                    ActivityOptionsCompat.makeScaleUpAnimation(sourceView, startX, startY, 0, 0);
+            ActivityCompat.startActivity(activity, intent, options.toBundle());
         } else {
             context.startActivity(intent);
         }
@@ -256,8 +236,6 @@ public class ReaderActivityLauncher {
      */
     private static void openUrlExternal(Context context, @NonNull String url) {
         try {
-            // add the GA utm_source param to the URL
-            url = UrlUtils.appendUrlParameter(url, "utm_source", ReaderConstants.HTTP_REFERER_URL);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             context.startActivity(intent);
             AppLockManager.getInstance().setExtendedTimeout();

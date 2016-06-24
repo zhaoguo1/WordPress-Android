@@ -8,7 +8,6 @@ import org.wordpress.android.models.PostsListPost;
 import org.wordpress.android.ui.posts.PostsListContracts.PostActionHandler;
 import org.wordpress.android.ui.posts.PostsListContracts.PostView;
 import org.wordpress.android.ui.posts.PostsListContracts.PostsActionHandler;
-import org.wordpress.android.util.DisplayUtils;
 import org.wordpress.android.util.StringUtils;
 import org.wordpress.android.widgets.PostListButton;
 
@@ -62,10 +61,10 @@ public class PostPresenter extends BasePostPresenter<PostViewModel> implements P
                 }
                 return;
             case PostListButton.BUTTON_MORE:
-                mViewModel.animateButtonRows(false, canShowStatsForPost());
+                mViewModel.animateButtonRows(mViewModel.showRow.get() + 1, canShowStatsForPost(), canPublishPost());
                 return;
             case PostListButton.BUTTON_BACK:
-                mViewModel.animateButtonRows(true, canShowStatsForPost());
+                mViewModel.animateButtonRows(0, canShowStatsForPost(), canPublishPost());
                 return;
         }
 
@@ -140,10 +139,16 @@ public class PostPresenter extends BasePostPresenter<PostViewModel> implements P
 
         // set view button type
         // posts with local changes have preview rather than view button
-        mViewModel.viewButtonType.set((mPostsListPost.isLocalDraft() || mPostsListPost.hasLocalChanges()) ?
-                PostListButton.BUTTON_PREVIEW : PostListButton.BUTTON_VIEW);
+        mViewModel.viewButtonType.set((mPostsListPost.isLocalDraft() || mPostsListPost.hasLocalChanges())
+                || mPostsListPost.getStatusEnum() == PostStatus.DRAFT
+                        ? PostListButton.BUTTON_PREVIEW : PostListButton.BUTTON_VIEW);
 
-        // if we have enough room to show all buttons, hide the back/more buttons and show stats/trash
+        final boolean hasEnoughRoom = hasEnoughRoom();
+
+        // set Publish button visibility
+        mViewModel.publishButtonVisibility.set(canPublishPost() && hasEnoughRoom ? View.VISIBLE : View.GONE);
+
+        // if we have enough room to show all buttons, hide the back/more buttons and show stats/trash/publish
 
         // set Edit button visibility
         mViewModel.editButtonVisibility.set(View.VISIBLE);
@@ -153,13 +158,13 @@ public class PostPresenter extends BasePostPresenter<PostViewModel> implements P
 
         // set stats button visibility
         mViewModel.statsButtonVisibility
-                .set((canShowStatsForPost() && hasEnoughRoom()) ? View.VISIBLE : View.GONE);
+                .set((canShowStatsForPost() && hasEnoughRoom) ? View.VISIBLE : View.GONE);
 
         // set Trash button visibility
-        mViewModel.trashButtonVisibility.set(hasEnoughRoom() ? View.VISIBLE : View.GONE);
+        mViewModel.trashButtonVisibility.set(hasEnoughRoom ? View.VISIBLE : View.GONE);
 
         // set More button visibility
-        mViewModel.moreButtonVisibility.set(hasEnoughRoom() ? View.GONE : View.VISIBLE);
+        mViewModel.moreButtonVisibility.set(hasEnoughRoom ? View.GONE : View.VISIBLE);
 
         // set Back button visibility
         mViewModel.backButtonVisibility.set(View.GONE);
@@ -168,17 +173,28 @@ public class PostPresenter extends BasePostPresenter<PostViewModel> implements P
     private boolean canShowStatsForPost() {
         return mIsStatsSupported
                 && mPostsListPost.getStatusEnum() == PostStatus.PUBLISHED
-                && !mPostsListPost.isLocalDraft();
+                && !mPostsListPost.isLocalDraft()
+                && !mPostsListPost.hasLocalChanges();
     }
 
     private boolean hasEnoughRoom() {
+        boolean canShowPublishButton = canPublishPost();
         boolean canShowStatsButton = canShowStatsForPost();
-        int numVisibleButtons = (canShowStatsButton ? 4 : 3);
+
+        int numVisibleButtons = 3;
+        if (canShowPublishButton) numVisibleButtons++;
+        if (canShowStatsButton) numVisibleButtons++;
 
         int displayWidth = mPostView.getDisplayWidth();
         // on larger displays we can always show all buttons
         boolean alwaysShowAllButtons = (displayWidth >= 1080);
 
         return alwaysShowAllButtons || numVisibleButtons <= 3;
+    }
+
+    private boolean canPublishPost() {
+        return mPostsListPost != null && !mPostsListPost.isUploading() &&
+                (mPostsListPost.hasLocalChanges() || mPostsListPost.isLocalDraft() ||
+                        mPostsListPost.getStatusEnum() == PostStatus.DRAFT);
     }
 }
