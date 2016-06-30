@@ -4,7 +4,7 @@ buildscript {
         maven { url 'https://maven.fabric.io/repo' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.0.0-beta7'
+        classpath 'com.android.tools.build:gradle:2.1.2'
         classpath 'io.fabric.tools:gradle:1.+'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
@@ -14,6 +14,7 @@ repositories {
     jcenter()
     maven { url 'http://wordpress-mobile.github.io/WordPress-Android' }
     maven { url 'https://maven.fabric.io/repo' }
+    maven { url "https://jitpack.io" }
 }
 
 apply plugin: 'com.android.application'
@@ -112,12 +113,8 @@ dependencies {
     // Simperium
     compile 'com.simperium.android:simperium:0.6.8'
 
-    releaseCompile(project(path: ':libs:stores:WordPressStores', configuration: 'release')) {
-        exclude group: "com.android.volley"
-    }
-    debugCompile(project(path: ':libs:stores:WordPressStores', configuration: 'debug')) {
-        exclude group: "com.android.volley"
-    }
+    compile 'com.github.wordpress-mobile:WordPress-Stores-Android:tmp-test-max-SNAPSHOT'
+
     releaseCompile project(path:':libs:utils:WordPressUtils', configuration: 'release')
     debugCompile project(path:':libs:utils:WordPressUtils', configuration: 'debug')
     releaseCompile project(path:':libs:networking:WordPressNetworking', configuration: 'release')
