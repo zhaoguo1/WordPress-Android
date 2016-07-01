@@ -1,5 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string name="are_you_sure">Ziur zaude?</string>
+	<string name="me_btn_app_settings">App-aren ezarpenak</string>
+	<string name="button_done">Eginda</string>
+	<string name="post_format_status">Egoera</string>
+	<string name="post_format_video">Bideoa</string>
+	<string name="align_left">Ezkerrera</string>
+	<string name="align_center">Erdira</string>
+	<string name="post_format_link">Esteka</string>
+	<string name="post_format_quote">Aipua</string>
+	<string name="post_format_image">Irudia</string>
+	<string name="approve_auto">Erabiltzaile guztiek</string>
+	<string name="approve_manual">Iruzkinik ez</string>
+	<string name="site_settings_paging_summary_other">%d iruzkin orrialdeko</string>
+	<string name="site_settings_paging_summary_one">Iruzkin 1 orrialdeko</string>
+	<string name="filter_draft_posts">Zirriborroak</string>
+	<string name="filter_scheduled_posts">Programatuak</string>
+	<string name="mnu_comment_delete_permanently">Ezabatu</string>
+	<string name="comment_deleted_permanently">Iruzkina ezabatu da</string>
+	<string name="mnu_comment_untrash">Berreskuratu</string>
+	<string name="comments_empty_list_filtered_spam">Ez dago zabor iruzkinik</string>
+	<string name="could_not_load_page">Ezin izan da orrialde kargatu</string>
+	<string name="comment_status_all">Guztiak</string>
+	<string name="interface_language">Interfazearen hizkuntza</string>
+	<string name="about_the_app">App-ari buruz</string>
+	<string name="error_post_account_settings">Ezin izan dira zure kontu ezarpenak gorde</string>
+	<string name="remove">Kendu</string>
+	<string name="search">Bilatu</string>
+	<string name="add_category">Gehitu kategoria</string>
+	<string name="disabled">Ezgaitu</string>
+	<string name="site_settings_image_original_size">Jatorrizko neurria</string>
+	<string name="about_me">Niri buruz</string>
+	<string name="public_display_name">Publikoki erakusten den izena</string>
+	<string name="my_profile">Nire profila</string>
+	<string name="site_settings_paging_dialog_header">Iruzkinak orrialdeko</string>
+	<string name="site_settings_rp_show_images_title">Erakutsi irudiak</string>
+	<string name="site_settings_rp_show_header_title">Erakutsi goiburua</string>
+	<string name="site_settings_password_hint">Aldatu zure pasahitza</string>
+	<string name="site_settings_username_hint">Oraingo erabiltzaile kontua</string>
+	<string name="site_settings_privacy_private_summary">Pribatua</string>
+	<string name="site_settings_privacy_hidden_summary">Ezkutua</string>
+	<string name="site_settings_delete_site_title">Ezabatu gunea</string>
+	<string name="site_settings_privacy_public_summary">Publikoa</string>
+	<string name="site_settings_blacklist_title">Zerrenda beltza</string>
+	<string name="site_settings_whitelist_title">Automatikoki onartu</string>
+	<string name="site_settings_default_format_title">Formatu lehenetsia</string>
+	<string name="site_settings_default_category_title">Kategoria lehenetsia</string>
+	<string name="site_settings_address_title">Helbidea</string>
+	<string name="site_settings_title_title">Gunearen izenburua</string>
+	<string name="site_settings_this_device_header">Gailu hau</string>
+	<string name="site_settings_account_header">Kontua</string>
+	<string name="site_settings_writing_header">Idazketa</string>
+	<string name="newest_first">Berriena lehenengoa</string>
+	<string name="site_settings_general_header">Orokorra</string>
+	<string name="discussion">Eztabaida</string>
+	<string name="privacy">Pribatutasuna</string>
+	<string name="selected_theme">Hautatutako itxura</string>
+	<string name="could_not_load_theme">Ezin da itxura kargatu</string>
+	<string name="theme_activation_error">Zerbait gaizki atera da. Ezin izan da itxura gaitu</string>
+	<string name="theme_view">Ikusi</string>
+	<string name="theme_details">Xehetasunak</string>
+	<string name="date_range_start_date">Hasiera data</string>
+	<string name="date_range_end_date">Amaiera data</string>
+	<string name="current_theme">Oraingo itxura</string>
+	<string name="customize">Pertsonalizatu</string>
+	<string name="details">Xehetasunak</string>
+	<string name="support">Euskarria</string>
+	<string name="post_published">Bidalketa argitaratuta</string>
+	<string name="page_published">Orrialdea argitaratuta</string>
+	<string name="post_updated">Bidalketa eguneratuta</string>
+	<string name="stats_widget_loading_data">Datuak kargatzen...</string>
+	<string name="reader_short_comment_count_multi">%s iruzkin</string>
+	<string name="reader_short_comment_count_one">Iruzkin 1</string>
+	<string name="reader_label_submit_comment">BIDALI</string>
+	<string name="reader_hint_comment_on_post">Bidalketari erantzun...</string>
+	<string name="replies_to_your_comments">Zure iruzkinen erantzunak</string>
+	<string name="app_notifications">App-aren jakinarazpenak</string>
+	<string name="notifications_tab">Jakinarazpenen erlaitza</string>
+	<string name="email">E-posta</string>
+	<string name="notifications_wpcom_updates">WordPress.com eguneraketak</string>
+	<string name="your_sites">Zure guneak</string>
 	<string name="connectionbar_no_connection">Konexiorik ez</string>
 	<string name="page_trashed">Orrialdea zaborretara bidalia</string>
 	<string name="post_trashed">Bidalketa zaborretara bidalia</string>
@@ -21,8 +101,10 @@
 	<string name="passcodelock_prompt_message">Sartu zure PINa</string>
 	<string name="editor_toast_changes_saved">Aldaketak gordeak</string>
 	<string name="ignore">Ezikusi</string>
+	<string name="me_disconnect_from_wordpress_com">WordPress.com-etik deskonektatu</string>
 	<string name="me_btn_login_logout">Saioa hasi/itxi</string>
-	<string name="me_btn_settings">Kontuaren ezarpenak</string>
+	<string name="me_connect_to_wordpress_com">WordPress.com-era konektatu</string>
+	<string name="me_btn_support">Laguntza eta euskarria</string>
 	<string name="site_picker_add_site">Gehitu gunea</string>
 	<string name="site_picker_add_self_hosted">Gehitu zuk ostatatutako gunea</string>
 	<string name="my_site_btn_view_site">Ikusi gunea</string>
@@ -33,6 +115,7 @@
 	<string name="my_site_btn_site_settings">Hobespenak</string>
 	<string name="my_site_header_configuration">Konfigurazioa</string>
 	<string name="my_site_header_admin">Administratzailea</string>
+	<string name="stats_unknown_author">Egile ezezaguna</string>
 	<string name="signout">Deskonektatu</string>
 	<string name="image_added">Irudia gehitua</string>
 	<string name="hide">Ezkutatu</string>
@@ -42,14 +125,47 @@
 	<string name="no_blog_images">Irudirik ez</string>
 	<string name="no_blog_videos">Bideorik ez</string>
 	<string name="no_device_images">Irudirik ez</string>
+	<string name="error_loading_images">Errorea irudiak kargatzean</string>
+	<string name="error_loading_videos">Errorea bideoak kargatzean</string>
+	<string name="loading_blog_images">Irudiak eskuratzen</string>
+	<string name="loading_blog_videos">Bideoak eskuratzen</string>
+	<string name="no_media_sources">Ezin izan da media eskuratu</string>
+	<string name="error_loading_blog_images">Ezin dira irudiak eskuratu</string>
+	<string name="error_loading_blog_videos">Ezin dira bideoak eskuratu</string>
 	<string name="no_media">Mediarik ez</string>
 	<string name="take_photo">Atera argazkia</string>
 	<string name="language">Hizkuntza</string>
 	<string name="device">Gailua</string>
 	<string name="media_picker_title">Aukeratu media</string>
+	<string name="media_details_label_file_name">Fitxategi izena</string>
+	<string name="media_details_label_file_type">Fitxategi mota</string>
+	<string name="verification_code">Egiaztaketa kodea</string>
+	<string name="invalid_verification_code">Egiaztaketa kode okerra</string>
+	<string name="verify">Egiaztatu</string>
 	<string name="reader_empty_posts_request_failed">Huts egin du bidalketak eskuratzeak</string>
+	<string name="stats_view_authors">Egileak</string>
+	<string name="comments_fetching">Iruzkinak eskuratzen...</string>
+	<string name="pages_fetching">Orrialdeak eskuratzen...</string>
+	<string name="toast_err_post_uploading">Ezin da bidalketa ireki kargatzen dagoen bitartean</string>
+	<string name="posts_fetching">Bidalketak eskuratzen...</string>
+	<string name="media_fetching">Media eskuratzen...</string>
+	<string name="post_uploading">Kargatzen</string>
+	<string name="stats_total">Guztira</string>
+	<string name="reader_label_new_posts">Bidalketa berriak</string>
+	<string name="reader_empty_posts_in_blog">Blog hau hutsik dago</string>
 	<string name="stats_empty_video">Ez da bideorik erreproduzitu</string>
 	<string name="stats_entry_video_plays">Bideoak</string>
+	<string name="stats_followers_wpcom_selector">WordPress.com</string>
+	<string name="stats_followers_email_selector">E-posta</string>
+	<string name="stats_entry_top_commenter">Egilea</string>
+	<string name="stats_entry_publicize">Zerbitzua</string>
+	<string name="stats_entry_followers">Jarraitzailea</string>
+	<string name="stats_totals_publicize">Jarraitzaileak</string>
+	<string name="stats_entry_clicks_link">Esteka</string>
+	<string name="stats_view_top_posts_and_pages">Bidalketak eta orrialdeak</string>
+	<string name="stats_view_videos">Bideoak</string>
+	<string name="stats_view_followers">Jarraitzaileak</string>
+	<string name="stats_pagination_label">%2$setik %1$s. orrialdea</string>
 	<string name="ssl_certificate_details">Xehetasunak</string>
 	<string name="cab_selected">%d aukeratuta</string>
 	<string name="delete_sure_post">Ezabatu bidalketa hau</string>
@@ -72,14 +188,19 @@
 	<string name="reader_label_view_original">Ikusi artikulu originala</string>
 	<string name="reader_label_like">Gustukoa</string>
 	<string name="select_a_blog">Aukeratu WordPress gune bat</string>
+	<string name="reader_empty_followed_blogs_title">Oraindik ez duzu webgunetik jarraitzen</string>
+	<string name="posts_empty_list">Bidalketarik ez oraingoz. Zergatik ez duzu bat sortzen?</string>
+	<string name="pages_empty_list">Orrialderik ez oraingoz. Zergatik ez duzu bat sortzen?</string>
 	<string name="contact_us">Kontaktatu gurekin</string>
-	<string name="your_signature">Zure sinadura:</string>
+	<string name="hs__username_blank_error">Sartu izen egoki bat</string>
+	<string name="hs__invalid_email_error">Sartu e-posta egoki bat</string>
 	<string name="edit_location">Editatu</string>
 	<string name="search_location">Bilatu</string>
-	<string name="preference_privacy">Pribatutasuna</string>
 	<string name="preference_send_usage_stats">Bidali estatistikak</string>
 	<string name="preference_send_usage_stats_summary">Bidali erabilera estatistikak automatikoki WordPress Android-erako hobetzen laguntzeko</string>
 	<string name="update_verb">Eguneratu</string>
+	<string name="schedule_verb">Programatu</string>
+	<string name="reader_page_followed_blogs">Jarraitutako guneak</string>
 	<string name="saving">Gordetzen...</string>
 	<string name="help">Laguntza</string>
 	<string name="forums">Foroak</string>
@@ -118,9 +239,6 @@
 	<string name="wait_until_upload_completes">Itxaron karga osatu bitartean</string>
 	<string name="blog_not_found">Blog honetara sartzean errore bat gertatu da</string>
 	<string name="nux_cannot_log_in">Ezin zaitugu sartu</string>
-	<string name="auto_sharing_preference_reset_caused_by_error">Aurretik hautatutako bloga ez dago eskuragarri dagoeneko</string>
-	<string name="invalid_url_message">Ziurtatu sartutako blogaren URLa zuzena dela</string>
-	<string name="auto_sharing_preference_reset">Hobespenen berrezartzea auto-partekatzen</string>
 	<string name="reply_failed">Erantzunak huts egin du</string>
 	<string name="error_refresh_comments">Iruzkinak ezin izan dira une honetan freskatu</string>
 	<string name="error_refresh_stats">Estatistikak ezin izan dira une honetan freskatu </string>
@@ -152,6 +270,7 @@
 	<string name="username_exists">Erabiltzaile-izen hori dagoeneko existitzen da</string>
 	<string name="username_reserved_but_may_be_available">Momentu honetan erabiltzaile-izen hori erreserbatuta dago baina pare bat egunetan eskuragarri egon daiteke</string>
 	<string name="username_or_password_incorrect">Sartutako erabiltzaile-izena edo pasahitza ez dira zuzenak</string>
+	<string name="invalid_url_message">Ziurtatu sartutako URLa zuzena dela</string>
 	<string name="add_comment">Gehitu iruzkina</string>
 	<string name="comment_status_approved">Onartua</string>
 	<string name="comment_status_unapproved">Onartzeko zain</string>
@@ -229,7 +348,6 @@
 	<string name="error_blog_hidden">Blog hau ezkutatuta dago eta ezin izan da kargatu. Hobespenetan gaitu eta berriz saiatu.</string>
 	<string name="reader_share_link">Partekatu esteka</string>
 	<string name="email_hint">E-posta helbidea</string>
-	<string name="username_email">Erabiltzaile-izena edo e-posta</string>
 	<string name="fatal_db_error">Errorea gertatu da aplikazioaren datu-basea sortzean. Saiatu aplikazioa berrinstalatzen.</string>
 	<string name="reader_title_applog">Aplikazioaren loga</string>
 	<string name="blog_name_must_include_letters">Gunearen helbideak gutxienez hizki bat (a-z) izan behar du</string>
@@ -254,6 +372,7 @@
 	<string name="category_parent">Kategoriaren gurasoa (hautazkoa)</string>
 	<string name="http_credentials">HTTP egiaztagiria (hautazkoa)</string>
 	<string name="site_address">Zuk ostatatutako helbidea (URL)</string>
+	<string name="notifications_empty_all">Jakinarazpenik ez... oraingoz.</string>
 	<string name="share_url_page">Partekatu orrialdea</string>
 	<string name="share_link">Partekatu esteka</string>
 	<string name="deleting_page">Orrialdea ezabatzen</string>
@@ -269,9 +388,6 @@
 	<string name="comment_spammed">Iruzkina spam bezala markatuta</string>
 	<string name="download">Media deskargatzen</string>
 	<string name="reader_likes_multi">%,d pertsonak hau gustuko dute</string>
-	<string name="share_preference_title">Partekatu WordPress-en</string>
-	<string name="reset_auto_share_preference">Automatikoki partekatzeko hobespenak berrezarri</string>
-	<string name="always_use_these_settings_to_share">Erabili beti hobespen hauek</string>
 	<string name="reader_toast_err_get_comment">Ezin izan da iruzkin hau eskuratu</string>
 	<string name="reader_likes_you_and_multi">Zuk eta %,d pertsonak hau gustuko duzue</string>
 	<string name="select_time">Aukeratu ordua</string>
@@ -318,6 +434,7 @@
 	<string name="username_invalid">Erabiltzaile-izen okerra</string>
 	<string name="limit_reached">Mugara iritsi zara. Minutu bat barru berriz proba dezakezu. Lehenago saiatuz gero debekua luzatzea besterik ez duzu lortuko. Hau errore bat dela baderitzozu, kontaktatu laguntzarekin. </string>
 	<string name="reader_hint_comment_on_comment">Erantzun iruzkinari...</string>
+	<string name="button_next">Hurrengoa</string>
 	<string name="images">Irudiak</string>
 	<string name="custom_date">Data pertsonalizatua</string>
 	<string name="media_gallery_type">Mota</string>
@@ -335,7 +452,6 @@
 	<string name="all">Denak</string>
 	<string name="unattached">Txertatu gabe</string>
 	<string name="media_add_popup_capture_video">Bideoa grabatu</string>
-	<string name="media_no_video_title">VideoPress ez dago eskuragarri</string>
 	<string name="stats_timeframe_today">Gaur</string>
 	<string name="stats_timeframe_yesterday">Atzo</string>
 	<string name="theme_activate_button">Gaitu</string>
@@ -355,7 +471,6 @@
 	<string name="media_gallery_type_tiled">Mosaikoa</string>
 	<string name="media_gallery_type_circles">Zirkuluak</string>
 	<string name="media_gallery_image_order_reverse">Alderantzikatu</string>
-	<string name="media_no_video_message">Bideoak igotzeko VideoPress erosi behar duzu</string>
 	<string name="stats_view_visitors_and_views">Bisitariak eta ikuspegiak</string>
 	<string name="stats_totals_clicks">Klikak</string>
 	<string name="themes_features_label">Ezaugarriak</string>
@@ -386,8 +501,6 @@
 	<string name="note_reply_successful">Erantzuna argitaratuta.</string>
 	<string name="loading">Kargatzen...</string>
 	<string name="httppassword">HTTP pasahitza</string>
-	<string name="post_signature">Bidalketaren sinadura</string>
-	<string name="add_tagline">Gehitu sinadura bidalketa berrietan</string>
 	<string name="httpuser">HTTP erabiltzaile-izena</string>
 	<string name="error_media_upload">Errore bat gertatu da mediak kargatzean</string>
 	<string name="publish_date">Argitaratu</string>
@@ -413,11 +526,10 @@
 	<string name="scaled_image">Irudiaren zabalera eskalan</string>
 	<string name="scheduled">Programatuta</string>
 	<string name="link_enter_url">URL</string>
-	<string name="posted_from">WordPress Android-erako erabiliz argitaratua</string>
 	<string name="version">Bertsioa</string>
 	<string name="tos">Zerbitzu-baldintzak</string>
 	<string name="app_title">WordPress Android-erako</string>
-	<string name="about">Honi buruz</string>
+	<string name="max_thumbnail_px_width">Lehenetsitako irudi zabalera</string>
 	<string name="image_alignment">Lerrokatzea</string>
 	<string name="refresh">Freskatu</string>
 	<string name="untitled">Izenbururik gabe</string>
@@ -438,6 +550,7 @@
 	<string name="title">Izenburua</string>
 	<string name="categories">Kategoriak</string>
 	<string name="tags_separate_with_commas">Etiketak (banandu etiketak komak erabiliz)</string>
+	<string name="dlg_deleting_comments">Iruzkinak ezabatzen</string>
 	<string name="notification_vibrate">Bibratu</string>
 	<string name="notification_blink">Jakinarazpen keinukariaren argia</string>
 	<string name="notification_sound">Erreproduzitu jakinarazpenaren soinua</string>
@@ -460,26 +573,4 @@
 	<string name="preview">Aurrebista</string>
 	<string name="category_refresh_error">Kategoria eguneraketa errorea</string>
 	<string name="on">en</string>
-	<string-array name="alignment_array">
-		<item>Bat ere ez</item>
-		<item>Ezkerrean</item>
-		<item>Erdian</item>
-		<item>Eskuinean</item>
-	</string-array>
-	<string-array name="post_filters_array">
-		<item>Argitaratua</item>
-		<item>Zirriborroak</item>
-	</string-array>
-	<string-array name="post_formats_array">
-		<item>Albokoa</item>
-		<item>Audioa</item>
-		<item>Txata</item>
-		<item>Galeria</item>
-		<item>Irudia</item>
-		<item>Esteka</item>
-		<item>Aipua</item>
-		<item>Estandarra</item>
-		<item>Egoera</item>
-		<item>Bideoa</item>
-	</string-array>
 </resources>

@@ -5,7 +5,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.text.TextUtils;
@@ -13,7 +13,6 @@ import android.view.View;
 
 import org.wordpress.android.R;
 import org.wordpress.android.analytics.AnalyticsTracker;
-import org.wordpress.android.models.ReaderComment;
 import org.wordpress.android.models.ReaderPost;
 import org.wordpress.android.models.ReaderTag;
 import org.wordpress.android.ui.ActivityLauncher;
@@ -22,6 +21,7 @@ import org.wordpress.android.ui.reader.ReaderTypes.ReaderPostListType;
 import org.wordpress.android.util.AnalyticsUtils;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.WPUrlUtils;
+import org.wordpress.passcodelock.AppLockManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,10 +33,17 @@ public class ReaderActivityLauncher {
      * with a single post
      */
     public static void showReaderPostDetail(Context context, long blogId, long postId) {
+        showReaderPostDetail(context, blogId, postId, false);
+    }
+    public static void showReaderPostDetail(Context context,
+                                            long blogId,
+                                            long postId,
+                                            boolean isRelatedPost) {
         Intent intent = new Intent(context, ReaderPostPagerActivity.class);
         intent.putExtra(ReaderConstants.ARG_BLOG_ID, blogId);
         intent.putExtra(ReaderConstants.ARG_POST_ID, postId);
         intent.putExtra(ReaderConstants.ARG_IS_SINGLE_POST, true);
+        intent.putExtra(ReaderConstants.ARG_IS_RELATED_POST, isRelatedPost);
         ActivityLauncher.slideInFromRight(context, intent);
     }
 
@@ -122,14 +129,13 @@ public class ReaderActivityLauncher {
             return;
         }
         Map<String, String> properties = new HashMap<>();
-        properties.put("tag", tag.getTagName());
+        properties.put("tag", tag.getTagSlug());
         AnalyticsTracker.track(AnalyticsTracker.Stat.READER_TAG_PREVIEWED, properties);
         Intent intent = new Intent(context, ReaderPostListActivity.class);
         intent.putExtra(ReaderConstants.ARG_TAG, tag);
         intent.putExtra(ReaderConstants.ARG_POST_LIST_TYPE, ReaderPostListType.TAG_PREVIEW);
         context.startActivity(intent);
     }
-
 
     /*
      * show comments for the passed Ids
@@ -158,17 +164,6 @@ public class ReaderActivityLauncher {
         intent.putExtra(ReaderConstants.ARG_BLOG_ID, blogId);
         intent.putExtra(ReaderConstants.ARG_POST_ID, postId);
         ActivityLauncher.slideInFromRight(context, intent);
-    }
-
-    /*
-     * show users who liked the passed comment
-     */
-    public static void showReaderLikingUsers(Context context, ReaderComment comment) {
-        Intent intent = new Intent(context, ReaderUserListActivity.class);
-        intent.putExtra(ReaderConstants.ARG_BLOG_ID, comment.blogId);
-        intent.putExtra(ReaderConstants.ARG_POST_ID, comment.postId);
-        intent.putExtra(ReaderConstants.ARG_COMMENT_ID, comment.commentId);
-        context.startActivity(intent);
     }
 
     /*
@@ -203,15 +198,10 @@ public class ReaderActivityLauncher {
         }
 
         if (context instanceof Activity) {
-            // use built-in scale animation on jb+, fall back to default animation on pre-jb
             Activity activity = (Activity) context;
-            if (sourceView != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                ActivityOptionsCompat options =
-                        ActivityOptionsCompat.makeScaleUpAnimation(sourceView, startX, startY, 0, 0);
-                ActivityCompat.startActivity(activity, intent, options.toBundle());
-            } else {
-                activity.startActivity(intent);
-            }
+            ActivityOptionsCompat options =
+                    ActivityOptionsCompat.makeScaleUpAnimation(sourceView, startX, startY, 0, 0);
+            ActivityCompat.startActivity(activity, intent, options.toBundle());
         } else {
             context.startActivity(intent);
         }
@@ -227,25 +217,38 @@ public class ReaderActivityLauncher {
     }
 
     public static void openUrl(Context context, String url, OpenUrlType openUrlType, String wpComUsername) {
-        if (TextUtils.isEmpty(url)) {
-            return;
-        }
+        if (context == null || TextUtils.isEmpty(url)) return;
 
         if (openUrlType == OpenUrlType.INTERNAL) {
-            // That won't work on wpcom sites with custom urls
-            if (WPUrlUtils.isWordPressCom(url)) {
-                WPWebViewActivity.openUrlByUsingWPCOMCredentials(context, url, wpComUsername);
-            } else {
-                WPWebViewActivity.openURL(context, url);
-            }
+            openUrlInternal(context, url, wpComUsername);
         } else {
-            try {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                context.startActivity(intent);
-            } catch (ActivityNotFoundException e) {
-                String readerToastErrorUrlIntent = context.getString(R.string.reader_toast_err_url_intent);
-                ToastUtils.showToast(context, String.format(readerToastErrorUrlIntent, url), ToastUtils.Duration.LONG);
-            }
+            openUrlExternal(context, url);
+        }
+    }
+
+    /*
+     * open the passed url in the app's internal WebView activity
+     */
+    private static void openUrlInternal(Context context, @NonNull String url, String wpComUsername) {
+        // That won't work on wpcom sites with custom urls
+        if (WPUrlUtils.isWordPressCom(url)) {
+            WPWebViewActivity.openUrlByUsingWPCOMCredentials(context, url, wpComUsername);
+        } else {
+            WPWebViewActivity.openURL(context, url, ReaderConstants.HTTP_REFERER_URL);
+        }
+    }
+
+    /*
+     * open the passed url in the device's external browser
+     */
+    private static void openUrlExternal(Context context, @NonNull String url) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            context.startActivity(intent);
+            AppLockManager.getInstance().setExtendedTimeout();
+        } catch (ActivityNotFoundException e) {
+            String readerToastErrorUrlIntent = context.getString(R.string.reader_toast_err_url_intent);
+            ToastUtils.showToast(context, String.format(readerToastErrorUrlIntent, url), ToastUtils.Duration.LONG);
         }
     }
 }

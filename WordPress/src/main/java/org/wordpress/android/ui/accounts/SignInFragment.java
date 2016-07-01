@@ -2,13 +2,13 @@ package org.wordpress.android.ui.accounts;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextUtils;
@@ -27,11 +27,16 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.credentials.Credential;
+import com.optimizely.Optimizely;
+import com.optimizely.Variable.LiveVariable;
 import com.squareup.otto.Subscribe;
 
+import org.wordpress.android.BuildConfig;
 import org.wordpress.android.R;
 import org.wordpress.android.WordPress;
 import org.wordpress.android.analytics.AnalyticsTracker;
+import org.wordpress.android.analytics.AnalyticsTracker.Stat;
 import org.wordpress.android.models.Blog;
 import org.wordpress.android.networking.SelfSignedSSLCertsManager;
 import org.wordpress.android.stores.Dispatcher;
@@ -45,7 +50,6 @@ import org.wordpress.android.stores.store.AccountStore.OnAuthenticationChanged;
 import org.wordpress.android.stores.store.SiteStore;
 import org.wordpress.android.stores.store.SiteStore.OnSiteChanged;
 import org.wordpress.android.stores.store.SiteStore.RefreshSitesXMLRPCPayload;
-import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.util.AnalyticsUtils;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.AppLog.T;
@@ -57,9 +61,10 @@ import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.WPUrlUtils;
 import org.wordpress.android.widgets.WPTextView;
-import org.wordpress.emailchecker.EmailChecker;
+import org.wordpress.emailchecker2.EmailChecker;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -68,60 +73,54 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 
 public class SignInFragment extends AbstractFragment implements TextWatcher {
+    public static final String TAG = "sign_in_fragment_tag";
+    private static LiveVariable<Boolean> isNotOnWordPressComVariable = Optimizely.booleanForKey("isNotOnWordPressCom", false);
     private static final String DOT_COM_BASE_URL = "https://wordpress.com";
     private static final String FORGOT_PASSWORD_RELATIVE_URL = "/wp-login.php?action=lostpassword";
     private static final int WPCOM_ERRONEOUS_LOGIN_THRESHOLD = 3;
-    private static final String FROM_LOGIN_SCREEN_KEY = "FROM_LOGIN_SCREEN_KEY";
     private static final String KEY_IS_SELF_HOSTED = "IS_SELF_HOSTED";
 
     public static final String ENTERED_URL_KEY = "ENTERED_URL_KEY";
     public static final String ENTERED_USERNAME_KEY = "ENTERED_USERNAME_KEY";
 
-    private EditText mUsernameEditText;
-    private EditText mPasswordEditText;
-    private EditText mUrlEditText;
-    private EditText mTwoStepEditText;
+    protected EditText mUsernameEditText;
+    protected EditText mPasswordEditText;
+    protected EditText mUrlEditText;
+    protected EditText mTwoStepEditText;
 
-    private WPTextView mSignInButton;
-    private WPTextView mCreateAccountButton;
-    private WPTextView mAddSelfHostedButton;
-    private WPTextView mProgressTextSignIn;
-    private WPTextView mForgotPassword;
-    private WPTextView mJetpackAuthLabel;
+    protected LinearLayout mBottomButtonsLayout;
+    protected RelativeLayout mUsernameLayout;
+    protected RelativeLayout mPasswordLayout;
+    protected RelativeLayout mProgressBarSignIn;
+    protected RelativeLayout mUrlButtonLayout;
+    protected RelativeLayout mTwoStepLayout;
+    protected LinearLayout mTwoStepFooter;
 
-    private LinearLayout mBottomButtonsLayout;
-    private RelativeLayout mUsernameLayout;
-    private RelativeLayout mPasswordLayout;
-    private RelativeLayout mProgressBarSignIn;
-    private RelativeLayout mUrlButtonLayout;
-    private RelativeLayout mTwoStepLayout;
-    private LinearLayout mTwoStepFooter;
+    protected boolean mSelfHosted;
+    protected boolean mEmailAutoCorrected;
+    protected boolean mShouldSendTwoStepSMS;
+    protected int mErroneousLogInCount;
+    protected String mUsername;
+    protected String mPassword;
+    protected String mTwoStepCode;
+    protected String mHttpUsername;
+    protected String mHttpPassword;
+    protected Blog mJetpackBlog;
 
-    private ImageView mInfoButton;
-    private ImageView mInfoButtonSecondary;
-
-    private final EmailChecker mEmailChecker;
-
-    private boolean mSelfHosted;
-    private boolean mEmailAutoCorrected;
-    private boolean mShouldSendTwoStepSMS;
-    private int mErroneousLogInCount;
-    private String mUsername;
-    private String mPassword;
-    private String mTwoStepCode;
-    private String mHttpUsername;
-    private String mHttpPassword;
-    private Blog mJetpackBlog;
+    protected WPTextView mSignInButton;
+    protected WPTextView mCreateAccountButton;
+    protected WPTextView mAddSelfHostedButton;
+    protected WPTextView mProgressTextSignIn;
+    protected WPTextView mForgotPassword;
+    protected WPTextView mJetpackAuthLabel;
+    protected ImageView mInfoButton;
+    protected ImageView mInfoButtonSecondary;
 
     private RefreshSitesXMLRPCPayload mSelfhostedPayload;
 
-    @Inject SiteStore mSiteStore;
-    @Inject AccountStore mAccountStore;
-    @Inject Dispatcher mDispatcher;
-
-    public SignInFragment() {
-        mEmailChecker = new EmailChecker();
-    }
+    protected @Inject SiteStore mSiteStore;
+    protected @Inject AccountStore mAccountStore;
+    protected @Inject Dispatcher mDispatcher;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -159,16 +158,13 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         mCreateAccountButton = (WPTextView) rootView.findViewById(R.id.nux_create_account_button);
         mCreateAccountButton.setOnClickListener(mCreateAccountListener);
         mAddSelfHostedButton = (WPTextView) rootView.findViewById(R.id.nux_add_selfhosted_button);
+        setDotComAddSelfHostedButtonText();
         mAddSelfHostedButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 toggleSignInMode();
             }
         });
-
-        if (mSelfHosted) {
-            showSelfHostedSignInForm();
-        }
 
         mForgotPassword = (WPTextView) rootView.findViewById(R.id.forgot_password);
         mForgotPassword.setOnClickListener(mForgotPasswordListener);
@@ -212,27 +208,16 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         initInfoButtons(rootView);
         moveBottomButtons();
 
+        if (mSelfHosted) {
+            showSelfHostedSignInForm();
+        }
+        autofillFromBuildConfig();
         return rootView;
     }
 
-    private void toggleSignInMode(){
-        if (mUrlButtonLayout.getVisibility() == View.VISIBLE) {
-            showDotComSignInForm();
-            mSelfHosted = false;
-        } else {
-            showSelfHostedSignInForm();
-            mSelfHosted = true;
-        }
-    }
-
-    private void showDotComSignInForm(){
-        mUrlButtonLayout.setVisibility(View.GONE);
-        mAddSelfHostedButton.setText(getString(R.string.nux_add_selfhosted_blog));
-    }
-
-    private void showSelfHostedSignInForm(){
-        mUrlButtonLayout.setVisibility(View.VISIBLE);
-        mAddSelfHostedButton.setText(getString(R.string.nux_oops_not_selfhosted_blog));
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
     }
 
     @Override
@@ -245,21 +230,63 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         }
     }
 
+    private void setDotComAddSelfHostedButtonText() {
+        if (isNotOnWordPressComVariable.get()) {
+            mAddSelfHostedButton.setText(R.string.not_on_wordpress_com);
+        } else {
+            mAddSelfHostedButton.setText(getString(R.string.nux_add_selfhosted_blog));
+        }
+    }
+
     /**
      * Hide toggle button "add self hosted / sign in with WordPress.com" and show self hosted URL
      * edit box
      */
-    public void forceSelfHostedMode() {
+    public void forceSelfHostedMode(String prefillUrl) {
         mUrlButtonLayout.setVisibility(View.VISIBLE);
         mAddSelfHostedButton.setVisibility(View.GONE);
         mCreateAccountButton.setVisibility(View.GONE);
+        mUrlEditText.setText(prefillUrl);
         mSelfHosted = true;
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        moveBottomButtons();
+    protected void toggleSignInMode(){
+        if (mUrlButtonLayout.getVisibility() == View.VISIBLE) {
+            showDotComSignInForm();
+            mSelfHosted = false;
+        } else {
+            showSelfHostedSignInForm();
+            mSelfHosted = true;
+        }
+    }
+
+    protected void showDotComSignInForm(){
+        mUrlButtonLayout.setVisibility(View.GONE);
+        setDotComAddSelfHostedButtonText();
+    }
+
+    protected void showSelfHostedSignInForm(){
+        mUrlButtonLayout.setVisibility(View.VISIBLE);
+        mAddSelfHostedButton.setText(getString(R.string.nux_oops_not_selfhosted_blog));
+    }
+
+    protected void track(Stat stat, Map<String, Boolean> properties) {
+        AnalyticsTracker.track(stat, properties);
+    }
+
+    protected void finishCurrentActivity(final List<Map<String, Object>> userBlogList) {
+        if (!isAdded()) {
+            return;
+        }
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (userBlogList != null) {
+                    getActivity().setResult(Activity.RESULT_OK);
+                    getActivity().finish();
+                }
+            }
+        });
     }
 
     private void initInfoButtons(View rootView) {
@@ -278,6 +305,46 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         mInfoButtonSecondary = (ImageView) rootView.findViewById(R.id.info_button_secondary);
         mInfoButton.setOnClickListener(infoButtonListener);
         mInfoButtonSecondary.setOnClickListener(infoButtonListener);
+    }
+
+    /*
+     * autofill the username and password from BuildConfig/gradle.properties (developer feature,
+     * only enabled for DEBUG releases)
+     */
+    private void autofillFromBuildConfig() {
+        if (!BuildConfig.DEBUG) return;
+
+        String userName = (String) WordPress.getBuildConfigValue(getActivity().getApplication(),
+                "DEBUG_DOTCOM_LOGIN_USERNAME");
+        String password = (String) WordPress.getBuildConfigValue(getActivity().getApplication(),
+                "DEBUG_DOTCOM_LOGIN_PASSWORD");
+        if (!TextUtils.isEmpty(userName)) {
+            mUsernameEditText.setText(userName);
+            AppLog.d(T.NUX, "Autofilled username from build config");
+        }
+        if (!TextUtils.isEmpty(password)) {
+            mPasswordEditText.setText(password);
+            AppLog.d(T.NUX, "Autofilled password from build config");
+        }
+    }
+
+    public boolean canAutofillUsernameAndPassword() {
+        return EditTextUtils.getText(mUsernameEditText).isEmpty() && EditTextUtils.getText(mPasswordEditText).isEmpty();
+    }
+
+    public void onCredentialRetrieved(Credential credential) {
+        AppLog.d(T.NUX, "Retrieved username from SmartLock: " + credential.getId());
+        if (canAutofillUsernameAndPassword()) {
+            track(Stat.LOGIN_AUTOFILL_CREDENTIALS_FILLED, null);
+            mUsernameEditText.setText(credential.getId());
+            mPasswordEditText.setText(credential.getPassword());
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        moveBottomButtons();
     }
 
     private void setSecondaryButtonVisible(boolean visible) {
@@ -323,7 +390,7 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
             return;
         }
         // It looks like an email address, then try to correct it
-        String suggest = mEmailChecker.suggestDomainCorrection(email);
+        String suggest = EmailChecker.suggestDomainCorrection(email);
         if (suggest.compareTo(email) != 0) {
             mEmailAutoCorrected = true;
             mUsernameEditText.setText(suggest);
@@ -358,12 +425,20 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
     private final View.OnClickListener mCreateAccountListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Activity activity = getActivity();
-            if (activity != null) {
-                ActivityLauncher.newAccountForResult(activity);
-            }
+            createUserFragment();
         }
     };
+
+    private void createUserFragment() {
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        NewUserFragment newUserFragment = NewUserFragment.newInstance();
+        newUserFragment.setTargetFragment(this, NewUserFragment.NEW_USER);
+        transaction.setCustomAnimations(R.anim.activity_slide_in_from_right, R.anim.activity_slide_out_to_left,
+                R.anim.activity_slide_in_from_left, R.anim.activity_slide_out_to_right);
+        transaction.replace(R.id.fragment_container, newUserFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
 
     private String getForgotPasswordURL() {
         String baseUrl = DOT_COM_BASE_URL;
@@ -406,13 +481,19 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         }
     };
 
+
+    private void refreshAndSelectSite(Map<String, Object> site) {
+        WordPress.setCurrentBlog((Integer) site.get("id"));
+    }
+
+
     private void trackAnalyticsSignIn() {
         AnalyticsUtils.refreshMetadata(mAccountStore, mSiteStore);
         Map<String, Boolean> properties = new HashMap<String, Boolean>();
         properties.put("dotcom_user", isWPComLogin());
-        AnalyticsTracker.track(AnalyticsTracker.Stat.SIGNED_IN, properties);
+        track(Stat.SIGNED_IN, properties);
         if (!isWPComLogin()) {
-            AnalyticsTracker.track(AnalyticsTracker.Stat.ADDED_SELF_HOSTED_SITE);
+            track(Stat.ADDED_SELF_HOSTED_SITE, null);
         }
     }
 
@@ -427,6 +508,13 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
                 getActivity().finish();
             }
         });
+    }
+
+    private SmartLockHelper getSmartLockHelper() {
+        if (getActivity() != null && getActivity() instanceof SignInActivity) {
+            return ((SignInActivity) getActivity()).getSmartLockHelper();
+        }
+        return null;
     }
 
     public void showAuthErrorMessage() {
@@ -458,7 +546,7 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
     }
 
     private void showSoftKeyboard() {
-        if (!hasHardwareKeyboard()) {
+        if (isAdded() && !hasHardwareKeyboard()) {
             InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_NOT_ALWAYS);
         }
@@ -477,6 +565,19 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         // Next action will be dispatched if authentication is successful
         payload.nextAction = mDispatcher.createAction(SiteAction.FETCH_SITES);
         mDispatcher.dispatch(AuthenticationAction.AUTHENTICATE, payload);
+    }
+
+    protected void configureAccountAfterSuccessfulSignIn() {
+        mShouldSendTwoStepSMS = false;
+
+        // Finish this activity if we've authenticated to a Jetpack site
+        if (isJetpackAuth() && getActivity() != null) {
+            getActivity().setResult(Activity.RESULT_OK);
+            getActivity().finish();
+            return;
+        }
+
+        mDispatcher.dispatch(SiteAction.FETCH_SITES);
     }
 
     private void signInAndFetchBlogListWPOrg() {
@@ -506,7 +607,7 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         return true;
     }
 
-    private void signIn() {
+    protected void signIn() {
         if (!isUserDataValid()) {
             return;
         }
@@ -569,7 +670,7 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
 
     private boolean fieldsFilled() {
         return EditTextUtils.getText(mUsernameEditText).trim().length() > 0
-               && EditTextUtils.getText(mPasswordEditText).trim().length() > 0
+               && (mPasswordLayout.getVisibility() == View.GONE || EditTextUtils.getText(mPasswordEditText).trim().length() > 0)
                && (mTwoStepLayout.getVisibility() == View.GONE || EditTextUtils.getText(mTwoStepEditText).trim().length() > 0);
     }
 
@@ -622,14 +723,6 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
                 return true;
             default:
                 return false;
-        }
-    }
-
-    public void signInDotComUser(String username, String password) {
-        if (username != null && password != null) {
-            mUsernameEditText.setText(username);
-            mPasswordEditText.setText(password);
-            signIn();
         }
     }
 
@@ -772,6 +865,14 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
     @Override
     public void onStart() {
         super.onStart();
+        // Autofill username / password if string fields are set (only usefull after an error in sign up).
+        // This can't be done in onCreateView
+        if (mUsername != null) {
+            mUsernameEditText.setText(mUsername);
+        }
+        if (mPassword != null) {
+            mPasswordEditText.setText(mPassword);
+        }
         mDispatcher.register(this);
         mDispatcher.register(mSiteStore);
         mDispatcher.register(mAccountStore);
@@ -813,5 +914,16 @@ public class SignInFragment extends AbstractFragment implements TextWatcher {
         // Login Successful
         trackAnalyticsSignIn();
         finishCurrentActivity();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == NewUserFragment.NEW_USER && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                // Text views will be populated by username/password if these fields are set
+                mUsername = data.getStringExtra("username");
+                mPassword = data.getStringExtra("password");
+            }
+        }
     }
 }

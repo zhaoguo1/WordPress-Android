@@ -6,10 +6,8 @@ import org.wordpress.android.models.AccountHelper;
 import org.wordpress.android.util.StringUtils;
 
 public class OAuthAuthenticator implements Authenticator {
-    @Override
-    public void authenticate(final AuthenticatorRequest request) {
-        String siteId = request.getSiteId();
-        // TODO: STORES: kill this
+    // TODO: STORES: kill this
+    public static String getAccessToken(final String siteId) {
         String token = AccountHelper.getDefaultAccount().getAccessToken();
 
         if (siteId != null) {
@@ -26,6 +24,13 @@ public class OAuthAuthenticator implements Authenticator {
             }
         }
 
+        return token;
+    }
+
+    @Override
+    public void authenticate(final AuthenticatorRequest request) {
+        String siteId = request.getSiteId();
+        String token = getAccessToken(siteId);
         request.sendWithAccessToken(StringUtils.notNullStr(token));
     }
 }

@@ -10,7 +10,6 @@ import org.wordpress.android.stores.module.ReleaseNetworkModule;
 import org.wordpress.android.stores.module.ReleaseStoreModule;
 import org.wordpress.android.ui.DeepLinkingIntentReceiverActivity;
 import org.wordpress.android.ui.ShareIntentReceiverActivity;
-import org.wordpress.android.ui.ViewSiteActivity;
 import org.wordpress.android.ui.WPWebViewActivity;
 import org.wordpress.android.ui.accounts.NewBlogFragment;
 import org.wordpress.android.ui.accounts.SignInFragment;
@@ -22,6 +21,8 @@ import org.wordpress.android.ui.main.SitePickerAdapter;
 import org.wordpress.android.ui.main.WPMainActivity;
 import org.wordpress.android.ui.notifications.NotificationsDetailActivity;
 import org.wordpress.android.ui.notifications.NotificationsListFragment;
+import org.wordpress.android.ui.people.PeopleManagementActivity;
+import org.wordpress.android.ui.plans.PlansActivity;
 import org.wordpress.android.ui.posts.EditPostActivity;
 import org.wordpress.android.ui.prefs.AccountSettingsFragment;
 import org.wordpress.android.ui.prefs.AppSettingsFragment;
@@ -82,6 +83,8 @@ public interface AppComponent {
     void inject(SiteSettingsFragment object);
     void inject(BlogPreferencesActivity object);
     void inject(AppSettingsFragment object);
+    void inject(PeopleManagementActivity object);
+    void inject(PlansActivity object);
 
     void inject(EditPostActivity object);
 
@@ -100,9 +103,8 @@ public interface AppComponent {
     void inject(ReaderLikingUsersView object);
     void inject(ReaderWebView object);
 
-    void inject(ViewSiteActivity object);
     void inject(WPWebViewActivity object);
 
-    // WPDelayedHurlStack will burn in hell as soon as we have all the stores ready.
+    // WPDelayedHurlStack will burn in hell as soon as we have all the XMLRPC based stores ready.
     void inject(WPDelayedHurlStack object);
 }

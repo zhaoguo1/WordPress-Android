@@ -3,6 +3,7 @@ package org.wordpress.android.ui.reader.adapters;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,7 +42,7 @@ import org.wordpress.android.widgets.WPNetworkImageView;
 import javax.inject.Inject;
 
 public class ReaderCommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private final ReaderPost mPost;
+    private ReaderPost mPost;
     private boolean mMoreCommentsExist;
 
     private static final int MAX_INDENT_LEVEL = 2;
@@ -53,7 +54,7 @@ public class ReaderCommentAdapter extends RecyclerView.Adapter<RecyclerView.View
     private boolean mShowProgressForHighlightedComment = false;
     private final boolean mIsPrivatePost;
     private final boolean mIsLoggedOutReader;
-    private boolean mHeaderClickEnabled;
+    private boolean mIsHeaderClickEnabled;
 
     private final int mColorAuthor;
     private final int mColorNotAuthor;
@@ -117,6 +118,7 @@ public class ReaderCommentAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     class PostHeaderHolder extends RecyclerView.ViewHolder {
         private final ReaderCommentsPostHeaderView mHeaderView;
+
         public PostHeaderHolder(View view) {
             super(view);
             mHeaderView = (ReaderCommentsPostHeaderView) view;
@@ -139,9 +141,9 @@ public class ReaderCommentAdapter extends RecyclerView.Adapter<RecyclerView.View
         int mediumMargin = context.getResources().getDimensionPixelSize(R.dimen.margin_medium);
         mContentWidth = displayWidth - (cardMargin * 2) - (contentPadding * 2) - (mediumMargin * 2);
 
-        mColorAuthor = context.getResources().getColor(R.color.blue_medium);
-        mColorNotAuthor = context.getResources().getColor(R.color.grey_dark);
-        mColorHighlight = context.getResources().getColor(R.color.grey_lighten_30);
+        mColorAuthor = ContextCompat.getColor(context, R.color.blue_medium);
+        mColorNotAuthor = ContextCompat.getColor(context, R.color.grey_dark);
+        mColorHighlight = ContextCompat.getColor(context, R.color.grey_lighten_30);
 
         setHasStableIds(true);
     }
@@ -158,8 +160,8 @@ public class ReaderCommentAdapter extends RecyclerView.Adapter<RecyclerView.View
         mDataRequestedListener = dataRequestedListener;
     }
 
-    public void setHeaderClickEnabled(boolean headerClickEnabled) {
-        mHeaderClickEnabled = headerClickEnabled;
+    public void enableHeaderClicks() {
+        mIsHeaderClickEnabled = true;
     }
 
     @Override
@@ -201,7 +203,7 @@ public class ReaderCommentAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (holder instanceof PostHeaderHolder) {
             PostHeaderHolder headerHolder = (PostHeaderHolder) holder;
             headerHolder.mHeaderView.setPost(mPost);
-            if (mHeaderClickEnabled) {
+            if (mIsHeaderClickEnabled) {
                 headerHolder.mHeaderView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -212,9 +214,12 @@ public class ReaderCommentAdapter extends RecyclerView.Adapter<RecyclerView.View
             return;
         }
 
-        CommentHolder commentHolder = (CommentHolder) holder;
         final ReaderComment comment = getItem(position);
+        if (comment == null) {
+            return;
+        }
 
+        CommentHolder commentHolder = (CommentHolder) holder;
         commentHolder.txtAuthor.setText(comment.getAuthorName());
 
         java.util.Date dtPublished = DateTimeUtils.iso8601ToJavaDate(comment.getPublished());
@@ -315,7 +320,7 @@ public class ReaderCommentAdapter extends RecyclerView.Adapter<RecyclerView.View
         return position == 0 ? null : mComments.get(position - NUM_HEADERS);
     }
 
-    private void showLikeStatus(final CommentHolder holder, final int position) {
+    private void showLikeStatus(final CommentHolder holder, int position) {
         ReaderComment comment = getItem(position);
         if (comment == null) {
             return;
@@ -332,7 +337,8 @@ public class ReaderCommentAdapter extends RecyclerView.Adapter<RecyclerView.View
                 holder.countLikes.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        toggleLike(v.getContext(), holder, position);
+                        int clickedPosition = holder.getAdapterPosition();
+                        toggleLike(v.getContext(), holder, clickedPosition);
                     }
                 });
             }
@@ -435,6 +441,7 @@ public class ReaderCommentAdapter extends RecyclerView.Adapter<RecyclerView.View
      * AsyncTask to load comments for this post
      */
     private boolean mIsTaskRunning = false;
+
     private class LoadCommentsTask extends AsyncTask<Void, Void, Boolean> {
         private ReaderCommentList tmpComments;
         private boolean tmpMoreCommentsExist;
@@ -443,10 +450,12 @@ public class ReaderCommentAdapter extends RecyclerView.Adapter<RecyclerView.View
         protected void onPreExecute() {
             mIsTaskRunning = true;
         }
+
         @Override
         protected void onCancelled() {
             mIsTaskRunning = false;
         }
+
         @Override
         protected Boolean doInBackground(Void... params) {
             if (mPost == null) {
@@ -463,6 +472,7 @@ public class ReaderCommentAdapter extends RecyclerView.Adapter<RecyclerView.View
             tmpComments = ReaderCommentTable.getCommentsForPost(mPost);
             return !mComments.isSameList(tmpComments);
         }
+
         @Override
         protected void onPostExecute(Boolean result) {
             mMoreCommentsExist = tmpMoreCommentsExist;
@@ -477,5 +487,16 @@ public class ReaderCommentAdapter extends RecyclerView.Adapter<RecyclerView.View
             }
             mIsTaskRunning = false;
         }
+    }
+
+    /*
+    *  Set a post to adapter and update relevant information in the post header
+    */
+    public void setPost(ReaderPost post) {
+        if (post != null) {
+            mPost = post;
+            notifyItemChanged(0); //notify header to update itself
+        }
+
     }
 }

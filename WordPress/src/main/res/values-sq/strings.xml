@@ -1,6 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="error_post_my_account_settings">S’u ruajtën dot rregullimet e llogarisë tuaj</string>
+	<string name="person_removed_general">Përdoruesi u hoq me sukses</string>
+	<string name="person_removed">U hoq me sukses @%1$s</string>
+	<string name="person_remove_confirmation_message">Nëse e hiqni %1$s, ai përdorues nuk do të jetë më në gjendje të hyjë në këtë sajt, por çfarëdo lënde e krijuar nga %1$s do të mbetet te sajti.\n\nDoni ende ta hiqni këtë përdorues?</string>
+	<string name="person_remove_confirmation_title">Hiqe %1$s</string>
+	<string name="reader_empty_posts_in_custom_list">Sajtet në këtë listë s&amp;#8217;kanë postuar ndonjë gjë tani së fundi</string>
+	<string name="people">Persona</string>
+	<string name="edit_user">Përpunoni Përdoruesin</string>
+	<string name="role">Rol</string>
+	<string name="error_remove_user">S&amp;#8217;e hoqi dot përdoruesin</string>
+	<string name="error_update_role">S&amp;#8217;përditësoi dot rol përdoruesi</string>
+	<string name="error_fetch_people_list">S&amp;#8217;mori dot përdorues sajti</string>
+	<string name="gravatar_camera_and_media_permission_required">Që të mund të përzgjidhni ose bëni një foto, lypset leje</string>
+	<string name="error_updating_gravatar">Gabim teksa përditësohej Gravatari juaj</string>
+	<string name="error_locating_image">Gabim në ngarkimin e figurës së qethur</string>
+	<string name="error_refreshing_gravatar">Gabim në ringarkimin e Gravatarit tuaj</string>
+	<string name="gravatar_tip">E re! Prekeni Gravatarin tuaj që ta ndryshoni!</string>
+	<string name="error_cropping_image">Gabim teksa qethej figura</string>
+	<string name="launch_your_email_app">Nisni aplikacionin tuaj për email</string>
+	<string name="checking_email">Po kontrollohet email-i</string>
+	<string name="not_on_wordpress_com">Jo në WordPress.com?</string>
+	<string name="magic_link_unavailable_error_message">Jo e mundshme këtë çast. Ju lutemi, jepni fjalëkalimin tuaj</string>
+	<string name="check_your_email">Kontrolloni email-in tuaj</string>
+	<string name="get_a_link_sent_to_your_email_to_sign_in_instantly">Merrni një lidhje dërguar te email-i juaj, që të regjistroheni në çast</string>
+	<string name="logging_in">Po hyhet</string>
+	<string name="enter_your_password_instead">Në vend të kësaj, jepni fjalëkalimin tuaj</string>
+	<string name="web_address_dialog_hint">E shfaqur publikisht kur komentoni.</string>
+	<string name="jetpack_not_connected_message">Shtojca Jetpack është e instaluar, por jo e lidhur me WordPress.com-in. Doni të lidhet Jetpack-u?</string>
+	<string name="username_email">Email ose emër përdoruesi</string>
+	<string name="jetpack_not_connected">Shtojca Jetpack s’është e lidhurack-u!</string>
+	<string name="new_editor_reflection_error">Përpunuesi pamor s’është i përputhshëm me pajisjen tuaj.\n        U çaktivizua vetvetiu.</string>
+	<string name="stats_insights_latest_post_no_title">(pa titull)</string>
+	<string name="capture_or_pick_photo">Bëni ose përzgjidhni foto</string>
+	<string name="plans_post_purchase_button_themes">Shfletoni Tema</string>
+	<string name="plans_post_purchase_text_themes">Tani keni hyrje të pakufizuar te temat Me Pagesë. Për t&amp;#8217;ia filluar, parashihni te sajti juaj cilëndo temë.</string>
+	<string name="plans_post_purchase_title_themes">Gjeni një temë të përsosur, nga ato me Pagesë</string>
+	<string name="plans_post_purchase_button_video">Nisni një postim të ri</string>
+	<string name="plans_post_purchase_text_video">Video në sajtin tuaj mund të ngarkoni dhe strehoni përmes VideoPress-it dhe depos tuaj të zgjeruar për media.</string>
+	<string name="plans_post_purchase_title_video">Jepuni jetë postimeve, përmes vidoesh</string>
+	<string name="plans_post_purchase_button_customize">Përshtatje e Sajtit tim</string>
+	<string name="plans_post_purchase_text_customize">Tani mund të përdorni shkronja vetjake, ngjyra vetjake, dhe aftësi përpunimi për CSS vetjake.</string>
+	<string name="plans_post_purchase_title_customize">Përshtatni Shkronja &amp; Ngjyra</string>
+	<string name="plans_post_purchase_text_intro">Sajti juaj po bën salto nga gëzimi! Tani eksploroni veçoritë e reja të sajtit tuaj dhe zgjidhni nga doni t&amp;#8217;ia filloni.</string>
+	<string name="plan_purchase_now">Blijeni Tani</string>
+	<string name="plans_post_purchase_title_intro">Është i juaji, jepini!</string>
+	<string name="plans">Plane</string>
+	<string name="plan">Plan</string>
+	<string name="plans_loading_error">S’arrihet të ngarkohen planet</string>
+	<string name="export_your_content_message">Postimet, faqet dhe rregullimet tuaja do t’ju dërgohen me email te %s.</string>
+	<string name="export_your_content">Eksportoni lëndën tuaj</string>
+	<string name="exporting_content_progress">Po eksportohet lëndë…</string>
+	<string name="export_email_sent">Email-i i eksportimit u dërgua!</string>
+	<string name="show_purchases">Shfaqi blerjet</string>
+	<string name="premium_upgrades_message">Në sajtin tuaj keni përmirësime me pagesë aktive. Ju lutemi, anuloni përmirësimet, përpara se të fshini sajtin tuaj.</string>
+	<string name="checking_purchases">Po kontrollohen blerjet</string>
+	<string name="premium_upgrades_title">Përmirësime Me Pagesë</string>
+	<string name="purchases_request_error">Diç shkoi ters. S&amp;#8217;u kërkuan dot blerjet.</string>
+	<string name="delete_site_progress">Po fshihet sajti…</string>
+	<string name="delete_site_summary">Ky veprim s&amp;#8217;mund të zhbëhet. Fshirja e sajtit tuaj do të thotë heqje e krejt lëndës, kontribuesve dhe e përkatësive.</string>
+	<string name="delete_site_hint">Fshije sajtin</string>
+	<string name="export_site_hint">Eksportojeni sajtin tuaj si një kartelë XML</string>
+	<string name="are_you_sure">Jeni i Sigurt?</string>
+	<string name="export_site_summary">Nëse jeni i sigurt, ju lutemi, mos harroni të eksportoni lëndën tuaj tani. Nuk mund të rimerret më në të ardhmen.</string>
+	<string name="keep_your_content">Ruani Lëndën Tuaj</string>
+	<string name="domain_removal_hint">Përkatësitë që nuk do të funksionojnë më, pasi të hiqni sajtin tuaj.</string>
+	<string name="domain_removal_summary">Kujdes! Fshirja e sajtit tuaj do të shkaktojë edhe heqjen e përkatësisë(ve) të radhitura më poshtë.</string>
+	<string name="primary_domain">Përkatësi Parësore</string>
+	<string name="domain_removal">Heqje Përkatësie</string>
+	<string name="error_deleting_site_summary">Pati një gabim në fshirjen e sajtit tuaj. Ju lutemi, lidhuni me ata të asistencës për më tepër </string>
+	<string name="error_deleting_site">Gabim në fshirjen e sajtit</string>
+	<string name="confirm_delete_site_prompt">Ju lutemi, shtypni %1$s në fushën më poshtë, që ta ripohoni. Sajti juaj mandej do të zhduket përgjithmonë.</string>
+	<string name="site_settings_export_content_title">Eksportim lënde</string>
+	<string name="contact_support">Lidhuni me asistencën</string>
+	<string name="confirm_delete_site">Ripohoni Fshirje Sajti</string>
+	<string name="start_over_text">Nëse doni një sajt, por nuk doni më ndonjë nga postimet dhe faqet që keni tani, ekipi ynë i asistencës mund të fshijë për ju postimet, faqet, mediat dhe komentet e sajtit tuaj.\n\nKjo do t&amp;#8217;i mbajë sajtin tuaj dhe URL-në e tij aktive, por do t&amp;#8217;ju ofrojë një fillim të ri për krijimin e lëndës. Që të spastrohet lënda juaj, thjesht lidhuni me ne.</string>
+	<string name="let_us_help">Le T&amp;#8217;ju Ndihmojmë</string>
+	<string name="site_settings_start_over_hint">Fillojeni sajtin nga e para</string>
+	<string name="me_btn_app_settings">Rregullime Aplikacioni</string>
+	<string name="start_over">Fillojani Nga e Para</string>
+	<string name="editor_remove_failed_uploads">Hiqi ngarkimet e dështuara</string>
+	<string name="editor_toast_failed_uploads">Disa ngarkime mediash dështuan. S&amp;#8217;mund ta ruani apo botoni\n        postimin tuaj në këtë gjendje. Do të donit të hiqen krejt mediat e dështuara?</string>
+	<string name="comments_empty_list_filtered_trashed">S&amp;#8217;ka komente të shpënë në Hedhurina</string>
+	<string name="site_settings_advanced_header">Të mëtejshme</string>
+	<string name="comments_empty_list_filtered_pending">S&amp;#8217;ka komente në pritje të Shqyrtimit</string>
+	<string name="comments_empty_list_filtered_approved">S&amp;#8217;ka komente të Miratuara</string>
+	<string name="button_done">U bë</string>
+	<string name="button_skip">Anashkaloje</string>
+	<string name="site_timeout_error">S&amp;#8217;u lidh dot me sajtin WordPress, për shkak gabimi Mbarimi Kohe.</string>
+	<string name="xmlrpc_malformed_response_error">S&amp;#8217;u lidh dot. Instalimi i WordPress-it u përgjigj me një dokument XML-RPC të pavlefshëm.</string>
+	<string name="xmlrpc_missing_method_error">S&amp;#8217;u lidh dot. Metodat e domosdoshme XML-RPC mungojnë te shërbyesi.</string>
+	<string name="post_format_status">Gjendje</string>
+	<string name="post_format_video">Video</string>
+	<string name="align_none">Asnjë</string>
+	<string name="align_left">Majtas</string>
+	<string name="align_center">Në qendër</string>
+	<string name="align_right">Djathtas</string>
+	<string name="theme_free">Falas</string>
+	<string name="theme_all">Krejt</string>
+	<string name="theme_premium">Me pagesë</string>
+	<string name="post_format_chat">Fjalosje</string>
+	<string name="post_format_gallery">Galeri</string>
+	<string name="post_format_image">Figurë</string>
+	<string name="post_format_link">Lidhje</string>
+	<string name="post_format_quote">Citim</string>
+	<string name="post_format_standard">Standard</string>
+	<string name="notif_events">Të dhëna mbi kurse dhe veprimtari WordPress.com (në Internet &amp; në rrugë klasike).</string>
+	<string name="post_format_aside">Anësore</string>
+	<string name="post_format_audio">Audio</string>
+	<string name="notif_surveys">Mundësi për të marrë pjesë në kërkime &amp; pyetësorë nga WordPress.com.</string>
+	<string name="notif_tips">Këshilla për përfitimin e maksimumit nga WordPress.com.</string>
+	<string name="notif_community">Bashkësi</string>
+	<string name="replies_to_my_comments">Përgjigje ndaj komenteve të mia</string>
+	<string name="notif_suggestions">Këshilla</string>
+	<string name="notif_research">Punë kërkimore</string>
+	<string name="site_achievements">Arritje sajti</string>
+	<string name="username_mentions">Përmendje të emrit të përdoruesit</string>
+	<string name="likes_on_my_posts">Pëlqime të postimeve të mia</string>
+	<string name="site_follows">Ndjekje të sajtit</string>
+	<string name="likes_on_my_comments">Pëlqime të komenteve të mia</string>
+	<string name="comments_on_my_site">Komente te sajti im</string>
+	<string name="site_settings_list_editor_summary_other">%d objekte</string>
+	<string name="site_settings_list_editor_summary_one">1 objekt</string>
+	<string name="approve_auto_if_previously_approved">Komente përdoruesish të njohur</string>
+	<string name="approve_auto">Krejt përdoruesit</string>
+	<string name="approve_manual">Pa komente</string>
+	<string name="site_settings_paging_summary_other">%d komente për faqe</string>
+	<string name="site_settings_paging_summary_one">1 koment për faqe</string>
+	<string name="site_settings_multiple_links_summary_other">Kërko miratim për më tepër se %d lidhje</string>
+	<string name="site_settings_multiple_links_summary_one">Kërko miratim për më tepër se 1 lidhje</string>
+	<string name="site_settings_multiple_links_summary_zero">Kërko miratim për më tepër se 0 lidhje</string>
+	<string name="detail_approve_auto">Mirato vetvetiu komentet e gjithkujt.</string>
+	<string name="detail_approve_auto_if_previously_approved">Miratoje vetvetiu, nëse përdoruesi ka një koment të mëparshëm të miratuar.</string>
+	<string name="detail_approve_manual">Kërkoni miratim dorazi për komentet e kujtdo.</string>
+	<string name="filter_trashed_posts">Të shpënë te hedhurinat</string>
+	<string name="days_quantity_one">1 ditë</string>
+	<string name="days_quantity_other">%d ditë</string>
+	<string name="filter_published_posts">Të botuara</string>
+	<string name="filter_draft_posts">Skica</string>
+	<string name="filter_scheduled_posts">E planifikuar për</string>
+	<string name="pending_email_change_snackbar">Që të ripohoni adresën tuaj të re, klikoni lidhjen e verifikimit te email-i i dërguar për %1$s</string>
+	<string name="primary_site">Sajti parësor</string>
+	<string name="web_address">Adresë Web</string>
+	<string name="editor_toast_uploading_please_wait">Po ngarkoni media. Ju lutemi, pritni deri sa kjo të plotësohet.</string>
+	<string name="error_refresh_comments_showing_older">Komentet s’u freskuan dot këtë herë - po shfaqen komente më të vjetër</string>
+	<string name="editor_post_settings_set_featured_image">Vëre Si Figurë të Zgjedhur</string>
+	<string name="editor_post_settings_featured_image">Figurë e Zgjedhur</string>
+	<string name="new_editor_promo_desc">WordPress-i për Android tani përfshin një përpunues pamor të ri\n    Provojeni duke krijuar një postim të ri.</string>
+	<string name="new_editor_promo_title">Përpunues i ri fringo.</string>
+	<string name="new_editor_promo_button_label">Bukur, faleminderit!</string>
+	<string name="visual_editor_enabled">Përpunuesi Pamor u aktivizua</string>
+	<string name="editor_content_placeholder">Ndajeni shembullin tuaj me ta…</string>
+	<string name="editor_page_title_placeholder">Titull Faqeje</string>
+	<string name="editor_post_title_placeholder">Titull Postimi</string>
+	<string name="email_address">Adresë email</string>
+	<string name="preference_show_visual_editor">Shfaq përpunuesin pamor</string>
+	<string name="dlg_sure_to_delete_comments">Të fshihen përgjithmonë këto komente?</string>
+	<string name="preference_editor">Përpunues</string>
+	<string name="dlg_sure_to_delete_comment">Të fshihet përgjithmonë ky koment?</string>
+	<string name="mnu_comment_delete_permanently">Fshije</string>
+	<string name="comment_deleted_permanently">Koment u fshi</string>
+	<string name="mnu_comment_untrash">Riktheje</string>
+	<string name="comments_empty_list_filtered_spam">Pa komente mesazh të padëshiruar</string>
+	<string name="could_not_load_page">S’u ngarkua dot faqja</string>
+	<string name="comment_status_all">Krejt</string>
+	<string name="interface_language">Gjuhë Ndërfaqeje</string>
+	<string name="off">Off</string>
+	<string name="about_the_app">Rreth aplikacionit</string>
+	<string name="error_post_account_settings">S’u ruajtën dot rregullimet e llogarisë tuaj</string>
 	<string name="error_post_my_profile">S’u ruajt dot profili juaj</string>
 	<string name="error_fetch_account_settings">S’u morën dot rregullimet e llogarisë tuaj</string>
 	<string name="error_fetch_my_profile">S’u mor dot profili juaj</string>
@@ -15,6 +181,9 @@
 	<string name="add_category">Shtoni kategori</string>
 	<string name="disabled">E çaktivizuar</string>
 	<string name="site_settings_image_original_size">Madhësia Origjinale</string>
+	<string name="privacy_private">Sajti juaj është i dukshëm vetëm për ju dhe për përdorues që miratoni</string>
+	<string name="privacy_public_not_indexed">Sajti juaj është i dukshëm për këdo, por kërkon që motorët e kërkimeve të mos e indeksojnë</string>
+	<string name="privacy_public">Sajti juaj është i dukshëm për këdo dhe mund të indeksohet nga motorë kërkimesh</string>
 	<string name="about_me_hint">Pak fjalë rreth jush…</string>
 	<string name="public_display_name_hint">Nëse nuk caktohet një i tillë, si emër ekrani do të përdoret emri juaj i përdoruesit</string>
 	<string name="about_me">Rreth meje</string>
@@ -277,7 +446,7 @@
 	<string name="me_disconnect_from_wordpress_com">Shkëputu nga WordPress.com</string>
 	<string name="me_connect_to_wordpress_com">Lidhu te WordPress.com.</string>
 	<string name="me_btn_login_logout">Hyrje/Dalje</string>
-	<string name="me_btn_settings">Rregullime Llogarie</string>
+	<string name="account_settings">Rregullime Llogarie</string>
 	<string name="me_btn_support">Ndihmë &amp; Asistencë</string>
 	<string name="site_picker_cant_hide_current_site">"%s" s’u fsheh ngaqë është sajti i tanishëm</string>
 	<string name="site_picker_create_dotcom">Ndërtoni një sajt te WordPress.com</string>
@@ -487,11 +656,9 @@
 	<string name="hs__username_blank_error">Jepni një emër të vlefshëm</string>
 	<string name="add_location">Shtoni vend</string>
 	<string name="current_location">Vendi i tanishëm</string>
-	<string name="your_signature">Nënshkrim juaj:</string>
 	<string name="search_location">Kërko</string>
 	<string name="edit_location">Përpunoni</string>
 	<string name="search_current_location">Lokalizoje</string>
-	<string name="preference_privacy">Privatësi</string>
 	<string name="preference_send_usage_stats">Dërgo statistika</string>
 	<string name="preference_send_usage_stats_summary">Dërgo vetvetiu statistika përdorimi për të na ndihmuar ta përmirësojmë WordPress-in për Android</string>
 	<string name="update_verb">Përditësoje</string>
@@ -535,11 +702,9 @@
 	<string name="cat_name_required">Emri i kategorisë është i domosdoshëm</string>
 	<string name="category_automatically_renamed">Emri i kategorisë %1$s s’është i vlefshëm. I riemërtua si %2$s.</string>
 	<string name="no_account">S’u gjet llogari WordPress, shtoni një llogari dhe riprovoni</string>
-	<string name="auto_sharing_preference_reset_caused_by_error">Blogu i përzgjedhur më parë s’është më i dukshëm</string>
 	<string name="sdcard_message">Për të ngarkuar media, lypset një kartë SD e montuar</string>
 	<string name="stats_empty_comments">Ende pa komente</string>
 	<string name="stats_bar_graph_empty">S’ka statistika gati</string>
-	<string name="invalid_url_message">Kontrolloni nëse URL-ja e blogut të dhënë është e vlefshme</string>
 	<string name="reply_failed">Përgjigja dështoi</string>
 	<string name="notifications_empty_list">S’ka njoftime</string>
 	<string name="error_refresh_posts">Postimet s’u rifreskuan dot tani</string>
@@ -576,13 +741,13 @@
 	<string name="blog_name_reserved_but_may_be_available">Hëpërhë ky sajt është ruajtur për dikë, por mund të jetë i lirë pas pak ditësh</string>
 	<string name="username_or_password_incorrect">Emri i përdoruesit apo fjalëkalimi që dhatë është i pasaktë</string>
 	<string name="nux_cannot_log_in">S’bëjmë dot hyrjen për ju</string>
-	<string name="auto_sharing_preference_reset">Rregullimet për vetëndarje u ricaktuan</string>
 	<string name="username_not_allowed">Emër përdoruesi që s’lejohet</string>
 	<string name="email_not_allowed">Ajo adresë email s’lejohet</string>
 	<string name="blog_name_not_allowed">Ajo adresë sajti s’lejohet</string>
 	<string name="blog_name_cant_be_used">S’mund të përdorni atë adresë sajti</string>
 	<string name="email_exists">Ajo adresë email është tashmë në përdorim</string>
 	<string name="error_delete_post">Ndodhi një gabim teksa fshihej %s</string>
+	<string name="invalid_url_message">Kontrolloni nëse URL-ja e dhënë është e vlefshme</string>
 	<string name="select_categories">Përzgjidhni kategori</string>
 	<string name="account_details">Hollësi llogarie</string>
 	<string name="edit_post">Përpunojeni postimin</string>
@@ -670,7 +835,6 @@
 	<string name="reader_toast_err_remove_tag">I pazoti ta heqë këtë etiketë</string>
 	<string name="required_field">Fushë e domosdoshme</string>
 	<string name="email_hint">Adresë email</string>
-	<string name="username_email">Emër përdoruesi ose email</string>
 	<string name="site_address">Adresa për të vetëstrehuarin tuaj (URL)</string>
 	<string name="email_cant_be_used_to_signup">S’mund të përdorni për regjistrim atë adresë email. Kemi probleme me ta, se bllokojnë disa nga email-et tanë. Ju lutemi, përdorni një mundësues tjetër email-esh.</string>
 	<string name="blog_name_must_include_letters">Adresa e sajtit duhet të ketë të paktën 1 shkronjë (a-z)</string>
@@ -686,6 +850,7 @@
 	<string name="file_error_create">S’u krijua dot kartelë e përkohshme për ngarkim medie. Sigurohuni që në pajisjen tuaj ka hapësirë të lirë të mjaftueshme.</string>
 	<string name="email_reserved">Kjo adresë email është tashmë e përdorur. Kontrolloni email-et e marrë për një email aktivizimi. Nëse s’e aktivizoni, mund të riprovoni pas pak ditësh.</string>
 	<string name="error_blog_hidden">Ky blog është i fshehur dhe s’u ngarkua dot. Aktivizojeni sërish te rregullimet dhe riprovoni.</string>
+	<string name="invalid_site_url_message">Kontrolloni nëse URL-ja e sajtit të dhënë është e vlefshme</string>
 	<string name="deleting_page">Po fshihet faqe</string>
 	<string name="deleting_post">Po fshihet postim</string>
 	<string name="share_url_post">Ndajeni postimin me të tjerët</string>
@@ -701,9 +866,6 @@
 	<string name="video">Video</string>
 	<string name="comment_spammed">Komenti u shënua si i padëshiruar</string>
 	<string name="cant_share_no_visible_blog">S’mund të ndani me të tjerët në WordPress pa një blog të dukshëm</string>
-	<string name="share_preference_title">Ndajeni me të tjerët në WordPress</string>
-	<string name="always_use_these_settings_to_share">Përdor përherë këto rregullime</string>
-	<string name="reset_auto_share_preference">Rikthe në fillimet rregullimet për vetëndarje</string>
 	<string name="reader_likes_you_and_multi">Këtë e pëlqeni ju dhe %,d të tjerë</string>
 	<string name="download">Po shkarkohet media</string>
 	<string name="select_time">Përzgjidhni kohë</string>
@@ -751,6 +913,7 @@
 	<string name="nux_tutorial_get_started_title">Nisjani!</string>
 	<string name="jetpack_message">Për statistika lypset shtojca Jetpack? Doni të instalohet Jetpack-u?</string>
 	<string name="limit_reached">U mbërrit në kufi. Mund të riprovoni pas 1 minute. Riprovimi para kësaj vetëm sa do të shtojë kohën që ju duhet të prisni para se të hiqet përzënia. Nëse mendoni se ky është një gabim, lidhuni me asistencën.</string>
+	<string name="button_next">Pasuesi</string>
 	<string name="themes">Tema</string>
 	<string name="all">Krejt</string>
 	<string name="images">Figura</string>
@@ -808,9 +971,7 @@
 	<string name="passcode_turn_off">Aktivizo kyçje PIN-i</string>
 	<string name="passcode_turn_on">Çaktivizo kyçje PIN-i</string>
 	<string name="media_gallery_image_order_reverse">Përmbyse</string>
-	<string name="media_no_video_title">VideoPress-i jo gati</string>
 	<string name="passcode_set">PIN u caktua</string>
-	<string name="media_no_video_message">Merrni VideoPress-in që të ngarkoni video!</string>
 	<string name="upload">Ngarkoje</string>
 	<string name="sign_in">Hyni</string>
 	<string name="notifications">Njoftime</string>
@@ -819,8 +980,6 @@
 	<string name="more_notifications">dhe%d të tjera.</string>
 	<string name="note_reply_successful">Përgjigja u botua</string>
 	<string name="loading">Po ngarkohet…</string>
-	<string name="post_signature">Nënshkrim postimi</string>
-	<string name="add_tagline">Shtojuni postimeve të reja një nënshkrim</string>
 	<string name="httpuser">Emër përdoruesi HTTP</string>
 	<string name="httppassword">Fjalëkalim HTTP</string>
 	<string name="error_media_upload">Ndodhi një gabim gjatë ngarkimit të medias</string>
@@ -847,11 +1006,9 @@
 	<string name="scaled_image">Gjerësi figure të ripërmasuar</string>
 	<string name="scheduled">E planifikuar</string>
 	<string name="link_enter_url">URL</string>
-	<string name="posted_from">Postuar me WordPress për Android</string>
 	<string name="version">Version</string>
 	<string name="tos">Kushte Shërbimi</string>
 	<string name="app_title">WordPress për Android</string>
-	<string name="about">Rreth</string>
 	<string name="max_thumbnail_px_width">Gjerësi Parazgjedhje Figure</string>
 	<string name="image_alignment">Drejtim</string>
 	<string name="refresh">Rifresko</string>
@@ -873,6 +1030,7 @@
 	<string name="title">Titull</string>
 	<string name="tags_separate_with_commas">Etiketa (etiketat ndajini me presje)</string>
 	<string name="categories">Kategori</string>
+	<string name="dlg_deleting_comments">Po fshihen komente</string>
 	<string name="notification_blink">Xixëllo dritëzë njoftimesh</string>
 	<string name="notification_sound">Luaj tingull njoftimesh</string>
 	<string name="notification_vibrate">Dridhu</string>
@@ -896,70 +1054,4 @@
 	<string name="yes">Po</string>
 	<string name="no">Jo</string>
 	<string name="notification_settings">Rregullime Njoftimesh</string>
-	<string-array name="alignment_array">
-		<item>Asnjë</item>
-		<item>Majtas</item>
-		<item>Qendër</item>
-		<item>Djathtas</item>
-	</string-array>
-	<string-array name="notifications_blog_settings">
-		<item>Komente te sajti im</item>
-		<item>Pëlqime të komenteve të mia</item>
-		<item>Pëlqime të postimeve të mia</item>
-		<item>Ndjekje të sajtit</item>
-		<item>Arritje sajti</item>
-		<item>Përmendje të emrit të përdoruesit</item>
-	</string-array>
-	<string-array name="notifications_other_settings">
-		<item>Përgjigje ndaj komenteve të mia</item>
-		<item>Pëlqime të komenteve të mia</item>
-	</string-array>
-	<string-array name="notifications_wpcom_settings">
-		<item>Këshillime</item>
-		<item>Punë kërkimore</item>
-		<item>Bashkësia</item>
-	</string-array>
-	<string-array name="notifications_wpcom_settings_summaries">
-		<item>Ndihmëza për të shfrytëzuar WordPress.com-in në maksimum.</item>
-		<item>Mundësi për pjesëmarrje në kërkime &amp; pyetësorë te WordPress.com .</item>
-		<item>Të dhëna mbi kurse dhe veprimtari WordPress.com (në Internet &amp; në rrugë klasike).</item>
-	</string-array>
-	<string-array name="post_filters_array">
-		<item>Të botuar</item>
-		<item>Skica</item>
-		<item>Të planifikuar</item>
-		<item>Të hedhur te hedhurinat</item>
-	</string-array>
-	<string-array name="post_formats_array">
-		<item>Mënjanë</item>
-		<item>Audio</item>
-		<item>Fjalosje</item>
-		<item>Galeri</item>
-		<item>Pamje</item>
-		<item>Lidhje</item>
-		<item>Përmendje</item>
-		<item>Standard</item>
-		<item>Gjendje</item>
-		<item>Video</item>
-	</string-array>
-	<string-array name="privacy_details">
-		<item>Sajti juaj është i dukshëm për këdo dhe mund të indeksohet nga motorë kërkimesh</item>
-		<item>Sajti juaj është i dukshëm për këdo, por kërkon që motorët e kërkimeve të mos e indeksojnë</item>
-		<item>Sajti juaj është i dukshëm vetëm për ju dhe për përdorues që miratoni</item>
-	</string-array>
-	<string-array name="site_settings_auto_approve_details">
-		<item>Kërkoni miratim dorazi për komentet e kujtdo.</item>
-		<item>Miratoje vetvetiu, nëse përdoruesi ka një koment të mëparshëm të miratuar.</item>
-		<item>Mirato vetvetiu komentet e gjithkujt.</item>
-	</string-array>
-	<string-array name="site_settings_auto_approve_entries">
-		<item>Pa komente</item>
-		<item>Komente përdoruesish të njohur</item>
-		<item>Krejt përdoruesit</item>
-	</string-array>
-	<string-array name="themes_filter_array">
-		<item>Falas</item>
-		<item>Krejt</item>
-		<item>Me Pagesë</item>
-	</string-array>
 </resources>

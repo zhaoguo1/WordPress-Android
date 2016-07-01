@@ -5,13 +5,13 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.MenuItem;
@@ -23,6 +23,7 @@ import org.wordpress.android.analytics.AnalyticsTracker.Stat;
 import org.wordpress.android.stores.store.AccountStore;
 import org.wordpress.android.stores.store.SiteStore;
 import org.wordpress.android.util.AnalyticsUtils;
+import org.wordpress.android.util.LanguageUtils;
 import org.wordpress.android.util.WPPrefUtils;
 
 import java.util.HashMap;
@@ -114,14 +115,14 @@ public class AppSettingsFragment extends PreferenceFragment implements OnPrefere
                 preferenceScreen.removePreference(editor);
             }
         } else {
-            final CheckBoxPreference visualEditorCheckBox = (CheckBoxPreference) findPreference(getActivity()
+            final SwitchPreference visualEditorSwitch = (SwitchPreference) findPreference(getActivity()
                     .getString(R.string.pref_key_visual_editor_enabled));
-            visualEditorCheckBox.setChecked(AppPrefs.isVisualEditorEnabled());
-            visualEditorCheckBox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            visualEditorSwitch.setChecked(AppPrefs.isVisualEditorEnabled());
+            visualEditorSwitch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(final Preference preference, final Object newValue) {
-                    visualEditorCheckBox.setChecked(!visualEditorCheckBox.isChecked());
-                    AppPrefs.setVisualEditorEnabled(visualEditorCheckBox.isChecked());
+                    visualEditorSwitch.setChecked(!visualEditorSwitch.isChecked());
+                    AppPrefs.setVisualEditorEnabled(visualEditorSwitch.isChecked());
                     return false;
                 }
             });
@@ -133,7 +134,7 @@ public class AppSettingsFragment extends PreferenceFragment implements OnPrefere
 
         Resources res = getResources();
         Configuration conf = res.getConfiguration();
-        Locale currentLocale = conf.locale != null ? conf.locale : Locale.getDefault();
+        Locale currentLocale = conf.locale != null ? conf.locale : LanguageUtils.getCurrentDeviceLanguage(WordPress.getContext());
 
         if (currentLocale.toString().equals(languageCode)) return;
 
@@ -144,7 +145,7 @@ public class AppSettingsFragment extends PreferenceFragment implements OnPrefere
         conf.locale = newLocale;
         res.updateConfiguration(conf, res.getDisplayMetrics());
 
-        if (Locale.getDefault().equals(newLocale)) {
+        if (LanguageUtils.getCurrentDeviceLanguage(WordPress.getContext()).equals(newLocale)) {
             // remove custom locale key when original device locale is selected
             mSettings.edit().remove(LANGUAGE_PREF_KEY).apply();
         } else {
@@ -184,7 +185,7 @@ public class AppSettingsFragment extends PreferenceFragment implements OnPrefere
         mLanguagePreference.setEntryValues(sortedValues);
         mLanguagePreference.setDetails(WPPrefUtils.createLanguageDetailDisplayStrings(sortedValues));
 
-        mLanguagePreference.setValue(languageCode.toLowerCase());
+        mLanguagePreference.setValue(languageCode);
         mLanguagePreference.setSummary(WPPrefUtils.getLanguageString(languageCode, languageLocale));
         mLanguagePreference.refreshAdapter();
     }

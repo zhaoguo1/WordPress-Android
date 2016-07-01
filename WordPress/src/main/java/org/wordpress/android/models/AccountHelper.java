@@ -8,12 +8,16 @@ import org.wordpress.android.datasets.AccountTable;
  */
 public class AccountHelper {
     private static AccountLegacy sAccount;
+    private final static Object mLock = new Object();
 
     public static AccountLegacy getDefaultAccount() {
         if (sAccount == null) {
-            sAccount = AccountTable.getDefaultAccount();
-            if (sAccount == null) {
-                sAccount = new AccountLegacy();
+            // Singleton pattern in concurrent env.
+            synchronized (mLock) {
+                sAccount = AccountTable.getDefaultAccount();
+                if (sAccount == null) {
+                    sAccount = new AccountLegacy();
+                }
             }
         }
         return sAccount;
