@@ -3,6 +3,7 @@ package org.wordpress.android.util;
 import android.os.Bundle;
 
 import com.optimizely.Optimizely;
+import com.optimizely.OptimizelyRunningMode;
 import com.optimizely.integration.OptimizelyEventListener;
 import com.optimizely.integration.OptimizelyExperimentData;
 
@@ -31,7 +32,7 @@ public class WPOptimizelyEventListener implements OptimizelyEventListener {
 
     }
 
-    @Override
+//    @Override
     public void onOptimizelyExperimentViewed(OptimizelyExperimentData optimizelyExperimentData) {
         Map<String, OptimizelyExperimentData> visitedExperiments = Optimizely.getVisitedExperiments();
 
@@ -42,6 +43,11 @@ public class WPOptimizelyEventListener implements OptimizelyEventListener {
             abTestProperties.put(ABTEST_VARIATION, experiment.variationName);
             AnalyticsTracker.track(AnalyticsTracker.Stat.ABTEST_START, abTestProperties);
         }
+    }
+
+    @Override
+    public void onOptimizelyRestarting(OptimizelyRunningMode mode1, OptimizelyRunningMode mode2){
+
     }
 
     @Override

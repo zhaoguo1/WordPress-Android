@@ -9,3 +9,17 @@ subprojects {
         }
     }
 }
+
+buildscript {
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.1.2'
+    }
+    repositories {
+        jcenter()
+    }
+}
+allprojects {
+    repositories {
+        jcenter()
+    }
+}

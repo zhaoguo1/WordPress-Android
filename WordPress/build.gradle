@@ -5,7 +5,7 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.2'
+        classpath 'com.android.tools.build:gradle:2.2.0'
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
@@ -142,7 +142,7 @@ configurations.all {
 
 task generateCrashlyticsConfig(group: "generate", description: "Generate Crashlytics config") {
     def outputFile = new File("${rootDir}/WordPress/crashlytics.properties")
-    def inputFile = file("${rootDir}/WordPress/gradle.properties")
+    def inputFile = file("${rootDir}/WordPress/gradle.properties-example")
     if (!inputFile.exists()) {
         throw new StopActionException("Build configuration file:" + inputFile
                 + " doesn't exist, follow README instructions")
